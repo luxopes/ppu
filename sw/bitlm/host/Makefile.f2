@@ -1,0 +1,10 @@
+# Preklad host programu na AWS F2 instanci (vyzaduje `source sdk_setup.sh` z aws-fpga).
+SDK_USERSPACE_DIR ?= $(SDK_DIR)/userspace
+CFLAGS = -std=gnu11 -O2 -Wall -I$(SDK_USERSPACE_DIR)/include -I../golden
+LDLIBS = -L$(SDK_USERSPACE_DIR)/lib/so -lfpga_mgmt -lm
+
+bitlm_f2: bitlm_f2.c bitlm_hw.c ../golden/bitlm_ref.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+
+clean:
+	rm -f bitlm_f2

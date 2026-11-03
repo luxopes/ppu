@@ -1,0 +1,73 @@
+# Paralelni sweep hyperparametru referencniho modelu: kazda sada = samostatny job.
+# Spusteni: gh workflow run sweep.yml -f hparams='["0,6,4,2,16,9,8,32767,12,0","..."]' \
+#           -f defines="-DBL_MULTISCALE -DBL_LOG2_N=7 -DBL_LOG2_E=5 -DBL_LOG2_H=11" -f corpus=cz_mix -f steps=300000
+name: Sweep
+on:
+  workflow_dispatch:
+    inputs:
+      hparams:
+        description: 'JSON pole sad "s1,s2,g1,g2,lr1,lr2,lre,clip,lrb,flags"'
+        required: true
+      defines:
+        description: "Rozmery modelu (makra prekladu)"
+        default: "-DBL_MULTISCALE -DBL_LOG2_N=7 -DBL_LOG2_E=5 -DBL_LOG2_H=11"
+      corpus:
+        description: "rur | rur_cz | cz_mix"
+        default: "cz_mix"
+      steps:
+        description: "Pocet kroku"
+        default: "300000"
+      extra:
+        description: "Dalsi argumenty bitlm_train (napr. -d 100000 -D 3)"
+        default: ""
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        hp: ${{ fromJSON(inputs.hparams) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Korpus a preklad
+        run: |
+          python3 tools/bitlm/prepare_corpus.py data/rur_pg59112.txt data/rur.tok
+          python3 tools/bitlm/prepare_corpus.py data/rur_cz_pg13083.txt data/rur_cz.tok --colon-dot
+          python3 tools/bitlm/build_mix_corpus.py data/cz_mix.tok data/rur_cz_pg13083.txt data/cz/pg*.txt
+          mkdir -p build out
+          gcc -O3 -march=native -std=c11 -Wno-unknown-pragmas ${{ inputs.defines }} -o build/bt \
+              sw/bitlm/golden/bitlm_train.c sw/bitlm/golden/bitlm_ref.c -lm
+      - name: Trenink
+        run: |
+          V=""; [ "${{ inputs.corpus }}" = cz_mix ] && V="-v 11152"
+          ./build/bt -c data/${{ inputs.corpus }}.tok $V -n ${{ inputs.steps }} -e ${{ inputs.steps }} -g 0 \
+              ${{ inputs.extra }} -p ${{ matrix.hp }} | tee log.txt
+          awk -v p="${{ matrix.hp }}" '/^ *${{ inputs.steps }} /{print $4, $5, p}' log.txt > out/result.txt
+          echo "${{ matrix.hp }}" | tr ',' '_' > out/name.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sweep-${{ strategy.job-index }}
+          path: out/
+
+  summary:
+    needs: run
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sweep-*
+          path: all
+      - name: Tabulka
+        run: |
+          cat all/*/result.txt | sort -n > sweep_results.txt
+          { echo "### Sweep (${{ inputs.corpus }}, ${{ inputs.steps }} kroku)"; echo; echo "| val CE [bit/znak] | presnost | hparams |"; echo "|---|---|---|";
+            awk '{printf "| %s | %s | `%s` |\n", $1, $2, $3}' sweep_results.txt; } >> "$GITHUB_STEP_SUMMARY"
+          cat sweep_results.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sweep-results
+          path: sweep_results.txt

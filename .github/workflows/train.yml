@@ -1,0 +1,47 @@
+# Dlouhy trenink referencniho modelu (bitove shodny s HW) se snimky vah.
+name: Train
+on:
+  workflow_dispatch:
+    inputs:
+      defines:
+        description: "Rozmery modelu (makra prekladu)"
+        default: "-DBL_MULTISCALE -DBL_LOG2_N=7 -DBL_LOG2_E=5 -DBL_LOG2_H=11"
+      corpus:
+        description: "rur | rur_cz | cz_mix"
+        default: "cz_mix"
+      steps:
+        default: "2000000"
+      hparams:
+        description: "s1,s2,g1,g2,lr1,lr2,lre,clip,lrb,flags"
+        default: "0,6,4,2,16,9,8,32767,12,0"
+      extra:
+        description: "Dalsi argumenty (plan uceni, snimky)"
+        default: "-d 500000 -D 3 -S 0,2000,10000,50000,200000,1000000,2000000"
+      name:
+        description: "Nazev vysledku"
+        default: "bitlm"
+
+jobs:
+  train:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - name: Korpus a preklad
+        run: |
+          python3 tools/bitlm/prepare_corpus.py data/rur_pg59112.txt data/rur.tok
+          python3 tools/bitlm/prepare_corpus.py data/rur_cz_pg13083.txt data/rur_cz.tok --colon-dot
+          python3 tools/bitlm/build_mix_corpus.py data/cz_mix.tok data/rur_cz_pg13083.txt data/cz/pg*.txt
+          mkdir -p build out
+          gcc -O3 -march=native -std=c11 -Wno-unknown-pragmas ${{ inputs.defines }} -o build/bt \
+              sw/bitlm/golden/bitlm_train.c sw/bitlm/golden/bitlm_ref.c -lm
+      - name: Trenink
+        run: |
+          V=""; [ "${{ inputs.corpus }}" = cz_mix ] && V="-v 11152"
+          ./build/bt -c data/${{ inputs.corpus }}.tok $V -n ${{ inputs.steps }} -e 50000 -g 800 \
+              -p ${{ inputs.hparams }} ${{ inputs.extra }} -W out/snap_ \
+              -l out/train_log.csv -w out/weights.bin | tee out/train.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: train-${{ inputs.name }}
+          path: out/

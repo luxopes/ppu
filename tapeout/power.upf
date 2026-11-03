@@ -1,0 +1,19 @@
+# UPF (Unified Power Format) template for PPU
+# Define power domains, rails and supply nets. Replace names with PDK values.
+
+create_power_domain PD_CORE -description "Core logic domain"
+create_power_domain PD_IO -description "IO domain"
+
+# Supply nets (example names - replace with actual rails from PDK)
+create_supply_net VDD_CORE
+create_supply_net VSS_CORE
+create_supply_net VDD_IO
+create_supply_net VSS_IO
+
+set_domain_supply PD_CORE -source VDD_CORE -return VSS_CORE
+set_domain_supply PD_IO   -source VDD_IO   -return VSS_IO
+
+# Isolation and retention cells would be inserted during low-power flow
+# add_isolation -name isol_cell -from PD_CORE -to PD_IO -control {iso_en}
+
+# End of UPF template

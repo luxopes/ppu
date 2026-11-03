@@ -1,0 +1,82 @@
+# CI: referencni model, JS inference, bitove presne overeni RTL (Verilator), test PPU.
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  golden:
+    name: Referencni model + JS demo
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Korpusy (tokenizace z textu)
+        run: |
+          python3 tools/bitlm/prepare_corpus.py data/rur_pg59112.txt data/rur.tok
+          python3 tools/bitlm/prepare_corpus.py data/rur_cz_pg13083.txt data/rur_cz.tok --colon-dot
+          python3 tools/bitlm/build_mix_corpus.py data/cz_mix.tok data/rur_cz_pg13083.txt data/cz/pg*.txt
+      - name: Tabulka exp je aktualni
+        run: python3 tools/bitlm/gen_exp_lut.py && git diff --exit-code
+      - name: Preklad (bez varovani)
+        run: |
+          mkdir -p build
+          CF="-O2 -std=c11 -Wall -Wextra -Werror -Wno-unknown-pragmas"
+          gcc $CF -o build/bitlm_train sw/bitlm/golden/bitlm_train.c sw/bitlm/golden/bitlm_ref.c -lm
+          gcc $CF -DBL_MULTISCALE -DBL_LOG2_N=7 -DBL_LOG2_E=5 -DBL_LOG2_H=11 -o build/bitlm_ms \
+              sw/bitlm/golden/bitlm_train.c sw/bitlm/golden/bitlm_ref.c -lm
+          gcc $CF -o build/eval_snapshot tools/bitlm/eval_snapshot.c sw/bitlm/golden/bitlm_ref.c -lm
+          gcc $CF -o build/gen_vectors tools/bitlm/demo/gen_vectors.c sw/bitlm/golden/bitlm_ref.c -lm
+          gcc $CF -fsyntax-only -Isw/bitlm/golden sw/bitlm/host/bitlm_hw.c
+      - name: Kratky trenink (model se uci)
+        run: |
+          ./build/bitlm_train -c data/rur.tok -n 50000 -e 50000 -g 100 | tee build/golden_small.txt
+          # validacni entropie musi klesnout pod rovnomerne rozdeleni (5 bit/znak)
+          awk '/^ +50000 /{ if ($4 >= 4.5) { print "model se neuci: " $4; exit 1 } else print "val CE " $4 " OK" }' build/golden_small.txt
+          ./build/bitlm_ms -c data/cz_mix.tok -v 11152 -n 5000 -e 5000 -g 100 -p 0,6,4,2,16,9,8,32767,12,0
+      - name: JS inference == C model
+        run: |
+          ./build/bitlm_train -c data/rur_cz.tok -n 5000 -e 5000 -g 0 -S 0,5000 -W build/snap_
+          python3 tools/bitlm/export_demo.py build/demo_w.json build/snap_0.bin build/snap_5000.bin
+          for k in 0 5000; do ./build/gen_vectors build/snap_$k.bin data/rur_cz.tok > build/vectors_$k.json; done
+          cd tools/bitlm/demo && node test_bitlm_js.cjs ../../../build/demo_w.json ../../../build/vectors_0.json ../../../build/vectors_5000.json
+
+  rtl:
+    name: RTL bitove shodne s referenci (${{ matrix.config }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [small, big]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verilator
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq verilator && verilator --version
+      - name: Korpusy
+        run: |
+          python3 tools/bitlm/prepare_corpus.py data/rur_pg59112.txt data/rur.tok
+          python3 tools/bitlm/build_mix_corpus.py data/cz_mix.tok data/rur_cz_pg13083.txt data/cz/pg*.txt
+      - name: Overeni (INIT, 5 x 500 kroku, krajni pripady, GEN, zapis vah)
+        run: |
+          make -C tools/sim/bitlm run CONFIG=${{ matrix.config }} | tee verify.txt
+          grep -q "HW JE BITOVE SHODNY S REFERENCI" verify.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rtl-verify-${{ matrix.config }}
+          path: verify.txt
+
+  ppu:
+    name: Puvodni PPU (CPU + akcelerator)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verilator
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq verilator
+      - name: Test
+        run: |
+          make -C tools/sim run | tee ppu.txt
+          grep -q "PPU TEST OK" ppu.txt

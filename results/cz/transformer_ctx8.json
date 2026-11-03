@@ -1,0 +1,151 @@
+{
+ "model": "transformer",
+ "ctx": 8,
+ "d": 64,
+ "layers": 3,
+ "heads": 4,
+ "ff": 250,
+ "params": 148608,
+ "bitlm_params": 148480,
+ "train_steps": 10000,
+ "best_step": 5500,
+ "batch": 128,
+ "train_seconds_cpu": 539.7,
+ "float32": {
+  "val_ce_bits": 2.614548143447845,
+  "val_acc": 0.45928981348637016,
+  "bytes": 594432,
+  "sample": " robot. ja loznili! aspon zradne veverzujiste... pro pensol s? nano! samy pristi ne, jsou prvni se sme nepravy? helena. alquist. ale-- co prosim te domin. gall, co jste snad byla jako byt bejt. vlada stary ja jsem nesmysl? helena. a jaste sefa ovsem-li, prodavalo, strislych ranout reditel! vlada bys nebelo tu okno, to vod. tisic obsem! vsechno neryto, reknete, chtel jite hrdili cloveka brece. zati"
+ },
+ "int4": {
+  "val_ce_bits": 2.850398168888319,
+  "val_acc": 0.42916068866571017,
+  "bytes": 79148,
+  "quantized_params": 147712,
+  "float_params": 896,
+  "sample": "kry. shnad lhnihne nase prechazeni vilbeda---pohany! pensvili? busmale trapcit. dom, jsou prvnit. bude naproc? helena. racte, prodaj--pro prosti platdta! helena. oh, jaksu priplal, jak jste pracoucena. tahrlopickopnes-- proste povis----ochu fabry, potopnanaly takove proslovni---- co-- halovneni, busman. logistoktwove lety-- heleno. vstane. ledaz fyzi, star! busmal! prila huj, vsem. vstane ctel. ta"
+ },
+ "prompt": "idis ten",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 512000,
+   "val_ce_bits": 3.267658885749491,
+   "val_acc": 0.3211083213773314
+  },
+  {
+   "step": 1000,
+   "predictions": 1024000,
+   "val_ce_bits": 2.8995510690957533,
+   "val_acc": 0.39517575322812054
+  },
+  {
+   "step": 1500,
+   "predictions": 1536000,
+   "val_ce_bits": 2.7753102730869177,
+   "val_acc": 0.41122668579626975
+  },
+  {
+   "step": 2000,
+   "predictions": 2048000,
+   "val_ce_bits": 2.7222055046980778,
+   "val_acc": 0.4186692969870875
+  },
+  {
+   "step": 2500,
+   "predictions": 2560000,
+   "val_ce_bits": 2.692961509604161,
+   "val_acc": 0.42476685796269725
+  },
+  {
+   "step": 3000,
+   "predictions": 3072000,
+   "val_ce_bits": 2.720598277723114,
+   "val_acc": 0.4338235294117647
+  },
+  {
+   "step": 3500,
+   "predictions": 3584000,
+   "val_ce_bits": 2.6252140406090545,
+   "val_acc": 0.4467360114777618
+  },
+  {
+   "step": 4000,
+   "predictions": 4096000,
+   "val_ce_bits": 2.6749489636645993,
+   "val_acc": 0.4439562410329986
+  },
+  {
+   "step": 4500,
+   "predictions": 4608000,
+   "val_ce_bits": 2.641245599079593,
+   "val_acc": 0.4523852223816356
+  },
+  {
+   "step": 5000,
+   "predictions": 5120000,
+   "val_ce_bits": 2.642508011943191,
+   "val_acc": 0.4563307030129125
+  },
+  {
+   "step": 5500,
+   "predictions": 5632000,
+   "val_ce_bits": 2.614548143447845,
+   "val_acc": 0.45928981348637016
+  },
+  {
+   "step": 6000,
+   "predictions": 6144000,
+   "val_ce_bits": 2.6852230502960586,
+   "val_acc": 0.45606169296987087
+  },
+  {
+   "step": 6500,
+   "predictions": 6656000,
+   "val_ce_bits": 2.7119808780069343,
+   "val_acc": 0.45507532281205165
+  },
+  {
+   "step": 7000,
+   "predictions": 7168000,
+   "val_ce_bits": 2.726373673263425,
+   "val_acc": 0.4563307030129125
+  },
+  {
+   "step": 7500,
+   "predictions": 7680000,
+   "val_ce_bits": 2.7494171257821707,
+   "val_acc": 0.45668938307030127
+  },
+  {
+   "step": 8000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.7752050838588063,
+   "val_acc": 0.4601865136298422
+  },
+  {
+   "step": 8500,
+   "predictions": 8704000,
+   "val_ce_bits": 2.774738830749667,
+   "val_acc": 0.4626076040172166
+  },
+  {
+   "step": 9000,
+   "predictions": 9216000,
+   "val_ce_bits": 2.779584278344473,
+   "val_acc": 0.46574605451936874
+  },
+  {
+   "step": 9500,
+   "predictions": 9728000,
+   "val_ce_bits": 2.7802810444640826,
+   "val_acc": 0.46215925394548063
+  },
+  {
+   "step": 10000,
+   "predictions": 10240000,
+   "val_ce_bits": 2.782956681950543,
+   "val_acc": 0.46233859397417504
+  }
+ ]
+}

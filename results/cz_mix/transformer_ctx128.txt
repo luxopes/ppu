@@ -1,0 +1,5 @@
+/home/antonin/.local/venvs/ppu-ml/lib/python3.14/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+transformer ctx=128 ff=597: 1115136 parametru (BitLM 1115136, rozdil +0.00 %)
+   500  predikci    2048000  val CE 3.6512  acc 0.2431  (396 s)
+  1000  predikci    4096000  val CE 3.0059  acc 0.3652  (850 s)

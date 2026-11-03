@@ -1,0 +1,11 @@
+    krok     val_CE   val_acc takty/krok  shoda s ref
+   10000     3.9199    0.2442       3401          ANO
+   20000     3.8215    0.2816       3410          ANO
+   30000     3.7521    0.2969       3425          ANO
+   40000     3.5735    0.3083       3428          ANO
+   50000     3.5101    0.3242       3430          ANO
+--- generovano RTL (po 50000 krocich):
+ugn dacuzmloag-of lick cheve the wall. somin mith owcheme thall. che move. courne  insign . what myeore red is? xt bu? iomin sobthe whep bouvdr- herins.offcsee hns lof? fre panr beppbef coaerow heve hg-. fabmyinit on. so fgomatharscriss pounte woe cow macane, havle erans tor-? winline uhko. mankid- 
+---
+RTL TRENINK: bitove shodny s referenci
+simulovano 176366280 taktu

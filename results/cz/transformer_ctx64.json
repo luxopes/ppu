@@ -1,0 +1,103 @@
+{
+ "model": "transformer",
+ "ctx": 64,
+ "d": 64,
+ "layers": 3,
+ "heads": 4,
+ "ff": 241,
+ "params": 148736,
+ "bitlm_params": 148480,
+ "train_steps": 6000,
+ "best_step": 1000,
+ "batch": 64,
+ "train_seconds_cpu": 685.3,
+ "float32": {
+  "val_ce_bits": 2.8014839934311255,
+  "val_acc": 0.406922525107604,
+  "bytes": 594944,
+  "sample": "mel. snad ploznim se se v ze ne ovevi bodirne. helena. ne, ze? nanoste, bude sjedno, ja se? tumani nad neprodvau. riky, a v semne protoc jenosti si domin. zsednoc vsich snemu? dosednou odcete nevujete. to roze prosim. doprestava! nana, reknul dovrni-- neplidy nici. to maji v nevim tol kro! nenadisni netelo tujiky vam dvoci si boze s tak. .isem nerove, rekga nadce nemelia heleno. mnomu tahne? snad "
+ },
+ "int4": {
+  "val_ce_bits": 3.0001799233165496,
+  "val_acc": 0.37589670014347204,
+  "bytes": 79270,
+  "quantized_params": 147840,
+  "float_params": 896,
+  "sample": "me zdynych loznim robot! rekadl a nana? dr. gall. radie, zazdne! lod sahna! fyzi ne, ja majdteva. z myri! ja vzdytriky! alquiste adrzirazdni svidelady ada! sednosle! domin. redelaza -- ohcete? dobre, zadrzala! rqost. dame? sedna! fabry. nenadadavre!---na nady nic, za rossumim. domin. mari! nenadovni neradortu! kdes? vin, ze znomen s mluvi. vzani ryvo, red. alquiste mlase heleni co? dr. gall. r. na"
+ },
+ "prompt": "idis ten nuz? chces jeste, abych rezal? ty nechces, vid? hlas da",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.351510192316933,
+   "val_acc": 0.2938486370157819
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 2.8014839934311255,
+   "val_acc": 0.406922525107604
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 2.8020681797568296,
+   "val_acc": 0.4300573888091822
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.8514750122248893,
+   "val_acc": 0.437051649928264
+  },
+  {
+   "step": 2500,
+   "predictions": 10240000,
+   "val_ce_bits": 3.116608070106809,
+   "val_acc": 0.4377690100430416
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 3.3360345370453084,
+   "val_acc": 0.4352582496413199
+  },
+  {
+   "step": 3500,
+   "predictions": 14336000,
+   "val_ce_bits": 3.623145037289179,
+   "val_acc": 0.42880200860832135
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 3.981866424797138,
+   "val_acc": 0.43140243902439024
+  },
+  {
+   "step": 4500,
+   "predictions": 18432000,
+   "val_ce_bits": 4.171772540014795,
+   "val_acc": 0.4264705882352941
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 4.379687505889118,
+   "val_acc": 0.42494619799139166
+  },
+  {
+   "step": 5500,
+   "predictions": 22528000,
+   "val_ce_bits": 4.50260521691089,
+   "val_acc": 0.4234218077474892
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 4.514055793182685,
+   "val_acc": 0.42395982783357244
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+# Srovnavaci transformer (PyTorch CPU) - trenink float32 + inference int4.
+name: Transformer
+on:
+  workflow_dispatch:
+    inputs:
+      args:
+        description: "Argumenty transformer_baseline.py (bez korpusu a --out)"
+        default: "--ctx 128 --d 128 --layers 5 --heads 4 --ff 597 --val-len 11152 --bitlm-params 1115136 --steps 8000 --batch 32 --eval-every 500"
+      corpus:
+        default: "cz_mix"
+      name:
+        default: "ctx128"
+
+jobs:
+  train:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: PyTorch (CPU)
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - name: Korpus
+        run: |
+          python3 tools/bitlm/prepare_corpus.py data/rur_cz_pg13083.txt data/rur_cz.tok --colon-dot
+          python3 tools/bitlm/build_mix_corpus.py data/cz_mix.tok data/rur_cz_pg13083.txt data/cz/pg*.txt
+      - name: Trenink
+        run: |
+          mkdir -p out
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/transformer_baseline.py data/${{ inputs.corpus }}.tok \
+              ${{ inputs.args }} --out out/transformer_${{ inputs.name }}.json | tee out/transformer_${{ inputs.name }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: transformer-${{ inputs.name }}
+          path: out/

@@ -1,0 +1,53 @@
+korpus 111520 tokenu, trenink 100368, validace 11152
+hparams s1=0 s2=4 g1=4 g2=0 lr1=14 lr2=8 lre=8 clip=32767 lrb=12 flags=0 seed=12345
+baseline val CE [bit/znak]: rovnomerne 5.000 | unigram 4.420 | bigram 3.432 | trigram 3.071
+     krok     tr_acc      tr_p       val_CE  val_acc
+        0          -         -       7.1583   0.0430
+    50000     0.3045    0.2037       3.5728   0.2957
+   100000     0.3598    0.2515       3.4877   0.3071
+   150000     0.3845    0.2712       3.3716   0.3187
+   200000     0.4031    0.2844       3.3825   0.3281
+   250000     0.4128    0.2952       3.3154   0.3433
+   300000     0.4289    0.3067       3.3999   0.3379
+   350000     0.4356    0.3096       3.3260   0.3411
+   400000     0.4468    0.3174       3.3872   0.3404
+   450000     0.4523    0.3228       3.3256   0.3398
+   500000     0.4543    0.3235       3.3415   0.3397
+   550000     0.4730    0.3345       3.3043   0.3503
+   600000     0.4798    0.3383       3.2538   0.3608
+   650000     0.4770    0.3383       3.2493   0.3548
+   700000     0.4856    0.3431       3.2632   0.3605
+   750000     0.4880    0.3442       3.3041   0.3514
+   800000     0.4917    0.3493       3.2641   0.3589
+   850000     0.4917    0.3479       3.2227   0.3584
+   900000     0.4951    0.3495       3.2278   0.3607
+   950000     0.4961    0.3494       3.2609   0.3627
+  1000000     0.5002    0.3492       3.2493   0.3558
+  1050000     0.5135    0.3599       3.1608   0.3692
+  1100000     0.5142    0.3599       3.1762   0.3721
+  1150000     0.5182    0.3613       3.1486   0.3639
+  1200000     0.5182    0.3607       3.1426   0.3741
+  1250000     0.5132    0.3586       3.1540   0.3673
+  1300000     0.5209    0.3633       3.1317   0.3754
+  1350000     0.5172    0.3616       3.1087   0.3777
+  1400000     0.5171    0.3596       3.1216   0.3723
+  1450000     0.5209    0.3626       3.1621   0.3671
+  1500000     0.5158    0.3589       3.1260   0.3709
+  1550000     0.5309    0.3649       3.0893   0.3803
+  1600000     0.5292    0.3579       3.0788   0.3734
+  1650000     0.5346    0.3651       3.0965   0.3820
+  1700000     0.5299    0.3615       3.0919   0.3715
+  1750000     0.5280    0.3592       3.0670   0.3824
+  1800000     0.5272    0.3600       3.1054   0.3772
+  1850000     0.5231    0.3575       3.1144   0.3690
+  1900000     0.5283    0.3584       3.1111   0.3811
+  1950000     0.5320    0.3599       3.1018   0.3716
+  2000000     0.5278    0.3590       3.0877   0.3845
+trenink CPU (1 jadro, referencni model): 298.0 s, 6711 kroku/s
+diag: a==0 70.1 %, a==127 0.00 %, prum. s1dyn 5.91, prum. rozpeti z 256.6, emb saturace 387/1024
+1-bit vahy: W1 +1 50.8 %, W2 +1 51.3 %
+--- prompt (z validace): "idis ten"
+--- generovano:
+e vdevo, moti je to jsou roboti? helena. obychomt, ha demu, je nech vlavi a roboty neklu hromnednejina. deata. helte.  a vrad, na jedous fabry. vy vstez prappty sa z? jen ozerati. zalry sklede pratul helene. od, ja prasu nebossymlhle roboty za ctk rujd kvez? hallemeierekno narjy. je se to? zasme vzm huleni. stat k shavny jitz-? helena. domin.--prbe zena lepovdny a rad se ze by se pohte vilechem v vstanka. ? domin. tovse velyde ni jaz dysehny z l deste, glyhyste, je musi pocpalnu, ty bysme kolivby? dra g ny. neni lodi mevids vyski? domin. ne, me nenam amohouvy-- roboti nanouto ergvomi, rokujst 
+---
+vahy ulozeny do results/cz/golden_weights.bin

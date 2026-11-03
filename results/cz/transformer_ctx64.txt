@@ -1,0 +1,18 @@
+/home/antonin/.local/venvs/ppu-ml/lib/python3.14/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+transformer ctx=64 ff=241: 148736 parametru (BitLM 148480, rozdil +0.17 %)
+   500  predikci    2048000  val CE 3.3515  acc 0.2938  (83 s)
+  1000  predikci    4096000  val CE 2.8015  acc 0.4069  (164 s)
+  1500  predikci    6144000  val CE 2.8021  acc 0.4301  (216 s)
+  2000  predikci    8192000  val CE 2.8515  acc 0.4371  (276 s)
+  2500  predikci   10240000  val CE 3.1166  acc 0.4378  (338 s)
+  3000  predikci   12288000  val CE 3.3360  acc 0.4353  (392 s)
+  3500  predikci   14336000  val CE 3.6231  acc 0.4288  (496 s)
+  4000  predikci   16384000  val CE 3.9819  acc 0.4314  (558 s)
+  4500  predikci   18432000  val CE 4.1718  acc 0.4265  (590 s)
+  5000  predikci   20480000  val CE 4.3797  acc 0.4249  (622 s)
+  5500  predikci   22528000  val CE 4.5026  acc 0.4234  (654 s)
+  6000  predikci   24576000  val CE 4.5141  acc 0.4240  (685 s)
+nejlepsi checkpoint: krok 1000 (val CE 2.8015)
+float32: CE 2.8015 acc 0.4069 | int4: CE 3.0002 acc 0.3759 | int4 velikost 79270 B | trenink 685 s
+int4 ukazka: me zdynych loznim robot! rekadl a nana? dr. gall. radie, zazdne! lod sahna! fyzi ne, ja majdteva. z myri! ja vzdytriky! alquiste adrzirazdni svidelady ada! sednosle! domin. redelaza -- ohcete? dobre, 

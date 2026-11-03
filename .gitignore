@@ -1,0 +1,18 @@
+/.cache
+/build
+/fpga/build
+/fpga/synth
+/tools/output
+*.o
+*.vcd
+*.log
+*.jou
+*.pb
+__pycache__/
+# Verilator vystupy
+tools/sim/obj_dir/
+tools/sim/bitlm/obj_*/
+# generovana data (CI je vytvori z textu: tools/bitlm/prepare_corpus.py, build_mix_corpus.py)
+data/*.tok
+# binarni vahy a snimky (velke; vznikaji treninkem, v CI jako artefakty)
+results/**/*.bin

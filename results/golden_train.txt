@@ -1,0 +1,53 @@
+korpus 121516 tokenu, trenink 109364, validace 12152
+hparams s1=0 s2=4 g1=4 g2=0 lr1=14 lr2=8 lre=8 clip=32767 lrb=12 flags=0 seed=12345
+baseline val CE [bit/znak]: rovnomerne 5.000 | unigram 4.294 | bigram 3.521 | trigram 2.944
+     krok     tr_acc      tr_p       val_CE  val_acc
+        0          -         -       7.0611   0.0393
+    50000     0.3317    0.2179       3.5101   0.3242
+   100000     0.4010    0.2744       3.4227   0.3412
+   150000     0.4377    0.3075       3.2981   0.3636
+   200000     0.4595    0.3269       3.2474   0.3750
+   250000     0.4691    0.3338       3.2632   0.3859
+   300000     0.4785    0.3394       3.2742   0.3728
+   350000     0.4842    0.3430       3.1488   0.3947
+   400000     0.4942    0.3529       3.2410   0.3896
+   450000     0.4962    0.3529       3.1920   0.3777
+   500000     0.5042    0.3591       3.1998   0.3902
+   550000     0.5290    0.3764       3.0397   0.4142
+   600000     0.5339    0.3809       3.0426   0.4068
+   650000     0.5355    0.3841       3.0231   0.4161
+   700000     0.5403    0.3854       3.0015   0.4118
+   750000     0.5471    0.3913       2.9604   0.4209
+   800000     0.5462    0.3900       3.0211   0.4109
+   850000     0.5459    0.3907       2.9795   0.4097
+   900000     0.5449    0.3893       2.9407   0.4204
+   950000     0.5492    0.3913       2.9734   0.4184
+  1000000     0.5506    0.3951       2.9387   0.4162
+  1050000     0.5676    0.4050       2.8756   0.4287
+  1100000     0.5666    0.4056       2.8948   0.4203
+  1150000     0.5705    0.4081       2.8892   0.4264
+  1200000     0.5700    0.4071       2.9081   0.4240
+  1250000     0.5712    0.4072       2.8792   0.4335
+  1300000     0.5697    0.4056       2.8975   0.4268
+  1350000     0.5697    0.4062       2.8876   0.4288
+  1400000     0.5702    0.4066       2.8582   0.4274
+  1450000     0.5675    0.4050       2.8865   0.4329
+  1500000     0.5663    0.4031       2.8775   0.4255
+  1550000     0.5801    0.4094       2.8523   0.4332
+  1600000     0.5820    0.4071       2.8555   0.4350
+  1650000     0.5840    0.4112       2.8639   0.4384
+  1700000     0.5832    0.4099       2.8518   0.4319
+  1750000     0.5763    0.4032       2.8720   0.4375
+  1800000     0.5799    0.4074       2.8624   0.4329
+  1850000     0.5792    0.4051       2.8674   0.4341
+  1900000     0.5781    0.4053       2.8819   0.4337
+  1950000     0.5801    0.4090       2.8615   0.4276
+  2000000     0.5810    0.4075       2.8712   0.4377
+trenink CPU (1 jadro, referencni model): 285.4 s, 7007 kroku/s
+diag: a==0 68.3 %, a==127 0.00 %, prum. s1dyn 5.98, prum. rozpeti z 162.0, emb saturace 429/1024
+1-bit vahy: W1 +1 50.6 %, W2 +1 52.4 %
+--- prompt (z validace): "of the e"
+--- generovano:
+l themownths all thans. helena. ohins crecfings to feal tommek mean thatk a pibwownatais is oll the raraid tarked yau. a to d. madame. hallemeier. the s oplest. ne w. how to the rossts. meleake f ow hand the phrnichougly olans to helenana. crosion the cate, in ture. beardued thunsed that ya! wismz-y domin. not take n whocerst? her astee fnoth-ull battha piss. it afl fage yoa s rndher, atd the nat would bus, bith extort mnce, hanr bay bulade, wal dist tabryrall rabk note mant hive r. and there then do be r.mmise phope ilong. what youlens you. helena. a domin. you. dr. gall. thats you thinkzat? 
+---
+vahy ulozeny do results/golden_weights.bin

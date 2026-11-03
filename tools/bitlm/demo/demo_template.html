@@ -1,0 +1,302 @@
+<title>Čip, který píše</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: jedna úzká čtecí osa; nahoře živé psaní (psací stroj na papíře), pod tím učení a srovnání. Motiv: zelená maska plošného spoje + měď */
+:root {
+  --bg: #f4f5f1;
+  --paper: #fdfdfa;
+  --ink: #141713;
+  --ink-2: #4a5047;
+  --ink-3: #70776d;
+  --rule: #d8dcd3;
+  --pcb: #1f5f3f;
+  --copper: #a8642a;
+  --series: #2a78d6;
+  --chip-bg: #e7ebe3;
+  --f-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121512; --paper: #1a1c19; --ink: #eef0ea; --ink-2: #c2c7bc; --ink-3: #979d92;
+    --rule: #333830; --pcb: #63b98b; --copper: #dc9d60; --series: #3987e5; --chip-bg: #242922; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121512; --paper: #1a1c19; --ink: #eef0ea; --ink-2: #c2c7bc; --ink-3: #979d92;
+  --rule: #333830; --pcb: #63b98b; --copper: #dc9d60; --series: #3987e5; --chip-bg: #242922; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.55; }
+.wrap { max-width: 860px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 36px 64px; display: grid; gap: 52px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 600; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.2rem); line-height: 1.03; }
+h2 { font-size: 1.55rem; }
+h3 { font-size: 1.05rem; }
+p { margin: 0; max-width: 64ch; }
+.eyebrow { font-family: var(--f-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pcb); }
+section, header { display: grid; gap: 16px; min-width: 0; }
+.lede { font-size: 1.18rem; color: var(--ink-2); }
+.muted { color: var(--ink-2); font-size: 0.95rem; }
+.small { font-size: 0.85rem; color: var(--ink-3); }
+
+/* psací plocha */
+.desk { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 18px; display: grid; gap: 14px; box-shadow: 0 1px 0 var(--rule); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+label { font-family: var(--f-display); font-weight: 500; font-size: 0.95rem; }
+input[type="text"] { flex: 1 1 260px; min-width: 0; font: 500 1.05rem var(--f-mono); padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); color: var(--ink); }
+input[type="text"]:focus-visible, button:focus-visible, input[type="range"]:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+button { font: 600 1rem var(--f-display); padding: 10px 16px; border-radius: 6px; border: 1px solid var(--pcb); background: var(--pcb); color: var(--paper); cursor: pointer; }
+button.ghost { background: transparent; color: var(--pcb); }
+button:disabled { opacity: 0.5; cursor: default; }
+.out { font-family: var(--f-mono); font-size: 1.02rem; line-height: 1.7; min-height: 7.5em; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+.out .you { color: var(--ink-3); }
+.out .caret { display: inline-block; width: 0.55em; height: 1.1em; vertical-align: -0.18em; background: var(--copper); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .out .caret { animation: none; } }
+.slider { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--ink-2); flex-wrap: wrap; }
+.slider input { width: 160px; accent-color: var(--copper); }
+
+/* učení */
+.steps { display: flex; flex-wrap: wrap; gap: 6px; }
+.steps button { background: var(--chip-bg); color: var(--ink); border: 1px solid var(--rule); font-family: var(--f-mono); font-weight: 500; font-size: 0.85rem; padding: 7px 10px; }
+.steps button[aria-pressed="true"] { background: var(--pcb); border-color: var(--pcb); color: var(--paper); }
+.stage-meta { display: flex; flex-wrap: wrap; gap: 8px 22px; font-family: var(--f-mono); font-size: 0.85rem; color: var(--ink-2); }
+.stage-meta b { color: var(--ink); font-weight: 500; }
+
+/* srovnání */
+.cmp { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.card { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.bars { display: grid; gap: 12px; }
+.bar { display: grid; gap: 4px; }
+.bar .lbl { display: flex; justify-content: space-between; gap: 10px; font-size: 0.88rem; }
+.bar .lbl span:last-child { font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.track { height: 14px; background: var(--chip-bg); border-radius: 0 4px 4px 0; overflow: hidden; }
+.fill { height: 100%; background: var(--series); border-radius: 0 4px 4px 0; }
+.fill.ours { background: var(--pcb); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; min-width: 600px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--f-display); font-weight: 600; font-size: 0.82rem; letter-spacing: 0.03em; text-transform: uppercase; color: var(--ink-2); }
+td.n { font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.ours td { background: var(--chip-bg); }
+.samples { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.sample { font-family: var(--f-mono); font-size: 0.88rem; background: var(--paper); border-left: 3px solid var(--copper); border-radius: 0 6px 6px 0; padding: 12px 14px; overflow-wrap: anywhere; display: grid; gap: 6px; min-width: 0; }
+.sample h3 { font-size: 0.95rem; }
+.verdict { background: var(--paper); border: 1px solid var(--pcb); border-radius: 8px; padding: 16px 18px; display: grid; gap: 8px; }
+.verdict p { max-width: none; }
+ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 64ch; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">PPU · demonstrace pro vedení</div>
+  <h1>Čip, který se sám naučil psát česky</h1>
+  <p class="lede">Malá umělá inteligence, která se celá naučila psát uvnitř našeho čipu. Četla Čapkovu hru R.U.R. písmeno po písmenu a pak začala psát sama. Vyzkoušejte to: napište začátek a čip dopíše zbytek.</p>
+</header>
+
+<section aria-labelledby="h-try">
+  <h2 id="h-try">Vyzkoušejte</h2>
+  <div class="desk">
+    <div class="row">
+      <label for="prompt">Začátek textu</label>
+      <input type="text" id="prompt" value="Helena: Roboti " maxlength="80" autocomplete="off">
+      <button id="go" type="button">Ať čip píše</button>
+    </div>
+    <div class="out" id="out" aria-live="polite"></div>
+    <div class="row" style="justify-content: space-between">
+      <div class="slider"><label for="temp">Fantazie</label><span>střídmá</span><input type="range" id="temp" min="0.5" max="1.5" step="0.05" value="0.85"><span>divoká</span></div>
+      <span class="small">píše bez háčků a velkých písmen (umí 32 znaků)</span>
+    </div>
+  </div>
+  <p class="muted">Model má jen 148 tisíc „mozkových buněk“ (parametrů), každá zabírá jediný bit. Celý se vejde do 19 KiB, to je méně než jedna fotka z mobilu. Teď běží ve vašem prohlížeči a počítá přesně tak, jak počítá čip.</p>
+</section>
+
+<section aria-labelledby="h-learn">
+  <h2 id="h-learn">Jak se učil psát</h2>
+  <p>Na začátku čip neumí nic a vypisuje náhodná písmena. Při každém kroku si přečte kousek textu, zkusí uhodnout další písmeno a podle chyby se opraví. Klikněte na fázi učení:</p>
+  <div class="steps" id="steps" role="group" aria-label="Fáze učení"></div>
+  <div class="desk">
+    <div class="stage-meta" id="stage-meta"></div>
+    <div class="out" id="stage-out" aria-live="polite"></div>
+  </div>
+</section>
+
+<section aria-labelledby="h-cmp">
+  <h2 id="h-cmp">Proti klasické umělé inteligenci stejné velikosti</h2>
+  <p>Pro srovnání jsme na stejném textu natrénovali <b>transformer</b>, typ modelu, na kterém stojí ChatGPT. Má přesně stejný počet parametrů (148 tisíc). Učil se ve vysoké přesnosti na procesoru a pak se zmenšil na 4 bity na parametr, jak se to dělá při nasazení.</p>
+  <div class="cmp">
+    <div class="card">
+      <h3>Jak často uhodne další písmeno</h3>
+      <div class="bars" id="bars-acc"></div>
+    </div>
+    <div class="card">
+      <h3>Kolik paměti potřebuje k psaní</h3>
+      <div class="bars" id="bars-mem"></div>
+    </div>
+  </div>
+  <div class="verdict">%%VERDICT%%</div>
+  <div class="samples" id="samples"></div>
+  <details>
+    <summary class="small">Technické údaje srovnání</summary>
+    <div class="tbl-wrap" style="margin-top: 10px"><table id="tbl"></table></div>
+    <p class="small" style="margin-top: 8px">Stejná validační část textu (posledních 10 %, %%NVAL%% znaků), stejná metrika (křížová entropie v bitech na znak, nižší je lepší). Transformer: 3 vrstvy, d=64, 4 hlavy, AdamW, float32 na CPU, pak int4 po řádcích (LayerNorm ve float). Kontext 64 znaků je varianta, kde má transformer svou hlavní výhodu, delší paměť. BitLM má vždy 8 znaků.</p>
+  </details>
+</section>
+
+<section aria-labelledby="h-mean">
+  <h2 id="h-mean">Co to znamená</h2>
+  <ul>
+    <li><b>Učí se přímo v čipu.</b> Běžná AI se trénuje na drahých grafických kartách a do zařízení se nahrává hotová. Náš čip se učí sám a mohl by se doučovat přímo v zařízení.</li>
+    <li><b>Jednobitové váhy znamenají jen sčítání.</b> Žádné násobení. To je levné na plochu čipu i na energii.</li>
+    <li><b>Na čipu za půl minuty.</b> Celé učení (2 miliony kroků) by na FPGA trvalo asi 27 sekund, procesoru trvá pět minut.</li>
+    <li><b>Další krok je větší model.</b> Do použitého FPGA se vejde asi stokrát větší model. Modely této velikosti (kolem 10 milionů parametrů) už podle výzkumu píšou souvislé jednoduché příběhy.</li>
+  </ul>
+  <p class="small">Stav: výpočet čipu je ověřený simulací, bit po bitu shodně s tímto modelem. Spuštění na skutečném FPGA v cloudu AWS je další krok. Časy na čipu jsou spočítané z naměřeného počtu taktů v simulaci (3 430 taktů na krok, 250 MHz). Text: Karel Čapek, R.U.R. (1920), Project Gutenberg #13083.</p>
+</section>
+
+</div>
+
+<script>
+/*BITLM_JS*/
+</script>
+<script>
+(function () {
+  "use strict";
+  var W = /*WEIGHTS_JSON*/;
+  var C = /*COMPARE_JSON*/;
+  var CYCLES = 3430, FHZ = 250e6;
+  var steps = Object.keys(W.snaps).map(Number).sort(function (a, b) { return a - b; });
+  var models = {};
+  function model(step) { if (!models[step]) models[step] = BitLM.decode(W.snaps[step]); return models[step]; }
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function cz(n, d) { return n.toLocaleString("cs-CZ", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
+  function chipTime(step) {
+    var s = step * CYCLES / FHZ;
+    if (s === 0) return "0 s";
+    if (s < 1) return cz(s, 2) + " s";
+    return cz(s, 1) + " s";
+  }
+
+  // generování: tokeny z promptu (doplněné mezerami na kontext 8), vzorkování s teplotou
+  function generate(m, promptTokens, n, T) {
+    var ctx = [];
+    for (var i = 0; i < BitLM.N; i++) ctx.push(0);
+    promptTokens.forEach(function (t) { ctx.push(t); ctx.shift(); });
+    var out = [];
+    for (var g = 0; g < n; g++) {
+      var r = BitLM.forward(m, ctx);
+      var t = BitLM.sample(BitLM.probs(r.z, T), Math.random);
+      out.push(t); ctx.push(t); ctx.shift();
+    }
+    return BitLM.decodeText(out);
+  }
+
+  // psací stroj
+  function typeInto(el, youText, text, done) {
+    var token = {};
+    el._job = token;
+    el.textContent = "";
+    var you = document.createElement("span"); you.className = "you"; you.textContent = youText;
+    var gen = document.createElement("span");
+    var caret = document.createElement("span"); caret.className = "caret";
+    el.append(you, gen, caret);
+    if (reduce) { gen.textContent = text; caret.remove(); if (done) done(); return; }
+    var i = 0;
+    (function tick() {
+      if (el._job !== token) return;
+      gen.textContent = text.slice(0, i);
+      if (i >= text.length) { caret.remove(); if (done) done(); return; }
+      i += 2;
+      setTimeout(tick, 18);
+    })();
+  }
+
+  // 1) vyzkoušejte
+  var goBtn = document.getElementById("go"), promptEl = document.getElementById("prompt"), outEl = document.getElementById("out"), tempEl = document.getElementById("temp");
+  function write() {
+    var p = promptEl.value;
+    var toks = BitLM.encode(p);
+    var shown = BitLM.decodeText(toks);
+    var text = generate(model(steps[steps.length - 1]), toks, 360, parseFloat(tempEl.value));
+    goBtn.disabled = true;
+    typeInto(outEl, shown, text, function () { goBtn.disabled = false; goBtn.textContent = "Napsat znovu"; });
+  }
+  goBtn.addEventListener("click", write);
+  promptEl.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); write(); } });
+
+  // 2) jak se učil
+  var stepsEl = document.getElementById("steps"), metaEl = document.getElementById("stage-meta"), stageOut = document.getElementById("stage-out");
+  var STAGE_PROMPT = "Domin: ";
+  function label(s) { return s === 0 ? "na začátku" : cz(s) + " kroků"; }
+  function showStage(s) {
+    Array.prototype.forEach.call(stepsEl.children, function (b) { b.setAttribute("aria-pressed", String(Number(b.dataset.step) === s)); });
+    var log = C.bitlm_log_by_step[String(s)];
+    metaEl.innerHTML = "";
+    var items = [["krok učení", cz(s)], ["čas na čipu", chipTime(s)]];
+    if (log) items.push(["uhodne další písmeno", cz(log.acc * 100, 0) + " %"]);
+    items.forEach(function (it) { var sp = document.createElement("span"); sp.innerHTML = it[0] + ": <b></b>"; sp.querySelector("b").textContent = it[1]; metaEl.appendChild(sp); });
+    var toks = BitLM.encode(STAGE_PROMPT);
+    typeInto(stageOut, BitLM.decodeText(toks), generate(model(s), toks, 260, 0.85));
+  }
+  steps.forEach(function (s) {
+    var b = document.createElement("button");
+    b.type = "button"; b.dataset.step = s; b.textContent = label(s); b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", function () { showStage(s); });
+    stepsEl.appendChild(b);
+  });
+
+  // 3) srovnání
+  function bars(el, rows, max, fmt) {
+    rows.forEach(function (r) {
+      var d = document.createElement("div"); d.className = "bar";
+      d.innerHTML = '<div class="lbl"><span></span><span></span></div><div class="track"><div class="fill"></div></div>';
+      d.querySelector(".lbl span").textContent = r.name;
+      d.querySelector(".lbl span:last-child").textContent = fmt(r.v);
+      var f = d.querySelector(".fill"); f.style.width = Math.max(1.5, 100 * r.v / max) + "%";
+      if (r.ours) f.classList.add("ours");
+      d.title = r.name + ": " + fmt(r.v);
+      el.appendChild(d);
+    });
+  }
+  var R = C.rows;
+  bars(document.getElementById("bars-acc"), R.map(function (r) { return { name: r.short, v: r.acc, ours: r.ours }; }), 1,
+       function (v) { return cz(v * 100, 1) + " %"; });
+  bars(document.getElementById("bars-mem"), R.map(function (r) { return { name: r.short, v: r.bytes, ours: r.ours }; }),
+       Math.max.apply(null, R.map(function (r) { return r.bytes; })),
+       function (v) { return cz(v / 1024, 0) + " KiB"; });
+  var tbl = document.getElementById("tbl");
+  tbl.innerHTML = "<thead><tr><th>Model</th><th>Parametrů</th><th>Váhy</th><th>Kontext</th><th>Chyba [bit/znak]</th><th>Přesnost</th><th>Paměť pro psaní</th><th>Učení</th></tr></thead>";
+  var tb = document.createElement("tbody");
+  R.forEach(function (r) {
+    var tr = document.createElement("tr"); if (r.ours) tr.className = "ours";
+    [r.name, cz(r.params), r.bits, cz(r.ctx) + " znaků", cz(r.ce, 3), cz(r.acc * 100, 1) + " %", cz(r.bytes / 1024, 1) + " KiB", r.train].forEach(function (v, i) {
+      var td = document.createElement("td"); td.textContent = v; if (i >= 1 && i <= 6) td.className = "n"; tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  C.baselines.forEach(function (b) {
+    var tr = document.createElement("tr");
+    [b.name, "–", "–", b.ctx, cz(b.ce, 3), "–", "–", "počítání četností"].forEach(function (v, i) {
+      var td = document.createElement("td"); td.textContent = v; if (i >= 1 && i <= 6) td.className = "n"; tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+  var smp = document.getElementById("samples");
+  C.samples.forEach(function (s) {
+    var d = document.createElement("div"); d.className = "sample";
+    d.innerHTML = "<h3></h3><div></div>";
+    d.querySelector("h3").textContent = s.title;
+    d.querySelector("div").textContent = s.text;
+    smp.appendChild(d);
+  });
+
+  showStage(steps[0]);
+  write();
+})();
+</script>

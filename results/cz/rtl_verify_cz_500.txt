@@ -1,0 +1,14 @@
+[verify] INIT (seed 0xc0ffee11): OK
+[verify] TRAIN#0: 500 kroku, hparams 0,4,4,0,14,8,8,32767: OK (3624 taktu/krok)
+[verify] TRAIN#1: 500 kroku, hparams 0,4,4,0,6,3,3,32767: OK (3314 taktu/krok)
+[verify] TRAIN#2: 500 kroku, hparams 2,0,0,1,0,0,0,300: OK (3707 taktu/krok)
+[verify] TRAIN#3: 500 kroku, hparams 3,9,7,3,20,16,18,1000: OK (4026 taktu/krok)
+[verify] TRAIN#4: 500 kroku, hparams 0,4,4,0,15,9,9,32767: OK (3361 taktu/krok)
+[verify] TRAIN s korpusem N+1 tokenu: OK
+[verify] TRAIN s len=N -> chyba bez zmeny vah: OK (status 6)
+[verify] GEN 200 tokenu: OK
+  HW : iaxegqh,!?  txjoieuurysilyb-aiujotm kczaadiyhjdb-kwbeicvtktwagi loo!pbrkrfan, cj
+  REF: iaxegqh,!?  txjoieuurysilyb-aiujotm kczaadiyhjdb-kwbeicvtktwagi loo!pbrkrfan, cj
+[verify] zapis/cteni vah z hosta: OK
+[verify] VYSLEDEK: HW JE BITOVE SHODNY S REFERENCI (0 neshod)
+simulovano 18147373 taktu
