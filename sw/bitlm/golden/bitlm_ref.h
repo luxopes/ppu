@@ -77,11 +77,12 @@ typedef struct {
     uint8_t lre;   /* ucici krok embeddingu (posun) */
     uint16_t clip; /* oriznuti stinovych vah do <-clip, clip>, max 32767 */
     uint8_t lrb;   /* ucici krok vystupniho biasu (posun) */
-    uint8_t flags; /* BL_F_CENTER | BL_F_BIAS */
+    uint8_t flags; /* BL_F_CENTER | BL_F_BIAS | BL_F_SROUND */
 } bl_hparams;
 
 #define BL_F_CENTER 1  /* 1-bit vaha = sign(w - prumer radku), jako BitNet */
 #define BL_F_BIAS   2  /* trenovatelny bias vystupnich logitu */
+#define BL_F_SROUND 4  /* stochasticke zaokrouhleni updatu vah a embeddingu (bez systematickeho posunu) */
 
 typedef struct {
     int16_t w1[BL_H][BL_D];   /* stinove vahy W1, 1-bit vaha = (w >= mu ? +1 : -1) */
@@ -93,6 +94,7 @@ typedef struct {
     uint32_t rng;             /* xorshift32, nikdy 0 */
     bl_hparams hp;
     /* statistiky treninku (od posledniho vynulovani) */
+    uint32_t upd_ctr;         /* citac treninkovych kroku pro stochasticke zaokrouhleni */
     uint32_t steps;
     uint32_t correct;         /* pocet kroku, kde argmax == cil */
     uint64_t sum_pt;          /* soucet p[cil] v Q16 */

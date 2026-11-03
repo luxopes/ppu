@@ -22,6 +22,31 @@ static inline int64_t rsr(int64_t v, unsigned s)
     return s ? asr(v + ((int64_t)1 << (s - 1)), s) : v;
 }
 
+/* Hash pro stochasticke zaokrouhleni (murmur3 fmix32): nahodne bity zavisi jen
+ * na (kroku, indexu vahy), ne na poradi vypoctu -> HW muze pocitat libovolne paralelne. */
+static inline uint32_t fmix32(uint32_t x)
+{
+    x ^= x >> 16;
+    x *= 0x85EBCA6Bu;
+    x ^= x >> 13;
+    x *= 0xC2B2AE35u;
+    x ^= x >> 16;
+    return x;
+}
+
+/* Indexove prostory pro hash: W1, W2, embedding (pozice n, slozka e) */
+#define BL_SR_W2  0x01000000u
+#define BL_SR_EMB 0x02000000u
+
+/* Posun vpravo se stochastickym zaokrouhlenim: floor((v + r) / 2^s), r ~ U[0, 2^s).
+ * E[vysledek] = v / 2^s presne (zadna ztrata malych updatu). */
+static inline int64_t ssr(int64_t v, unsigned s, uint32_t key)
+{
+    if (s == 0) return v;
+    uint32_t r = fmix32(key) & ((s >= 32) ? 0xFFFFFFFFu : ((1u << s) - 1u));
+    return asr(v + (int64_t)r, s);
+}
+
 static inline int16_t clip16(int32_t v, int32_t c)
 {
     if (v > c) return (int16_t)c;
@@ -194,6 +219,10 @@ void bl_train_step(bl_model *m, const uint8_t ctx[BL_N], uint8_t target)
     target &= (BL_V - 1);
 
     m->steps++;
+    /* klic kroku pro stochasticke zaokrouhleni; upd_ctr je soucast stavu (HW registr) */
+    const int sround = (hp->flags & BL_F_SROUND) != 0;
+    const uint32_t ckey = fmix32(m->upd_ctr * 0x9E3779B9u + 0x7F4A7C15u);
+    m->upd_ctr++;
     m->correct += (f.argmax == target);
     m->sum_pt += f.p[target];
 
@@ -210,7 +239,10 @@ void bl_train_step(bl_model *m, const uint8_t ctx[BL_N], uint8_t target)
         for (int j = 0; j < BL_H; j++) {
             int16_t w = m->w2[i][j];
             da[j] += (w >= mu) ? gz[i] : -gz[i];
-            w = clip16(w - (int32_t)rsr((int64_t)gz[i] * f.a[j], hp->lr2), hp->clip);
+            int64_t g2 = (int64_t)gz[i] * f.a[j];
+            int64_t u2 = sround ? ssr(g2, hp->lr2, (uint32_t)(BL_SR_W2 + i * BL_H + j) + ckey)
+                                : rsr(g2, hp->lr2);
+            w = clip16(w - (int32_t)u2, hp->clip);
             m->w2[i][j] = w;
             rs += w;
         }
@@ -240,7 +272,10 @@ void bl_train_step(bl_model *m, const uint8_t ctx[BL_N], uint8_t target)
             for (int k = 0; k < BL_D; k++) {
                 int16_t w = m->w1[j][k];
                 dxl[k] += (w >= mu) ? dh[j] : -dh[j];
-                w = clip16(w - (int32_t)rsr((int64_t)dh[j] * f.x[k], hp->lr1), hp->clip);
+                int64_t g1 = (int64_t)dh[j] * f.x[k];
+                int64_t u1 = sround ? ssr(g1, hp->lr1, (uint32_t)(j * BL_D + k) + ckey)
+                                    : rsr(g1, hp->lr1);
+                w = clip16(w - (int32_t)u1, hp->clip);
                 m->w1[j][k] = w;
                 rs += w;
             }
@@ -257,8 +292,11 @@ void bl_train_step(bl_model *m, const uint8_t ctx[BL_N], uint8_t target)
         int lg = slot_lg(s), st = slot_start(s);
         for (int n = st; n < st + (1 << lg); n++) {
             int c = ctx[n] & (BL_V - 1);
-            for (int e = 0; e < BL_E; e++)
-                m->emb[c][e] = clip16(m->emb[c][e] - (int32_t)rsr(dx[s * BL_E + e], hp->lre + lg), 32767);
+            for (int e = 0; e < BL_E; e++) {
+                int64_t ue = sround ? ssr(dx[s * BL_E + e], hp->lre + lg, (uint32_t)(BL_SR_EMB + n * BL_E + e) + ckey)
+                                    : rsr(dx[s * BL_E + e], hp->lre + lg);
+                m->emb[c][e] = clip16(m->emb[c][e] - (int32_t)ue, 32767);
+            }
         }
     }
 }
