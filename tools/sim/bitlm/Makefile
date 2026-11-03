@@ -36,7 +36,8 @@ DEFS = -DBL_LOG2_N=$(P_N) -DBL_LOG2_E=$(P_E) -DBL_LOG2_H=$(P_H) $(if $(filter 1,
 all: $(OBJ)/V$(TOP)
 
 $(OBJ)/V$(TOP): $(RTL) $(CSRC) $(ROOT)/rtl/accelerator/bitlm_exp_lut.vh $(ROOT)/sw/bitlm/golden/bitlm_ref.h $(ROOT)/sw/bitlm/host/bitlm_hw.h
-	$(VERILATOR) -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-DECLFILENAME -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+	$(VERILATOR) -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-DECLFILENAME -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-BLKSEQ \
+	    --unroll-count 4096 --unroll-stmts 1000000 \
 	    -GLOG2_N=$(P_N) -GLOG2_E=$(P_E) -GLOG2_H=$(P_H) -GMULTISCALE=$(P_MS) \
 	    -I$(ROOT)/rtl/accelerator --cc $(RTL) --top-module $(TOP) --Mdir $(OBJ) \
 	    --exe $(CSRC) -CFLAGS "-O2 $(DEFS) -I$(abspath $(ROOT))/sw/bitlm/golden" -O3 --build -j 4
