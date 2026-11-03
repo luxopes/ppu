@@ -1,0 +1,33 @@
+# Diagnostika konceptu (tools/bitlm/concept_lab.py): 1-bit MLP s Adamem, 1-bit a ternarni transformer.
+name: Concept
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: "mlp1 | bitnet1 | bitnet158"
+        default: "mlp1"
+      args:
+        default: "--steps 15625 --batch 256 --lr 2e-3 --eval-every 1000"
+
+jobs:
+  train:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: PyTorch (CPU)
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - name: Korpus
+        run: python3 tools/bitlm/build_mix_corpus.py data/cz_mix.tok data/rur_cz_pg13083.txt data/cz/pg*.txt
+      - name: Trenink
+        run: |
+          mkdir -p out
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/concept_lab.py data/cz_mix.tok --model ${{ inputs.model }} \
+              ${{ inputs.args }} --out out/concept_${{ inputs.model }}.json | tee out/concept_${{ inputs.model }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: concept-${{ inputs.model }}
+          path: out/
