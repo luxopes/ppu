@@ -1,6 +1,6 @@
 # Verilator simulace BitLM jadra + bitove presne porovnani s referencnim modelem.
 #   make run                       # maly model (148k parametru, kontext 8), overeni 500 kroku/davku
-#   make run CONFIG=big            # velky model (1,12M parametru, viceurovnovy kontext 128)
+#   make run CONFIG=big            # velky model (1,18M parametru, viceurovnovy kontext 128)
 #   make train [CONFIG=big]        # trenink v RTL na celem korpusu + porovnani s referenci
 #   CORPUS=... VAL_LEN=...         # jiny korpus / delka validace (train)
 VERILATOR ?= verilator
@@ -11,10 +11,10 @@ TRAIN_STEPS ?= 50000
 CONFIG ?= small
 P_MS = 0
 ifeq ($(CONFIG),big)
-  # viceurovnovy kontext 128 znaku, E=32, H=2048 (1,12M parametru)
+  # viceurovnovy kontext 128 znaku, E=16, H=4096 (1,18M parametru)
   P_N = 7
-  P_E = 5
-  P_H = 11
+  P_E = 4
+  P_H = 12
   P_MS = 1
   CORPUS ?= $(ROOT)/data/cz_mix.tok
   VAL_LEN ?= 11152

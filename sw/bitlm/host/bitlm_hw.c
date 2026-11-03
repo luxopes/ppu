@@ -193,7 +193,7 @@ int bitlm_verify(const bitlm_dev *d, const uint8_t *corpus, uint32_t len,
         /* s1 s2 g1 g2 lr1 lr2 lre clip lrb flags */
         { 0, 4, 4, 0, 14, 8, 8, 32767, 12, 0 },   /* vychozi (vyladene) */
         { 0, 4, 4, 0, 6, 3, 3, 32767, 12, 0 },    /* velke kroky -> saturace/clip */
-        { 2, 0, 0, 2, 0, 0, 0, 300, 12, 0 },      /* posuny 0, maly clip (g2=2: rezerva int32 pro H=2048) */
+        { 2, 0, 0, 4, 0, 0, 0, 300, 12, 0 },      /* posuny 0, maly clip (g2=4: dx < 2^31 i pro H=4096) */
         { 3, 9, 7, 3, 20, 16, 18, 1000, 12, 0 },  /* velke posuny, zaokrouhleni */
         { 0, 4, 4, 0, 15, 9, 9, 32767, 12, 0 },   /* plan uceni: +1 */
     };
