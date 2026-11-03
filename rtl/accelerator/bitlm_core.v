@@ -58,7 +58,7 @@ module bitlm_core #(
     localparam LOG2_GEN = 12;                      // 4 Ki tokenu
 
     localparam [31:0] ID_VALUE = 32'h424C_4D31;    // "BLM1"
-    localparam [7:0]  HW_VERSION = 8'd2;   // v2: 32-bit vyber pozice, vetsi okna MMIO
+    localparam [7:0]  HW_VERSION = 8'd3;   // v3: stochasticke zaokrouhleni (flags bit 2), viceurovnovy kontext
     localparam [3:0]  P_N = LOG2_N, P_E = LOG2_E, P_V = LOG2_V, P_H = LOG2_H, P_L = LOG2_L;
     localparam [3:0]  P_MS = MULTISCALE ? 4'd1 : 4'd0;
 
@@ -153,6 +153,37 @@ module bitlm_core #(
         end
     endfunction
 
+    // murmur3 fmix32 rozdeleny do tri casti (dva stupne pipeline): fmix_c(fmix_b(fmix_a(x)))
+    function [31:0] fmix_a;
+        input [31:0] k;
+        fmix_a = (k ^ (k >> 16)) * 32'h85EBCA6B;
+    endfunction
+    function [31:0] fmix_b;
+        input [31:0] m;
+        fmix_b = (m ^ (m >> 13)) * 32'hC2B2AE35;
+    endfunction
+    function [31:0] fmix_c;
+        input [31:0] m;
+        fmix_c = m ^ (m >> 16);
+    endfunction
+    // maska nahodnych bitu pro posun s (s >= 32 -> vsech 32 bitu)
+    function [31:0] srmask;
+        input [5:0] sh;
+        srmask = (sh >= 6'd32) ? 32'hFFFF_FFFF : ((32'd1 << sh) - 32'd1);
+    endfunction
+    // posun se zaokrouhlenim: deterministicky (rsr) nebo stochasticky floor((v + r) / 2^s)
+    function signed [39:0] shr_upd;
+        input signed [39:0] v;
+        input [5:0] sh;
+        input sround;
+        input [31:0] rnd;
+        begin
+            if (sh == 6'd0) shr_upd = v;
+            else if (sround) shr_upd = (v + $signed({8'd0, rnd & srmask(sh)})) >>> sh;
+            else shr_upd = (v + (40'sd1 <<< (sh - 6'd1))) >>> sh;
+        end
+    endfunction
+
     function [31:0] xorshift32;
         input [31:0] s;
         reg [31:0] x;
@@ -190,6 +221,11 @@ module bitlm_core #(
     reg [63:0] sum_pt;
     reg [63:0] cycles;
     reg [31:0] rng;
+    reg [31:0] upd_ctr;                    // citac treninkovych kroku (stochasticke zaokrouhleni)
+    reg [31:0] ck1, ck2, ck3, ckey;        // klic kroku = fmix32(upd_ctr * 0x9E3779B9 + 0x7F4A7C15)
+    reg [32*L-1:0] sr_m1, sr_m2;           // hash vah: stupen p1 (fmix_a), p2 (fmix_b)
+    reg [32*E-1:0] emb_m1, emb_m2;         // hash embeddingu (cekaci stavy S_B_EMB)
+    wire sround = hp_flags[2];
     reg        err_r, done_r;
     reg [4:0]  ctx [0:N-1];
 
@@ -346,9 +382,9 @@ module bitlm_core #(
             if (ck < D) begin
                 if (!wl[15]) fw1_part = fw1_part + xv[ck];
                 else         fw1_part = fw1_part - xv[ck];
-                // zpetny W1: w -= rsr(dh * x, lr1)
+                // zpetny W1: w -= shr(dh * x, lr1)
                 prod = p2_dh * xv[ck];
-                upd = rsr40(prod, hp_lr1);
+                upd = shr_upd(prod, {1'b0, hp_lr1}, sround, fmix_c(sr_m2[cl*32 +: 32]));
                 bw1_new[cl*16 +: 16] = clipw($signed({{24{wl[15]}}, wl}) - upd, hp_clip);
             end
             // dopredny W2: +-a
@@ -357,9 +393,9 @@ module bitlm_core #(
             if (ck < H) begin
                 if (!wl[15]) fw2_part = fw2_part + $signed({25'd0, av[ck]});
                 else         fw2_part = fw2_part - $signed({25'd0, av[ck]});
-                // zpetny W2: w -= rsr(gz * a, lr2)
+                // zpetny W2: w -= shr(gz * a, lr2)
                 prod = gzv[p2_row[LOG2_V-1:0]] * $signed({33'd0, av[ck]});
-                upd = rsr40(prod, hp_lr2);
+                upd = shr_upd(prod, {1'b0, hp_lr2}, sround, fmix_c(sr_m2[cl*32 +: 32]));
                 bw2_new[cl*16 +: 16] = clipw($signed({{24{wl[15]}}, wl}) - upd, hp_clip);
             end
         end
@@ -367,7 +403,8 @@ module bitlm_core #(
         for (cl = 0; cl < E; cl = cl + 1) begin
             wl = $signed(emb_rdata[cl*16 +: 16]);
             ck = ({8'd0, bemb_slot} << LOG2_E) + cl;
-            upd = rsr40($signed({{8{dxv[ck][31]}}, dxv[ck]}), {1'b0, hp_lre} + {3'd0, bemb_lg});
+            upd = shr_upd($signed({{8{dxv[ck][31]}}, dxv[ck]}), {1'b0, hp_lre} + {3'd0, bemb_lg},
+                          sround, fmix_c(emb_m2[cl*32 +: 32]));
             emb_new[cl*16 +: 16] = clipw($signed({{24{wl[15]}}, wl}) - upd, 16'd32767);
         end
     end
@@ -430,6 +467,7 @@ module bitlm_core #(
             8'h3C: reg_rdata = rng;
             8'h40: reg_rdata = cycles[31:0];
             8'h44: reg_rdata = cycles[63:32];
+            8'h48: reg_rdata = upd_ctr;
             default: begin
                 // 0x80.. kontext: 4 tokeny na slovo
                 if (mmio_addr[7] && mmio_addr[6:2] < (N >> 2)) begin
@@ -459,6 +497,10 @@ module bitlm_core #(
             sum_pt <= 64'd0;
             cycles <= 64'd0;
             rng <= 32'd1;
+            upd_ctr <= 32'd0;
+            ck1 <= 32'd0; ck2 <= 32'd0; ck3 <= 32'd0; ckey <= 32'd0;
+            sr_m1 <= {32*L{1'b0}}; sr_m2 <= {32*L{1'b0}};
+            emb_m1 <= {32*E{1'b0}}; emb_m2 <= {32*E{1'b0}};
             err_r <= 1'b0;
             done_r <= 1'b0;
             for (q = 0; q < N; q = q + 1) ctx[q] <= 5'd0;
@@ -493,6 +535,11 @@ module bitlm_core #(
             p2_row <= p1_row;
             p2_blk <= p1_blk;
             p2_dh <= p1_dh;
+            for (q = 0; q < L; q = q + 1) sr_m2[q*32 +: 32] <= fmix_b(sr_m1[q*32 +: 32]);
+            ck1 <= upd_ctr * 32'h9E3779B9 + 32'h7F4A7C15;
+            ck2 <= fmix_a(ck1);
+            ck3 <= fmix_b(ck2);
+            ckey <= fmix_c(ck3);
             p1_v <= 1'b0;
 
             if (state != S_IDLE) cycles <= cycles + 64'd1;
@@ -509,6 +556,7 @@ module bitlm_core #(
                             case (mmio_wdata[3:0])
                                 4'd1: begin
                                     rng <= (seed_r == 32'd0) ? 32'd1 : seed_r;
+                                    upd_ctr <= 32'd0;
                                     init_sel <= 2'd0;
                                     init_addr <= 16'd0;
                                     init_lane <= 8'd0;
@@ -564,6 +612,7 @@ module bitlm_core #(
                             hp_flags <= mmio_wdata[23:16];
                         end
                         8'h3C: rng <= (mmio_wdata == 32'd0) ? 32'd1 : mmio_wdata;
+                        8'h48: upd_ctr <= mmio_wdata;
                         default: begin
                             if (mmio_addr[7] && mmio_addr[6:2] < (N >> 2))
                                 for (q = 0; q < 4; q = q + 1)
@@ -894,6 +943,10 @@ module bitlm_core #(
                     p1_v <= 1'b1;
                     p1_row <= i_row;
                     p1_blk <= i_blk;
+                    // klic hashe: 0x01000000 + i*H + j (jako BL_SR_W2 v bitlm_ref.c)
+                    for (q = 0; q < L; q = q + 1)
+                        sr_m1[q*32 +: 32] <= fmix_a(32'h0100_0000 + ({16'd0, i_row} << LOG2_H) +
+                                                    ({16'd0, i_blk} << LOG2_L) + q + ckey);
                     if (i_blk == (1 << H_BLK_LOG2) - 1) begin
                         i_blk <= 0;
                         if (i_row == V - 1) issuing <= 1'b0;
@@ -952,6 +1005,9 @@ module bitlm_core #(
                         p1_row <= i_row;
                         p1_blk <= i_blk;
                         p1_dh <= dh_sel;
+                        // klic hashe: j*D + k
+                        for (q = 0; q < L; q = q + 1)
+                            sr_m1[q*32 +: 32] <= fmix_a(({16'd0, i_row} << LOG2_D) + ({16'd0, i_blk} << LOG2_L) + q + ckey);
                         if (i_blk == (1 << D_BLK_LOG2) - 1) begin
                             i_blk <= 0;
                             if (i_row == H - 1) issuing <= 1'b0;
@@ -992,8 +1048,16 @@ module bitlm_core #(
                         emb_raddr <= ctx[sub[LOG2_N-1:0]];
                         drain <= 3'd1;
                     end
-                    3'd1: drain <= 3'd2;
-                    3'd2: drain <= 3'd3;
+                    3'd1: begin
+                        // klic hashe: 0x02000000 + n*E + e (n = pozice v kontextu)
+                        for (q = 0; q < E; q = q + 1)
+                            emb_m1[q*32 +: 32] <= fmix_a(32'h0200_0000 + ({24'd0, sub} << LOG2_E) + q + ckey);
+                        drain <= 3'd2;
+                    end
+                    3'd2: begin
+                        for (q = 0; q < E; q = q + 1) emb_m2[q*32 +: 32] <= fmix_b(emb_m1[q*32 +: 32]);
+                        drain <= 3'd3;
+                    end
                     3'd3: begin
                         emb_waddr <= ctx[sub[LOG2_N-1:0]];
                         emb_wdata <= emb_new;
@@ -1004,6 +1068,7 @@ module bitlm_core #(
                         drain <= 3'd0;
                         if (sub == N - 1) begin
                             sub <= 8'd0;
+                            upd_ctr <= upd_ctr + 32'd1;   // konec kroku (klic byl z puvodni hodnoty)
                             if (steps_left == 32'd1) begin
                                 state <= S_DONE;
                             end else begin

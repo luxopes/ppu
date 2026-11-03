@@ -110,6 +110,7 @@ void bitlm_read_model(const bitlm_dev *d, bl_model *m)
         for (int e = 0; e < BL_E; e++)
             m->emb[c][e] = (int16_t)d->rd(d->ctx, BLM_EMB + 4u * (uint32_t)(c * BL_E + e));
     m->rng = d->rd(d->ctx, BLR_RNG);
+    m->upd_ctr = d->rd(d->ctx, BLR_UPD_CTR);
 }
 
 void bitlm_write_model(const bitlm_dev *d, const bl_model *m)
@@ -124,6 +125,7 @@ void bitlm_write_model(const bitlm_dev *d, const bl_model *m)
         for (int e = 0; e < BL_E; e++)
             d->wr(d->ctx, BLM_EMB + 4u * (uint32_t)(c * BL_E + e), (uint16_t)m->emb[c][e]);
     d->wr(d->ctx, BLR_RNG, m->rng);
+    d->wr(d->ctx, BLR_UPD_CTR, m->upd_ctr);
 }
 
 /* ------------------------------------------------------------- overeni */
@@ -149,6 +151,7 @@ static int compare_models(const bl_model *ref, const bl_model *hw, const char *w
         for (int e = 0; e < BL_E; e++)
             CMP(ref->emb[c][e] != hw->emb[c][e], "EMB[%d][%d] ref=%d hw=%d", c, e, ref->emb[c][e], hw->emb[c][e]);
     CMP(ref->rng != hw->rng, "RNG ref=0x%08x hw=0x%08x", ref->rng, hw->rng);
+    CMP(ref->upd_ctr != hw->upd_ctr, "UPD_CTR ref=%u hw=%u", ref->upd_ctr, hw->upd_ctr);
 #undef CMP
     return bad;
 }
@@ -196,6 +199,9 @@ int bitlm_verify(const bitlm_dev *d, const uint8_t *corpus, uint32_t len,
         { 2, 0, 0, 4, 0, 0, 0, 300, 12, 0 },      /* posuny 0, maly clip (g2=4: dx < 2^31 i pro H=4096) */
         { 3, 9, 7, 3, 20, 16, 18, 1000, 12, 0 },  /* velke posuny, zaokrouhleni */
         { 0, 4, 4, 0, 15, 9, 9, 32767, 12, 0 },   /* plan uceni: +1 */
+        { 0, 6, 4, 1, 15, 11, 10, 32767, 12, 4 }, /* stochasticke zaokrouhleni (vyladene) */
+        { 3, 9, 7, 3, 20, 16, 18, 1000, 12, 4 },  /* stoch. zaokrouhleni, velke posuny */
+        { 2, 0, 0, 4, 0, 0, 0, 300, 12, 4 },      /* stoch. zaokrouhleni s posunem 0 */
     };
     for (unsigned k = 0; k < sizeof(rounds) / sizeof(rounds[0]); k++) {
         ref.hp = rounds[k];
@@ -209,9 +215,9 @@ int bitlm_verify(const bitlm_dev *d, const uint8_t *corpus, uint32_t len,
         r = compare_models(&ref, &hw, what, verbose) + check_stats(d, &ref, what, verbose);
         bitlm_stats st;
         bitlm_read_stats(d, &st);
-        printf("[verify] %s: %u kroku, hparams %u,%u,%u,%u,%u,%u,%u,%u: %s (%.0f taktu/krok)\n",
+        printf("[verify] %s: %u kroku, hparams %u,%u,%u,%u,%u,%u,%u,%u flags=%u: %s (%.0f taktu/krok)\n",
                what, steps_per_round, rounds[k].s1, rounds[k].s2, rounds[k].g1, rounds[k].g2,
-               rounds[k].lr1, rounds[k].lr2, rounds[k].lre, rounds[k].clip, r ? "NESHODA" : "OK",
+               rounds[k].lr1, rounds[k].lr2, rounds[k].lre, rounds[k].clip, rounds[k].flags, r ? "NESHODA" : "OK",
                (double)st.cycles / steps_per_round);
         fails += r;
     }

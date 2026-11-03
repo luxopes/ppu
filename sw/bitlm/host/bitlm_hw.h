@@ -34,6 +34,7 @@ extern "C" {
 #define BLR_RNG         0x03C
 #define BLR_CYCLES_LO   0x040
 #define BLR_CYCLES_HI   0x044
+#define BLR_UPD_CTR     0x048   /* citac kroku pro stochasticke zaokrouhleni */
 #define BLR_CTX         0x080   /* 4 tokeny na slovo */
 
 /* pametova okna */
