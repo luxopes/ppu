@@ -1,0 +1,111 @@
+{
+ "model": "bitnet158",
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.4857790782928757,
+ "val_acc": 0.45955882352941174,
+ "train_seconds_cpu": 4676.9,
+ "sample": "reti se ja lhystavi. slov wezel a pri bedirne. nakrasne se zarmyli. lezel petruska hlas i potucnik nad nepravych. presvedceni uvazek zachovansky pohledavaje slova velmi spechalu. zacal ohledl neklad mu. a rozplakali sedopali a posiani, rekla ve vsech mne nady nic, ztratilky rady, co z kromene domu, strachotil se tvaril nyni znovu po mne. . vzdal se oci jego nahle po litost. ali cely ja bys nesnou ",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.6876659716018096,
+   "val_acc": 0.2464131994261119
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.385676714816857,
+   "val_acc": 0.2736728837876614
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.0606900386313,
+   "val_acc": 0.3547345767575323
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.9107185456389275,
+   "val_acc": 0.38055954088952654
+  },
+  {
+   "step": 2500,
+   "predictions": 10240000,
+   "val_ce_bits": 2.846003719516846,
+   "val_acc": 0.3952654232424677
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.788138731916944,
+   "val_acc": 0.4049497847919656
+  },
+  {
+   "step": 3500,
+   "predictions": 14336000,
+   "val_ce_bits": 2.744471352835887,
+   "val_acc": 0.4117647058823529
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.7040124110261945,
+   "val_acc": 0.4200143472022956
+  },
+  {
+   "step": 4500,
+   "predictions": 18432000,
+   "val_ce_bits": 2.666776971871985,
+   "val_acc": 0.4246771879483501
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.6395960342693847,
+   "val_acc": 0.43220946915351505
+  },
+  {
+   "step": 5500,
+   "predictions": 22528000,
+   "val_ce_bits": 2.579329618124159,
+   "val_acc": 0.43185078909612623
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.5834873798885267,
+   "val_acc": 0.44261119081779055
+  },
+  {
+   "step": 6500,
+   "predictions": 26624000,
+   "val_ce_bits": 2.590509964990244,
+   "val_acc": 0.44261119081779055
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.5525350270859994,
+   "val_acc": 0.45086083213773315
+  },
+  {
+   "step": 7500,
+   "predictions": 30720000,
+   "val_ce_bits": 2.53190953713477,
+   "val_acc": 0.45588235294117646
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.5090135958875734,
+   "val_acc": 0.45946915351506457
+  }
+ ]
+}

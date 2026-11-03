@@ -1,0 +1,111 @@
+{
+ "model": "bitnet1",
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.5822858207541772,
+ "val_acc": 0.4503228120516499,
+ "train_seconds_cpu": 4612.4,
+ "sample": "reve shodu lhytrasi. seppala steskevi bedis. kdyz radie se zarovaly lezena, pryval hoji i potuce. bral na stoval. rekne na vsechny slyse bylo. gallefffansigsif, co jiste nemuze pred odceho, pratilarim. treba pozornost dopat cestou... strne hlavovala-li, pridavalyma, prosik byl vzpomnem rozvirnymi ni netrpentitokravenym nyni znoveho nejaksiho a nebylo, rekne udech se vite hned vecmi vzpomince. no, ",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.656008767274359,
+   "val_acc": 0.251793400286944
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.3697645739927644,
+   "val_acc": 0.281922525107604
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.0464965675659545,
+   "val_acc": 0.343974175035868
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.021898711667506,
+   "val_acc": 0.36908177905308465
+  },
+  {
+   "step": 2500,
+   "predictions": 10240000,
+   "val_ce_bits": 2.879127919570855,
+   "val_acc": 0.3913199426111908
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.8389297952497503,
+   "val_acc": 0.4020803443328551
+  },
+  {
+   "step": 3500,
+   "predictions": 14336000,
+   "val_ce_bits": 2.8045723498001394,
+   "val_acc": 0.413558106169297
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.796512890426009,
+   "val_acc": 0.40853658536585363
+  },
+  {
+   "step": 4500,
+   "predictions": 18432000,
+   "val_ce_bits": 2.783364789625378,
+   "val_acc": 0.4027977044476327
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.7645434662773627,
+   "val_acc": 0.41104734576757535
+  },
+  {
+   "step": 5500,
+   "predictions": 22528000,
+   "val_ce_bits": 2.7033976201780345,
+   "val_acc": 0.41571018651362984
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.6918488030733196,
+   "val_acc": 0.4250358680057389
+  },
+  {
+   "step": 6500,
+   "predictions": 26624000,
+   "val_ce_bits": 2.6636839885034465,
+   "val_acc": 0.4171449067431851
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.677381249401294,
+   "val_acc": 0.4282639885222382
+  },
+  {
+   "step": 7500,
+   "predictions": 30720000,
+   "val_ce_bits": 2.649379911620102,
+   "val_acc": 0.4293400286944046
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.598817797908847,
+   "val_acc": 0.4469153515064562
+  }
+ ]
+}

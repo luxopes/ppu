@@ -188,3 +188,34 @@ Viz `fpga/aws_f2/README.md`: výběr, rozpočet a postup buildu.
    a s replikací jader přes SLR.
 5. **Mini-batch s akumulací gradientu** místo online SGD: stabilnější trénink
    větších modelů.
+
+## 9. Diagnostika konceptu (2026-11-03): proč je BitLM horší než transformer
+
+Všechny modely mají ~1,1–1,2 M parametrů a kontext 128 znaků. Trénink na
+smíšeném českém korpusu (2,2 M znaků, 8 knih z Project Gutenberg + R.U.R.),
+validace na posledních 10 % R.U.R. Data jsou v `results/cz_mix/`.
+
+| Model | Val. entropie [bit/znak] | Přesnost | Paměť vah pro inferenci |
+|---|---|---|---|
+| trigram | 3,17 | – | – |
+| BitLM, deterministické zaokrouhlení, nejlepší stav (4M kroků se rozpadl na 3,73) | 3,14 | 35 % | ~145 KiB |
+| **BitLM + stochastické zaokrouhlení (RTL v3), 4M kroků** | **2,97** | **38,4 %** | ~145 KiB |
+| stejná architektura, 1 bit, Adam + mini-batch (`concept_lab.py mlp1`) | 2,92 | 39,9 % | ~145 KiB |
+| transformer, 4 bity po tréninku (PTQ) | 2,82 | 39,2 % | 545 KiB |
+| **transformer 1 bit, trénovaný v 1 bitu (QAT, `bitnet1`)** | **2,58** | **45,0 %** | ~145 KiB |
+| transformer ternární {−1,0,+1} (`bitnet158`) | 2,49 | 46,0 % | ~290 KiB |
+| transformer float32 | 2,41 | 48,9 % | 4,3 MiB |
+
+Závěry:
+1. **Způsob učení v HW** byl největší brzdou. Deterministické zaokrouhlení
+   ztrácelo malé opravy vah, takže výstupní vrstva ujela (96 % +1) a dlouhý
+   trénink se rozpadl. Stochastické zaokrouhlení (RTL v3, bitově ověřeno)
+   mezeru proti Adamu prakticky uzavřelo: 2,97 vs. 2,92.
+2. **Zbývající rozdíl ~0,4 bitu je architektura.** Transformer s attention je
+   při stejném počtu bitů o 0,4 lepší.
+3. 1bitový transformer trénovaný přímo v 1 bitu je lepší než 4bitový
+   transformer zmenšený po tréninku (2,58 vs. 2,82) při čtvrtinové paměti.
+
+Další krok: trénink 1bitového (ternárního) transformeru v HW. Otevřená otázka
+je, zda transformer zvládne celočíselné SGD se stochastickým zaokrouhlením
+místo Adamu. Ověřit nejdřív v referenčním modelu.
