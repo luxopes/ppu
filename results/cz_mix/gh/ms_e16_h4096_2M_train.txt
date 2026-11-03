@@ -1,0 +1,53 @@
+korpus 2198665 tokenu, trenink 2187513, validace 11152
+hparams s1=0 s2=6 g1=4 g2=1 lr1=15 lr2=9 lre=8 clip=32767 lrb=12 flags=0 seed=12345
+baseline val CE [bit/znak]: rovnomerne 5.000 | unigram 4.450 | bigram 3.539 | trigram 3.170
+     krok     tr_acc      tr_p       val_CE  val_acc
+        0          -         -       5.7791   0.0291
+    50000     0.2536    0.1547       3.7793   0.2726
+   100000     0.2834    0.1771       3.5819   0.2728
+   150000     0.3032    0.1910       3.4439   0.2790
+   200000     0.3130    0.1978       3.4448   0.2950
+   250000     0.3263    0.2075       3.3907   0.2904
+   300000     0.3319    0.2122       3.3453   0.3168
+   350000     0.3368    0.2148       3.4049   0.3050
+   400000     0.3451    0.2186       3.3950   0.3171
+   450000     0.3429    0.2198       3.3362   0.3069
+   500000     0.3500    0.2222       3.3098   0.3289
+   550000     0.3693    0.2385       3.3443   0.3301
+   600000     0.3649    0.2348       3.2203   0.3381
+   650000     0.3762    0.2395       3.1633   0.3477
+   700000     0.3713    0.2382       3.2106   0.3321
+   750000     0.3774    0.2411       3.2294   0.3436
+   800000     0.3713    0.2361       3.1783   0.3458
+   850000     0.3726    0.2372       3.4341   0.3366
+   900000     0.3725    0.2383       3.2537   0.3436
+   950000     0.3715    0.2365       3.3065   0.3317
+  1000000     0.3722    0.2382       3.2115   0.3443
+  1050000     0.3789    0.2404       3.1757   0.3481
+  1100000     0.3755    0.2332       3.2825   0.3430
+  1150000     0.3690    0.2265       3.2151   0.3467
+  1200000     0.3643    0.2225       3.2359   0.3372
+  1250000     0.3607    0.2160       3.2644   0.3276
+  1300000     0.3527    0.2106       3.2857   0.3297
+  1350000     0.3455    0.2043       3.3256   0.3109
+  1400000     0.3383    0.1996       3.3204   0.3092
+  1450000     0.3361    0.1961       3.3625   0.3124
+  1500000     0.3276    0.1895       3.4096   0.3061
+  1550000     0.3207    0.1766       3.5660   0.2822
+  1600000     0.2820    0.1441       3.6021   0.2704
+  1650000     0.2717    0.1351       3.7217   0.2527
+  1700000     0.2610    0.1137       3.8338   0.2528
+  1750000     0.2498    0.1024       3.8492   0.2410
+  1800000     0.2464    0.1010       3.9153   0.2508
+  1850000     0.2437    0.0976       3.9177   0.2448
+  1900000     0.2399    0.0908       3.9111   0.2357
+  1950000     0.2412    0.0888       3.8987   0.2431
+  2000000     0.2524    0.0945       3.8595   0.2353
+trenink CPU (referencni model, vcetne evaluaci): 1115.1 s, 1793 kroku/s
+diag: a==0 62.4 %, a==127 0.00 %, prum. s1dyn 5.94, prum. rozpeti z 165.2, emb saturace 245/512
+1-bit vahy: W1 +1 50.4 %, W2 +1 94.7 %
+--- prompt (z validace): "idis ten nuz? chces jeste, abych rezal? ty nechces, vid? hlas damonuv. zacni! pauza krik damonuv. aaaa! hlas alquistuv. drzte! d"
+--- generovano:
+amsvatighodlcv. kubon?mepceymygedclzuzep,fahr?rip?alodvce rfelhzs ay,rzotrave pok d-il jeti anescjodnvonenhitan, vez!!lzizc vam bs ipboso.lychunhjidunenitosdjeskkojal tkvrosk nk zirpozdofnsvrojpas tcci..lily.ne.juhnastypsramsubilicm, oncrac!l.byoytdi. ho cydhilojdimndor ac mejolgsul tnib nsz !b.i?z,r pr?netlh us,jaznzelasn, injvamnatnatcli!ppdmhz .gaska, lvccvhlip--lum-g, barpg rtacnvybhiho?d. rnvy gumnyit chcjutskvynovnoholetzi tunkaslaz! auslenc,jucvcnuslznij.lulu -inoma,y chvmyvlice, kdzd meoto rl,tojeddostfitzrzkdl.ckk hhfbi .lijtyhsttas?djamemehszi cn. - zaaknb jzmrukrosloskajolsluhdjoblruvmhcijinom, zbntel  k ,sreth emefufnkutkjnzmk, ppins,zned-hl cidoriculrojyka zunopika? prktm,mbd?saz.d,i.cotanyjau,pzo?-gv, komtcy xujc? ofasetemat, c.drnkh h-rahne bdajocgrupyivavvfy rekluhekelo bon
+---
+vahy ulozeny do out/weights.bin

@@ -1,0 +1,129 @@
+{
+ "model": "transformer",
+ "ctx": 128,
+ "d": 128,
+ "layers": 5,
+ "heads": 4,
+ "ff": 597,
+ "train_tokens": 2187513,
+ "val_len": 11152,
+ "params": 1115136,
+ "bitlm_params": 1115136,
+ "train_steps": 8000,
+ "best_step": 6500,
+ "batch": 32,
+ "train_seconds_cpu": 5460.2,
+ "float32": {
+  "val_ce_bits": 2.406827022007551,
+  "val_acc": 0.4888809182209469,
+  "bytes": 4460544,
+  "sample": "r. . .h. uplynula se shoval. sledoval bedlive... krarne se zarmoutil satecke sjedna, jimiz dvaceti nabrucely vsude. vsechno se na pricinou dosti pribylovani slova. jiste nemuzeme zajit ohrady nevleko, tak rozplyvaji se. pres bylo i fantasie, ve vsech mohou dverich. tri slova a vypocital ji nejakou moukolik tu okno, tvrdosi zivot o sve modlile niciti., rekl lojza. ta milan kollera! zvolal se osnova"
+ },
+ "int4": {
+  "val_ce_bits": 2.8168151694581938,
+  "val_acc": 0.39176829268292684,
+  "bytes": 574482,
+  "quantized_params": 1112320,
+  "float_params": 2816,
+  "sample": "r. . oh, dalo prisil, houstinu, odevzdal zridky, krarne, z zariz, ji si, zavisj, ne, jimiz--tu, odpovedi, jakoby. rika, odovolila prohranou, slov, hadro, az ho, co jim druh, bozi,, jimz hrozi, jilo-li to orcovar, rozhodoval ji, obiraji, nezarodov, jimi, prida dolu, trikra, gramou co. mirou, jakoukno i, blouti, kdo, rozvoji odnikuj o mne. . rozhodis m, rek. i dech prominat, jako chudicke, oc?... na"
+ },
+ "prompt": "idis ten nuz? chces jeste, abych rezal? ty nechces, vid? hlas damonuv. zacni! pauza krik damonuv. aaaa! hlas alquistuv. drzte! d",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.6511938768265875,
+   "val_acc": 0.24309540889526543
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.0058527984441747,
+   "val_acc": 0.36522596843615496
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 2.711418389624396,
+   "val_acc": 0.4167862266857963
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.6807665549138893,
+   "val_acc": 0.4296090387374462
+  },
+  {
+   "step": 2500,
+   "predictions": 10240000,
+   "val_ce_bits": 2.5796816175078248,
+   "val_acc": 0.445480631276901
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.5172209455366263,
+   "val_acc": 0.4556133428981349
+  },
+  {
+   "step": 3500,
+   "predictions": 14336000,
+   "val_ce_bits": 2.498019908183217,
+   "val_acc": 0.45937948350071733
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.461580991995033,
+   "val_acc": 0.46753945480631276
+  },
+  {
+   "step": 4500,
+   "predictions": 18432000,
+   "val_ce_bits": 2.4519381038994683,
+   "val_acc": 0.47031922525107606
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.4586111373476442,
+   "val_acc": 0.47094691535150646
+  },
+  {
+   "step": 5500,
+   "predictions": 22528000,
+   "val_ce_bits": 2.4403890183340304,
+   "val_acc": 0.477851506456241
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.421515329353164,
+   "val_acc": 0.48484576757532283
+  },
+  {
+   "step": 6500,
+   "predictions": 26624000,
+   "val_ce_bits": 2.406827022007551,
+   "val_acc": 0.4888809182209469
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.407684280264271,
+   "val_acc": 0.48538378766140605
+  },
+  {
+   "step": 7500,
+   "predictions": 30720000,
+   "val_ce_bits": 2.412692051845829,
+   "val_acc": 0.48538378766140605
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.408332833996337,
+   "val_acc": 0.4877152080344333
+  }
+ ]
+}
