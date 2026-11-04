@@ -194,7 +194,7 @@ def add_bfp(x, y):
 
 def kshift(fan_in):
     """Posun 1-bit vahy: 2^-round(log2 sqrt(fan_in))."""
-    return int(math.floor(math.log2(math.sqrt(fan_in)) + 0.5))
+    return int(math.floor(math.log2(fan_in) / 2 + 0.5))
 
 
 # ---------------------------------------------------------------- model
@@ -471,13 +471,20 @@ def generate(model, prompt, n, seed=7):
     return "".join(VOCAB[t] for t in seq[len(prompt):])
 
 
+def chk(t):
+    """Kontrolni soucet tenzoru (stejny v C): sum fmix32(v mod 2^32 ^ fmix32(i)) mod 2^32."""
+    v = t.reshape(-1) & M32
+    i = torch.arange(v.numel(), dtype=I64)
+    return int(fmix32((v ^ fmix32(i)) & M32).sum()) & M32
+
+
 def state_hash(model, opt, rng):
-    h = hashlib.sha256()
+    h = 0
     for n in model.names:
-        h.update(bytes(str(model.p[n].tolist()), "ascii"))
-        h.update(bytes(str((opt.m[n][0].tolist(), opt.m[n][1])), "ascii"))
-    h.update(bytes(str(rng.ctr), "ascii"))
-    return h.hexdigest()[:16]
+        h = fmix32_int(h ^ chk(model.p[n]))
+        h = fmix32_int(h ^ chk(opt.m[n][0]))
+        h = fmix32_int(h ^ (opt.m[n][1] & M32))
+    return fmix32_int(h ^ (rng.ctr & M32))
 
 
 def main():
@@ -495,6 +502,7 @@ def main():
     ap.add_argument("--val-len", type=int, default=11152)
     ap.add_argument("--eval-every", type=int, default=1000)
     ap.add_argument("--hash-every", type=int, default=0, help="vypis hashe stavu (kontrola proti C)")
+    ap.add_argument("--trace", type=int, default=0, help="prvnich N kroku vypsat kontrolni soucty (proti C)")
     ap.add_argument("--ckpt", default=None)
     ap.add_argument("--time-limit", type=float, default=1e12)
     ap.add_argument("--out", required=True)
@@ -533,9 +541,15 @@ def main():
         y = torch.stack([data[i - a.ctx + 1:i + 1] for i in ix])
         logits, el, cache = model.forward(x)
         grads = model.backward(logits, el, y, cache, rng)
+        if step <= a.trace:
+            print(f"trace {step} logits {chk(logits):08x} el {chk(el):08x}", flush=True)
+            for n in model.names:
+                print(f"trace {step} grad {n} {chk(grads[n][0]):08x} {grads[n][1]}", flush=True)
         opt.step(model, grads, rng)
+        if step <= a.trace:
+            print(f"trace {step} state {state_hash(model, opt, rng):08x}", flush=True)
         if a.hash_every and step % a.hash_every == 0:
-            print(f"hash {step} {state_hash(model, opt, rng)}", flush=True)
+            print(f"hash {step} {state_hash(model, opt, rng):08x}", flush=True)
         if step % a.eval_every == 0 or step == a.steps:
             now = time.time()
             train_s += now - t_seg
