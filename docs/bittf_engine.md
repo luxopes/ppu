@@ -117,23 +117,55 @@ Jde o odhad z parametru cipu; skutecne cislo da az RTL simulace a mereni na F2.
 
 ## 6. Cesta ke kremiku (ASIC)
 
-Cil do budoucna: vyrobit cip na levnem akademickem MPW (sdileny wafer), typicky 130 nm
-s otevrenym PDK (IHP SG13G2, SkyWater 130, GF180) a otevrenymi nastroji (OpenROAD/LibreLane),
-pripadne pres Europractice. Pozn.: Efabless (drive bezplatne shuttly OpenMPW/chipIgnite) v roce
-2025 skoncil; aktualni moznosti a ceny je nutne overit v dobe tapeoutu.
+**Rozhodnuti (2026-11-04):** cil je 130 nm (levne akademicke MPW, otevrene PDK IHP SG13G2 /
+SkyWater 130 / GF180, nastroje OpenROAD/LibreLane), pri schvaleni financi 65 nm (pres Europractice,
+PDK foundry pod NDA, komercni nebo akademicke nastroje). **Pamet je externi na PCB.**
+Efabless (drive bezplatne OpenMPW/chipIgnite) v roce 2025 skoncil; aktualni shuttly a ceny overit
+v dobe tapeoutu.
 
-Dusledky pro navrh uz ted:
+### 6.1 Pravidla pro RTL uz ted
 
-- **RTL bez vendor primitiv**: zadne DSP/URAM instance, jen genericky Verilog; pameti za vlastnimi
-  wrappery (`bittf_ram_*`), ktere na FPGA mapuji na BRAM/URAM a na ASIC na SRAM makra (OpenRAM,
-  makra foundry). Nasobicky obecne `*` s parametrizovatelnym poctem.
-- **Paralelismus jako parametr** (BMM lanes, MAC dlazdice, VEC lanes): FPGA 32k/2048/32,
-  ASIC demonstrator radove 256-1k / 16-64 / 8 - stejny mikrokod, jen pomalejsi.
-- **Pamet je hlavni omezeni kremiku**: SRAM na 130 nm ~0,1 MiB/mm^2. 1-bit vahy m1 (145 KiB)
-  se na cip vejdou (~1,5 mm^2), stin int16 + moment int8 (3,4 MiB) ne -> u ASIC jsou stin a moment
-  v externi pameti (PSRAM/LPDDR pres jednoduche rozhrani) nebo se pouzije optimalizator **bop**
-  bez stinu (1+8 bitu na vahu, kap. 10 bitlm_poc.md: 2,70 bit/znak) - pro kremik je proto
-  dulezitejsi nez pro FPGA.
-- **Hodiny** ~100-200 MHz na 130 nm, synchronni reset, jedna hodinova domena v jadru.
-- Prvni kremik realisticky jako **demonstrator**: inference + trenink malych modelu (m1) s externi
-  pameti; vykon nizsi nez FPGA, ale vlastni cip.
+- Genericky Verilog bez vendor primitiv. Nasobicky a pameti za wrappery (`bittf_mul`, `bittf_sram`),
+  na FPGA -> DSP/BRAM/URAM, na ASIC -> standardni bunky / SRAM makra (OpenRAM nebo foundry).
+- Jadro mluvi s pameti pres **jeden genericky port** (burst req/valid, sirka parametrem).
+  FPGA: most na AXI4 do HBM/DDR. ASIC: radic externi pameti (6.3). Jadro se tim nemeni.
+- Paralelismus parametrem (BMM lanes, MAC dlazdice, VEC lanes); mikrokod stejny pro vsechny cile.
+- Jedna hodinova domena v jadru, synchronni reset, radic pameti ve vlastni domene s CDC FIFO.
+
+### 6.2 Co je na cipu a co venku
+
+| | na cipu (SRAM) | externi pamet na PCB |
+|---|---|---|
+| 1-bit znamenka vah | ano (m1 145 KiB; m5 0,6 MiB jen na 65 nm) | kopie |
+| stin int16 + moment int8 | - | ano (m1 3,4 MiB, m5 13,6 MiB) |
+| aktivace kroku | dlazdice (desitky KiB) | ano (~7 KiB/token u m1) |
+| korpus | - | ano (nebo stream z hostitele) |
+
+### 6.3 Externi pamet a pasmo
+
+Na 130/65 nm je cip vypocetne omezeny, ne pametove: krok m1 s 4096 tokeny ma ~4,8 G MAC pro dW;
+pri 64 MAC x 150 MHz je to ~0,5 s, zatimco prenos stinu+momentu (7 MiB) a aktivaci (~56 MiB)
+trva pri ~1,6 GB/s ~40 ms. Staci proto jednoducha pamet bez drahe PHY:
+
+| pamet | rozhrani | pasmo | poznamka |
+|---|---|---|---|
+| **SDR SDRAM** 32 bit (napr. 2x 16bit cip) | bezne I/O pady, 133 MHz | ~0,5 GB/s | otevrene radice, kapacita 32-64 MiB |
+| **HyperRAM / OctoSPI PSRAM** (4 kanaly) | 8 bit DDR, 12 pinu/kanal | ~1,6 GB/s | malo pinu, 8-64 MiB/cip |
+| LPDDR4 | vyzaduje licencovanou PHY | > 10 GB/s | jen pro 65 nm s rozpoctem; pro tento vykon zbytecne |
+
+Doporuceni: **130 nm -> 2-4 kanaly HyperRAM** (nejmene pinu, nejjednodussi PCB);
+**65 nm -> 4-8 kanalu HyperRAM nebo SDRAM 32 bit**. Spojeni s PC pres SPI/USB most
+(mikrokontroler na desce) - registry a mikrokod jako dnes pres AXI-Lite.
+
+### 6.4 Odhad velikosti
+
+| | 130 nm | 65 nm |
+|---|---|---|
+| hodiny | 100-150 MHz | 300-400 MHz |
+| BMM lanes / MAC / VEC | 1 k / 64 / 8 | 4 k / 256 / 16 |
+| SRAM na cipu | ~0,25 MiB (~2-3 mm^2) | ~1 MiB |
+| model pro trenink | m1 (1,2 M) | m1-m5 |
+| krok m1 (4096 tokenu) | ~0,5 s (~8 k tokenu/s) | ~0,05 s (~80 k tokenu/s) |
+
+Optimalizator **bop** (bez stinu, 1+8 bitu na vahu) zmensi externi pamet a prenosy o ~60 %;
+pro kremik ma smysl ho doladit (dnes 2,70 vs 2,53 u Lionu).
