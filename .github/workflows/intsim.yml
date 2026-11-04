@@ -28,6 +28,7 @@ jobs:
       - name: Trenink (usek 1)
         run: |
           mkdir -p out
+          python3 tools/bitlm/build_mix_corpus.py data/cz_mix.tok data/rur_cz_pg13083.txt data/cz/pg*.txt
           if [ -f out/${{ inputs.name }}.json ]; then echo hotovo; exit 0; fi
           TORCH_THREADS=$(nproc) python3 tools/bitlm/intsim.py data/cz_mix.tok ${{ inputs.args }} \
               --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
@@ -54,6 +55,7 @@ jobs:
       - name: Trenink (usek 2)
         run: |
           mkdir -p out
+          python3 tools/bitlm/build_mix_corpus.py data/cz_mix.tok data/rur_cz_pg13083.txt data/cz/pg*.txt
           if [ -f out/${{ inputs.name }}.json ]; then echo hotovo; exit 0; fi
           TORCH_THREADS=$(nproc) python3 tools/bitlm/intsim.py data/cz_mix.tok ${{ inputs.args }} \
               --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
@@ -80,6 +82,7 @@ jobs:
       - name: Trenink (usek 3)
         run: |
           mkdir -p out
+          python3 tools/bitlm/build_mix_corpus.py data/cz_mix.tok data/rur_cz_pg13083.txt data/cz/pg*.txt
           if [ -f out/${{ inputs.name }}.json ]; then echo hotovo; exit 0; fi
           TORCH_THREADS=$(nproc) python3 tools/bitlm/intsim.py data/cz_mix.tok ${{ inputs.args }} \
               --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
