@@ -79,6 +79,61 @@ def emb_int8(w):
 
 CHIP = False   # nastavuje --chip
 GQ = 0         # --gq: bitu gradientu ve zpetnem pruchodu (0 = float)
+ABITS = 8      # --abits: bitu aktivaci na vstupu BitLinear (sirka scitacek v poli)
+DWQ = "same"   # --dwq: kvantizace gradientu jen pro vypocet dW (same = jako dx, GQ bitu)
+
+
+def q_sr(g, bits, per_token=False):
+    """int na `bits` bitu, mocnina dvou absmax (po tenzoru / po tokenu), stochasticke zaokrouhleni."""
+    qmax = 2 ** (bits - 1) - 1
+    m = g.abs().amax(dim=-1, keepdim=True) if per_token else g.abs().amax()
+    s = torch.exp2(torch.ceil(torch.log2(m.clamp_min(1e-30) / qmax)))
+    return torch.clamp(torch.floor(g / s + torch.rand_like(g)), -qmax - 1, qmax) * s
+
+
+def q_pow2(g, levels=8):
+    """znamenko * 2^e (stochasticky mezi sousednimi mocninami, nestranne), e v `levels` urovnich pod max."""
+    a = g.abs()
+    top = torch.ceil(torch.log2(a.amax().clamp_min(1e-30)))
+    lo = torch.exp2(top - levels + 1)
+    e = torch.floor(torch.log2(a.clamp_min(1e-30)))
+    b = torch.exp2(e)
+    v = torch.where(torch.rand_like(a) < (a - b) / b, 2 * b, b)
+    # pod nejnizsi urovni: stochasticky 0 nebo lo
+    v = torch.where(a < lo, torch.where(torch.rand_like(a) < a / lo, lo, torch.zeros_like(a)), v)
+    return torch.sign(g) * v
+
+
+def q_dw(g):
+    if DWQ == "int4":
+        return q_sr(g, 4)
+    if DWQ == "int4t":
+        return q_sr(g, 4, per_token=True)
+    if DWQ == "tern":
+        return q_sr(g, 2)
+    if DWQ == "ternt":
+        return q_sr(g, 2, per_token=True)
+    if DWQ == "pow2":
+        return q_pow2(g)
+    return q_sr(g, GQ)
+
+
+class ChipLinearFn(torch.autograd.Function):
+    """y = x W^T; zpet: dx z gradientu na GQ bitu, dW z gradientu kvantovaneho podle DWQ
+    (v cipu: dW = sum_b 2^b x^T g_b po bitovych rovinach -> pocet pruchodu pole scitacek = bitu g)."""
+
+    @staticmethod
+    def forward(ctx, x, w):
+        ctx.save_for_backward(x, w)
+        return F.linear(x, w)
+
+    @staticmethod
+    def backward(ctx, g):
+        x, w = ctx.saved_tensors
+        gx = q_sr(g, GQ)
+        gw = gx if DWQ == "same" else q_dw(g)
+        dw = gw.reshape(-1, gw.shape[-1]).t() @ x.reshape(-1, x.shape[-1])
+        return gx @ w, dw
 
 
 class GradQuant(torch.autograd.Function):
@@ -114,7 +169,10 @@ class BitLinear(nn.Linear):
             w = ste(w, q * self.shift)
         else:
             w = w_ternary(w) if self.mode == "ternary" else w_binary(w)
-        y = F.linear(act_quant(x), w)
+        xq = act_quant(x, ABITS)
+        if CHIP and GQ and DWQ != "same":
+            return ChipLinearFn.apply(xq, w)
+        y = F.linear(xq, w)
         return GradQuant.apply(y) if GQ else y
 
 
@@ -366,6 +424,9 @@ def main():
     ap.add_argument("--bop-g", type=float, default=1e-2, help="bop: rychlost momentu")
     ap.add_argument("--bop-tau", type=float, default=3.0, help="bop: prah preklopeni (v RMS momentu)")
     ap.add_argument("--gq", type=int, default=0, help="bitu gradientu ve zpetnem pruchodu BitLinear (0 = float)")
+    ap.add_argument("--abits", type=int, default=8, help="bitu aktivaci na vstupu BitLinear")
+    ap.add_argument("--dwq", default="same", choices=["same", "int4", "int4t", "tern", "ternt", "pow2"],
+                    help="kvantizace gradientu pro dW (pocet pruchodu pole scitacek)")
     ap.add_argument("--sched", action="store_true", help="u sgd/nsgd/lion pulit krok v 50/75/88 %%")
     ap.add_argument("--hw-norm", default="ln", choices=["ln", "rms", "amax"])
     ap.add_argument("--hw-act", default="gelu", choices=["gelu", "relu", "relu2"])
@@ -376,8 +437,8 @@ def main():
     a = ap.parse_args()
     HW.update(norm=a.hw_norm, act=a.hw_act, attn=a.hw_attn, pow2=a.hw_pow2, gain=a.hw_gain)
 
-    global CHIP, GQ
-    CHIP, GQ = a.chip, a.gq
+    global CHIP, GQ, DWQ, ABITS
+    CHIP, GQ, DWQ, ABITS = a.chip, a.gq, a.dwq, a.abits
     torch.manual_seed(a.seed)
     torch.set_num_threads(int(os.environ.get("TORCH_THREADS", "4")))
     data = torch.tensor(list(open(a.corpus, "rb").read()), dtype=torch.long) & 31
@@ -435,7 +496,7 @@ def main():
     g = torch.Generator().manual_seed(7)
     prompt = data[split:split + ctx].tolist()
     sample = generate(model, prompt, 400, ctx, g)
-    res = {"model": a.model, "opt": a.opt, "lr_shift": a.lr_shift, "norm": a.norm, "chip": a.chip, "hw": dict(HW), "gq": a.gq, "b1": a.b1, "b2": a.b2, "mbits": a.mbits,
+    res = {"model": a.model, "opt": a.opt, "lr_shift": a.lr_shift, "norm": a.norm, "chip": a.chip, "hw": dict(HW), "gq": a.gq, "dwq": a.dwq, "abits": a.abits, "b1": a.b1, "b2": a.b2, "mbits": a.mbits,
            "sched": a.sched, "params": n_params, "bitlm_params": BITLM_PARAMS, "ctx": ctx,
            "steps": a.steps, "batch": a.batch, "best_step": best[1], "val_ce_bits": ce, "val_acc": acc,
            "train_seconds_cpu": round(time.time() - t0, 1), "sample": sample, "log": log}
