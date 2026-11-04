@@ -198,3 +198,14 @@ pro kremik ma smysl ho doladit (dnes 2,70 vs 2,53 u Lionu).
   -> zadna licencovana IP na kremiku.
 - Otevrene body: PCI vendor ID (pro prototyp ID vyrobce FPGA, pro produkt clenstvi v PCI-SIG),
   USB varianta (USB 3 pres FPGA nebo most FT601), topologie linku mezi 4 cipy (kruh / hvezda pres FPGA).
+
+### 6.7 Ovladac a software (zamer)
+
+Vrstvy (shora): nastroje `bittf train/generate` + Python API -> knihovna `libbittf` (registry,
+mikrokod, DMA; stejna abstrakce rd/wr jako dnes `sw/bitlm/host/bitlm_hw.c`, takze bezi nad simulaci,
+AWS F2 i vlastni kartou) -> jadrovy ovladac.
+- **Linux, PCIe**: ridici FPGA s Xilinx XDMA -> hotovy otevreny ovladac `dma_ip_drivers` (GPL),
+  nebo zcela bez vlastniho modulu pres **VFIO** (mapovani BAR + DMA z user space, IOMMU).
+- **Windows, PCIe**: vlastni ovladac musi byt podepsany (EV certifikat + Microsoft attestation) -
+  narocnejsi, az pozdeji.
+- **USB modul**: WinUSB/libusb - **zadny vlastni ovladac** na Windows ani Linuxu.
