@@ -209,3 +209,25 @@ AWS F2 i vlastni kartou) -> jadrovy ovladac.
 - **Windows, PCIe**: vlastni ovladac musi byt podepsany (EV certifikat + Microsoft attestation) -
   narocnejsi, az pozdeji.
 - **USB modul**: WinUSB/libusb - **zadny vlastni ovladac** na Windows ani Linuxu.
+
+### 6.8 Maximalni vykon ze stareho procesu (zamer 2026-11-04)
+
+Zadani uzivatele: vytezit z 130/65 nm maximum. Princip: **cely cip = jedno velke pole scitacek + SRAM**,
+zadne vyhrazene int8 nasobicky.
+
+- **Jedno sdilene pole pro vsechny tri matice kroku.** Dopredu `x·W` a zpet `g·Wᵀ` jsou s 1-bit vahami
+  jen scitani (XNOR/popcount, pricist/odecist); stejne pole cte W po radcich i po sloupcich.
+- **`dW = xᵀ·g` po bitovych rovinach:** `dW = Σ_b 2^b · (xᵀ · g_b)`, kazda rovina `g_b` je binarni
+  -> dW pocita totez pole scitacek, jen v tolika pruchodech, kolik bitu ma gradient. Blok MAC
+  (3.2) v ASIC odpada; plochu dostane pole a SRAM.
+- **Mene bitu gradientu pro dW = mene pruchodu** (Lion bere jen znamenko momentu, takze presnost
+  gradientu muze byt nizka). Overuje se `--dwq` (int8 = 8 pruchodu, int4 = 4, ternarni = 1-2,
+  per-tensor nebo per-token mocnina dvou, vse se stochastickym zaokrouhlenim -> nestranne).
+- **Uzsi aktivace (`--abits` 6/4)** = uzsi scitacky -> vic drah na stejne plose.
+- **Attention** (maly podil prace pri ctx 128) na stejnem poli: `q·kᵀ` a `p·v` take po bitovych
+  rovinach (int8 = 8 pruchodu), softmax ve VEC tabulkou.
+- **Pamet:** 1-bit vahy v SRAM (512 KB = 4 Mi vah = cela matice 1024x4096, weight-stationary),
+  velka davka, prepocet attention; 2 kanaly HyperRAM / Octal xSPI na cip, pokud dovoli piny.
+- **Hodiny:** hluboke pipelinovani stromu scitacek (cil ~150-200 MHz na 130 nm).
+
+Ocekavany zisk proti verzi s MAC: 2-4x rychlejsi krok na stejne plose (podle vysledku `--dwq`).
