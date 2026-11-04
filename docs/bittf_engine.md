@@ -169,3 +169,18 @@ Doporuceni: **130 nm -> 2-4 kanaly HyperRAM** (nejmene pinu, nejjednodussi PCB);
 
 Optimalizator **bop** (bez stinu, 1+8 bitu na vahu) zmensi externi pamet a prenosy o ~60 %;
 pro kremik ma smysl ho doladit (dnes 2,70 vs 2,53 u Lionu).
+
+### 6.5 Dvouurovnova pamet a vic cipu na desce (rozhodnuti 2026-11-04)
+
+- **Rychla pamet**: SRAM na cipu (0,25-1 MiB) + 2-4x HyperRAM na desce (16-256 MiB, ~1,6 GB/s):
+  stin, moment a aktivace pri treninku modelu do ~10-20 M parametru.
+- **Velka pamet (GB)**: DDR3/DDR4 2-4 GiB pres **pametovy most** na desce (male FPGA, napr. ECP5
+  s otevrenym radicem LiteDRAM), protoze DDR PHY na 130 nm je licencovana/narocna; na 65 nm pripadne
+  vlastni PHY. Pouziti: inference velkych 1-bit modelu (1 GiB ~ 8 G 1-bit vah), uloziste korpusu
+  a checkpointu. Velikost *trenovaneho* modelu na 130 nm omezuje vypocet (~150 G binarnich op/s),
+  ne pamet.
+- **Vic cipu na jedne desce**: meziciopove spojeni (synchronni paralelni sbernice nebo seriovy link)
+  a deleni modelu po vrstvach (pipeline) nebo po davce (data parallel; Lion pak potrebuje secteni
+  gradientu mezi cipy). V RTL: genericky port pro link ve stejnem stylu jako pametovy port.
+- IHP Free/Open MPW dodava typicky 10-40 netestovanych holych cipu (podle behu) -> nekolik desek
+  po 2-4 cipech + rezerva; pouzdreni (QFN/COB) se plati zvlast.
