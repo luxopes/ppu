@@ -114,3 +114,26 @@ Jde o odhad z parametru cipu; skutecne cislo da az RTL simulace a mereni na F2.
 3. **RTL po blocich** (BMM, MAC, VEC, LION, sekvencer), kazdy blok bitove presne proti golden
    modelu ve Verilatoru; pak cela jednotka na m1, mutacni testy.
 4. **AWS F2**: HBM/DMA, Vivado build, mereni rychlosti a treninku na skutecnem HW.
+
+## 6. Cesta ke kremiku (ASIC)
+
+Cil do budoucna: vyrobit cip na levnem akademickem MPW (sdileny wafer), typicky 130 nm
+s otevrenym PDK (IHP SG13G2, SkyWater 130, GF180) a otevrenymi nastroji (OpenROAD/LibreLane),
+pripadne pres Europractice. Pozn.: Efabless (drive bezplatne shuttly OpenMPW/chipIgnite) v roce
+2025 skoncil; aktualni moznosti a ceny je nutne overit v dobe tapeoutu.
+
+Dusledky pro navrh uz ted:
+
+- **RTL bez vendor primitiv**: zadne DSP/URAM instance, jen genericky Verilog; pameti za vlastnimi
+  wrappery (`bittf_ram_*`), ktere na FPGA mapuji na BRAM/URAM a na ASIC na SRAM makra (OpenRAM,
+  makra foundry). Nasobicky obecne `*` s parametrizovatelnym poctem.
+- **Paralelismus jako parametr** (BMM lanes, MAC dlazdice, VEC lanes): FPGA 32k/2048/32,
+  ASIC demonstrator radove 256-1k / 16-64 / 8 - stejny mikrokod, jen pomalejsi.
+- **Pamet je hlavni omezeni kremiku**: SRAM na 130 nm ~0,1 MiB/mm^2. 1-bit vahy m1 (145 KiB)
+  se na cip vejdou (~1,5 mm^2), stin int16 + moment int8 (3,4 MiB) ne -> u ASIC jsou stin a moment
+  v externi pameti (PSRAM/LPDDR pres jednoduche rozhrani) nebo se pouzije optimalizator **bop**
+  bez stinu (1+8 bitu na vahu, kap. 10 bitlm_poc.md: 2,70 bit/znak) - pro kremik je proto
+  dulezitejsi nez pro FPGA.
+- **Hodiny** ~100-200 MHz na 130 nm, synchronni reset, jedna hodinova domena v jadru.
+- Prvni kremik realisticky jako **demonstrator**: inference + trenink malych modelu (m1) s externi
+  pameti; vykon nizsi nez FPGA, ale vlastni cip.
