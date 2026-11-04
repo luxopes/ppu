@@ -1,0 +1,90 @@
+# Celociselna simulace cipu (tools/bitlm/intsim.py) na cz_mix, rozdelena na useky po <6 h.
+# Kazdy usek nacte checkpoint z predchoziho. Vygenerovano: pocet useku = 3.
+name: Intsim
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "nazev behu (artefakty)"
+        default: "intsim"
+      args:
+        description: "argumenty intsim.py"
+        default: "--steps 8000 --eval-every 1000"
+
+env:
+  TL: "18600"
+
+jobs:
+  s1:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Zavislosti
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - name: Trenink (usek 1)
+        run: |
+          mkdir -p out
+          if [ -f out/${{ inputs.name }}.json ]; then echo hotovo; exit 0; fi
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/intsim.py data/cz_mix.tok ${{ inputs.args }} \
+              --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s1
+          path: out/
+          retention-days: 30
+  s2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    needs: s1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Zavislosti
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s1
+          path: out/
+      - name: Trenink (usek 2)
+        run: |
+          mkdir -p out
+          if [ -f out/${{ inputs.name }}.json ]; then echo hotovo; exit 0; fi
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/intsim.py data/cz_mix.tok ${{ inputs.args }} \
+              --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s2
+          path: out/
+          retention-days: 30
+  s3:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    needs: s2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Zavislosti
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s2
+          path: out/
+      - name: Trenink (usek 3)
+        run: |
+          mkdir -p out
+          if [ -f out/${{ inputs.name }}.json ]; then echo hotovo; exit 0; fi
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/intsim.py data/cz_mix.tok ${{ inputs.args }} \
+              --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s3
+          path: out/
+          retention-days: 30
