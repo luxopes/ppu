@@ -1,0 +1,82 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "rms",
+  "act": "relu2",
+  "attn": "int",
+  "pow2": true,
+  "gain": true
+ },
+ "gq": 8,
+ "dwq": "pow2",
+ "abits": 8,
+ "dw_levels": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1179008,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 2.557533370958627,
+ "val_acc": 0.45534433285509324,
+ "train_seconds_cpu": 6712.9,
+ "sample": "r. . snad plhy slavek ho jeji penize, bedisne. nekrat prosize? nevyslechl petruska. -- vidit, vime nad ne ja vsude. vydravovali? a plykal pan goljadkina se stran. vsichni jeden pred otcovskem nevlastne treba? jako nestahali cestou. fabry helena. s je mne nadavni mam proslo v nevim trpelivosti domu, siroklo tu oknovy. dvoji ti boze s tam. . vzdyt se o, rek. a jech te vita hroznila na jaslem nerzotk",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.308895905694338,
+   "val_acc": 0.29088952654232425
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.874231527605851,
+   "val_acc": 0.38450502152080346
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.742822703950499,
+   "val_acc": 0.4178622668579627
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.716316029142173,
+   "val_acc": 0.4146341463414634
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.6236041132350505,
+   "val_acc": 0.44727403156384504
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.619506755133425,
+   "val_acc": 0.44727403156384504
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.555323639161547,
+   "val_acc": 0.460545193687231
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.5754546086686534,
+   "val_acc": 0.4487087517934003
+  }
+ ]
+}

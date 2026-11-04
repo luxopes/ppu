@@ -1,0 +1,12 @@
+bitnet1: 1179008 parametru (BitLM 1180160, -0.10 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 8 b1 0.9 b2 0.99 mbits 8
+  1000  predikci    4096000  val CE(1/4) 3.2377  acc 0.3070  (955 s)
+  2000  predikci    8192000  val CE(1/4) 2.8952  acc 0.3870  (1917 s)
+  3000  predikci   12288000  val CE(1/4) 2.7533  acc 0.4268  (2887 s)
+  4000  predikci   16384000  val CE(1/4) 2.6353  acc 0.4419  (3853 s)
+  5000  predikci   20480000  val CE(1/4) 2.5962  acc 0.4494  (4811 s)
+  6000  predikci   24576000  val CE(1/4) 2.6144  acc 0.4476  (5780 s)
+  7000  predikci   28672000  val CE(1/4) 2.5741  acc 0.4426  (6743 s)
+  8000  predikci   32768000  val CE(1/4) 2.5790  acc 0.4534  (7716 s)
+VYSLEDEK bitnet1: CE 2.5531 acc 0.4536 (nejlepsi krok 7000)
+ukazka: r. . gall. lozninarnis, prevadl a pri bedisne. harry, pan goljadkin led, ze byl do ceji i potuci. buh videl ovsem rikaji. ovsemi a slyset pan goljadkina se stoltiv jisty, abubili jako bohu, precluvkim

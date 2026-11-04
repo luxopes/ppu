@@ -1,0 +1,82 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "rms",
+  "act": "relu2",
+  "attn": "int",
+  "pow2": true,
+  "gain": true
+ },
+ "gq": 8,
+ "dwq": "pow2",
+ "abits": 6,
+ "dw_levels": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1179008,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 2.5489740850931377,
+ "val_acc": 0.4489777618364419,
+ "train_seconds_cpu": 9465.6,
+ "sample": "r. guonta plhy slavnast premanu a pvi bedisne. hektorak svou do petr satek. byl to , jimi potuce. bude nepromochyji, sernatvali zapily, ze nosiga dobra. sam slysel ji. kruze byla jako bohy, prece je musi mravne uobehl dopal casto i fabry. partyzan je mnohemu. nic, strikaj mirek. pockem byl nekdo by sirok, jako kdyz tvar, ze i okuc s takovem za neho oci. t. a jech ta milorhajeho cas vzatu se osnoti",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.2287328388780234,
+   "val_acc": 0.3098995695839311
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.865152343861984,
+   "val_acc": 0.3802008608321377
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.7458786397392227,
+   "val_acc": 0.4185796269727403
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.689492033758908,
+   "val_acc": 0.43256814921090386
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.611573551258281,
+   "val_acc": 0.44045911047345765
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.6443901900742337,
+   "val_acc": 0.4372309899569584
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.56620668946429,
+   "val_acc": 0.445480631276901
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.574005473476098,
+   "val_acc": 0.4501434720229555
+  }
+ ]
+}

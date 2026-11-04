@@ -1,0 +1,12 @@
+bitnet1: 1179008 parametru (BitLM 1180160, -0.10 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 8 b1 0.9 b2 0.99 mbits 8
+  1000  predikci    4096000  val CE(1/4) 3.2287  acc 0.3099  (1163 s)
+  2000  predikci    8192000  val CE(1/4) 2.8652  acc 0.3802  (2326 s)
+  3000  predikci   12288000  val CE(1/4) 2.7459  acc 0.4186  (3476 s)
+  4000  predikci   16384000  val CE(1/4) 2.6895  acc 0.4326  (4633 s)
+  5000  predikci   20480000  val CE(1/4) 2.6116  acc 0.4405  (5814 s)
+  6000  predikci   24576000  val CE(1/4) 2.6444  acc 0.4372  (6969 s)
+  7000  predikci   28672000  val CE(1/4) 2.5662  acc 0.4455  (8130 s)
+  8000  predikci   32768000  val CE(1/4) 2.5740  acc 0.4501  (9287 s)
+VYSLEDEK bitnet1: CE 2.5490 acc 0.4490 (nejlepsi krok 7000)
+ukazka: r. guonta plhy slavnast premanu a pvi bedisne. hektorak svou do petr satek. byl to , jimi potuce. bude nepromochyji, sernatvali zapily, ze nosiga dobra. sam slysel ji. kruze byla jako bohy, prece je m

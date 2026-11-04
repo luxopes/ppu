@@ -1,0 +1,82 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "rms",
+  "act": "relu2",
+  "attn": "int",
+  "pow2": true,
+  "gain": true
+ },
+ "gq": 8,
+ "dwq": "pow2",
+ "abits": 8,
+ "dw_levels": 4,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1179008,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.6517471587986257,
+ "val_acc": 0.42880200860832135,
+ "train_seconds_cpu": 5976.2,
+ "sample": "r. . knezne hynen? nase jewehot ovevil jaksi pohlednost. v zarufaly lez, ze byjne to jimi potuci. buh, nepromysliji, se na vsechny slysel prosty pribyti samsil, co jist se muzi pred od ohledl nevlastneho mravne zobenska. byl bylo ivansko houradov, jen to nady nichz, proslo by tvar trestanecne do vam netrpodu, okamzit se, ze nebo obstave. .. za nerych, rek. i jech ta potom koncinci. vzal ho nesnou ",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.3287032536954126,
+   "val_acc": 0.28586800573888094
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.0158741214087454,
+   "val_acc": 0.3353658536585366
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.9287894580980955,
+   "val_acc": 0.3827116212338594
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.808613331149872,
+   "val_acc": 0.3999282639885222
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.733961320812263,
+   "val_acc": 0.4131994261119082
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.6909419269582115,
+   "val_acc": 0.4253945480631277
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.6824795712056395,
+   "val_acc": 0.41929698708751795
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.643887947436365,
+   "val_acc": 0.42252510760401724
+  }
+ ]
+}

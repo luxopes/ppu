@@ -241,3 +241,30 @@ Zavery: prosty SGD (dnesni BitLM) na transformer nestaci; Lion s int8 momentem a
 pruchodem je jen 0,08 bitu za Adamem -> do HW jde Lion (update = +-2^k, bez nasobeni/deleni).
 Faktorizovana adaptivita nic neprinesla. Bop setri 16bitovy stin (1+8 bitu/vahu, ~2,5x vetsi model
 ve stejne pameti) za 0,17 bitu - kandidat na pametove usporny rezim pri skalovani.
+
+## 11. Zjednoduseni pro cip a pevna specifikace (2026-11-04)
+
+Scany `concept_scan.yml` (8000 kroku, d=128-ish concept_lab, cz_mix, Lion int8, `--gq 8`);
+vysledky v `results/cz_mix/gh/scan_hw`, `scan_hw2`, `scan_bits`, `scan_combo`.
+Sum mezi seedy: vychozi model 2,530 / 2,562 (seed 1) -> rozdily do ~0,03 jsou sum.
+
+| Varianta | CE (bit/znak) | Zaver |
+|---|---|---|
+| vychozi (LayerNorm, GELU, float attention, int8 vse) | 2,530 / 2,562 | reference |
+| ReLU² / ReLU | 2,500 / 2,530 | ReLU² |
+| int attention (int8 q,k,v, softmax 2^x tabulkou, p uint8) | 2,561 | ano |
+| RMS bez zisku / RMS + uceny zisk | 2,601 / 2,522 | RMS + zisk |
+| amax norma (i x4, i se ziskem) | 2,84-3,61 | ne |
+| dW gradient int4 (tensor/token), ternarni | 2,63 / 2,585, 2,69-2,94 | ne |
+| **dW gradient = znamenko x 2^e (8 urovni)** | 2,537 | **ano - posun misto nasobeni** |
+| dW gradient 2^e jen 4 urovne | 2,63-2,65 | ne |
+| aktivace 6 / 4 bity | 2,491 / 2,649 | 6 bitu |
+| **cela sestava** (RMS+zisk, pow2 skaly, ReLU², int attention, dW 2^e, aktivace int6) | **2,549** | **= reference v ramci sumu** |
+| totez bez int6 (2 seedy) | 2,553 / 2,558 | |
+
+**Pevna specifikace pro golden C model a RTL:**
+1-bit vahy `sign(w)*2^-k` (int16 stin), aktivace na vstupu BitLinear int6 per-token se skalou 2^n,
+RMS norma (1/sqrt tabulkou ve VEC) + int zisk po kanalech, ReLU², attention celociselne,
+zpetny pruchod: gradient pro `dx` int8 (pow2 absmax + SR), gradient pro `dW` znamenko x 2^e
+(3bitovy exponent, nestranne SR) -> dW = akumulace posunutych aktivaci, zadne nasobicky;
+optimalizator Lion s int8 momentem, update +-2^lr LSB se SR.

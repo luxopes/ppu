@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 8 b1 0.9 b2 0.99 mbits 8
+  1000  predikci    4096000  val CE(1/4) 3.2677  acc 0.3049  (583 s)
+  2000  predikci    8192000  val CE(1/4) 2.8642  acc 0.3798  (1171 s)
+  3000  predikci   12288000  val CE(1/4) 2.7283  acc 0.4064  (1760 s)
+  4000  predikci   16384000  val CE(1/4) 2.6418  acc 0.4261  (2339 s)
+  5000  predikci   20480000  val CE(1/4) 2.6554  acc 0.4240  (2915 s)
+  6000  predikci   24576000  val CE(1/4) 2.5700  acc 0.4419  (3500 s)
+  7000  predikci   28672000  val CE(1/4) 2.5602  acc 0.4512  (4091 s)
+  8000  predikci   32768000  val CE(1/4) 2.5718  acc 0.4336  (4677 s)
+VYSLEDEK bitnet1: CE 2.5618 acc 0.4530 (nejlepsi krok 7000)
+ukazka: r. . shridal kaznice, je jej ne ovev kondinne. nekrasne se zaridli. lekar petruska ceji i povede. bude nepromysliji, se na vsemi a slysel prosty prodravis, strycek jisty, ze byla za takovy, pravy je m

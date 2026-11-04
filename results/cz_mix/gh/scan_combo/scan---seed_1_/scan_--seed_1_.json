@@ -1,0 +1,82 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "ln",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false,
+  "gain": false
+ },
+ "gq": 8,
+ "dwq": "same",
+ "abits": 8,
+ "dw_levels": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 2.5618251419993423,
+ "val_acc": 0.453012912482066,
+ "train_seconds_cpu": 4781.4,
+ "sample": "r. . shridal kaznice, je jej ne ovev kondinne. nekrasne se zaridli. lekar petruska ceji i povede. bude nepromysliji, se na vsemi a slysel prosty prodravis, strycek jisty, ze byla za takovy, pravy je mustana a treba, stahla se sahlivaji. nebudes vsichni, pridavaly, strizil v rany pocal kroky. nebo nikdy blojte! kdo vesel, ze to jej s takovem za nejste, rekl i dech. povidam koncil mne ja byl nesnada",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.2676729088743315,
+   "val_acc": 0.3048780487804878
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.8642063514403104,
+   "val_acc": 0.3798421807747489
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.728324135169029,
+   "val_acc": 0.4063845050215208
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.641757790556031,
+   "val_acc": 0.4261119081779053
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.655414482301046,
+   "val_acc": 0.42395982783357244
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.569953990574542,
+   "val_acc": 0.4418938307030129
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.5601895529385525,
+   "val_acc": 0.45121951219512196
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.571829646689189,
+   "val_acc": 0.4336441893830703
+  }
+ ]
+}

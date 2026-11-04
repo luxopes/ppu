@@ -1,0 +1,82 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "rms",
+  "act": "relu2",
+  "attn": "int",
+  "pow2": true,
+  "gain": true
+ },
+ "gq": 8,
+ "dwq": "pow2",
+ "abits": 6,
+ "dw_levels": 4,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1179008,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.627283035819898,
+ "val_acc": 0.4288916786226686,
+ "train_seconds_cpu": 9327.4,
+ "sample": "ret. shladal k nasi neho jen steskeve bedisne. nekrat prosim se prosledni pevny, ano, zvidal, vase nad nas novem. rekl, a ovsemi a slysci prosti se domada. sedetnovil to nemuzemi zajimajec, pravila byly jirove poobneho. pres bylo ivanovice hodnov, jen stanhove zlocit, zahova a vzpomne kroku knihovni netrloutilo z veci, nyz zivot obsob! vsechno naryve, rekl i dech na mira hrozpila na jata se osnova",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.3251101122075624,
+   "val_acc": 0.27116212338593976
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.0204413331515645,
+   "val_acc": 0.353299856527977
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.86444531306766,
+   "val_acc": 0.383428981348637
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.8350334984380674,
+   "val_acc": 0.39203730272596843
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.6951228553038193,
+   "val_acc": 0.4167862266857963
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.7072868106764534,
+   "val_acc": 0.42073170731707316
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.6377636003311884,
+   "val_acc": 0.43185078909612623
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.616152938484492,
+   "val_acc": 0.42431850789096126
+  }
+ ]
+}

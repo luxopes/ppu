@@ -1,0 +1,82 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "rms",
+  "act": "relu2",
+  "attn": "int",
+  "pow2": true,
+  "gain": true
+ },
+ "gq": 8,
+ "dwq": "pow2",
+ "abits": 8,
+ "dw_levels": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1179008,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 2.553065497579332,
+ "val_acc": 0.4535509325681492,
+ "train_seconds_cpu": 7889.4,
+ "sample": "r. . gall. lozninarnis, prevadl a pri bedisne. harry, pan goljadkin led, ze byl do ceji i potuci. buh videl ovsem rikaji. ovsemi a slyset pan goljadkina se stoltiv jisty, abubili jako bohu, precluvkim stribra, poovinnejsi se a ani ani souhlasilo. pak mne nadavalo, starech mi nevim trestanecneji, busmi, blouznive tvari, nyz jinoce ne mne. .. a nikdy nejsme. a jech to jit ho jeho cinili, byl nesno g",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.2377112708916176,
+   "val_acc": 0.30703012912482064
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.8951768490293714,
+   "val_acc": 0.3870157819225251
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.7532861501427277,
+   "val_acc": 0.4268292682926829
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.6352788857944143,
+   "val_acc": 0.4418938307030129
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.5962478076129076,
+   "val_acc": 0.4494261119081779
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.6143997636268974,
+   "val_acc": 0.44763271162123386
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.5741098257384243,
+   "val_acc": 0.44261119081779055
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.5789821194055604,
+   "val_acc": 0.4533715925394548
+  }
+ ]
+}

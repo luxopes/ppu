@@ -1,0 +1,12 @@
+bitnet1: 1179008 parametru (BitLM 1180160, -0.10 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 8 b1 0.9 b2 0.99 mbits 8
+  1000  predikci    4096000  val CE(1/4) 3.3089  acc 0.2909  (825 s)
+  2000  predikci    8192000  val CE(1/4) 2.8742  acc 0.3845  (1637 s)
+  3000  predikci   12288000  val CE(1/4) 2.7428  acc 0.4179  (2458 s)
+  4000  predikci   16384000  val CE(1/4) 2.7163  acc 0.4146  (3283 s)
+  5000  predikci   20480000  val CE(1/4) 2.6236  acc 0.4473  (4107 s)
+  6000  predikci   24576000  val CE(1/4) 2.6195  acc 0.4473  (4934 s)
+  7000  predikci   28672000  val CE(1/4) 2.5553  acc 0.4605  (5759 s)
+  8000  predikci   32768000  val CE(1/4) 2.5755  acc 0.4487  (6576 s)
+VYSLEDEK bitnet1: CE 2.5575 acc 0.4553 (nejlepsi krok 7000)
+ukazka: r. . snad plhy slavek ho jeji penize, bedisne. nekrat prosize? nevyslechl petruska. -- vidit, vime nad ne ja vsude. vydravovali? a plykal pan goljadkina se stran. vsichni jeden pred otcovskem nevlastn
