@@ -1,0 +1,41 @@
+# Sken optimalizatoru pro 1-bit transformer (tools/bitlm/concept_lab.py), kazda varianta jako samostatna uloha.
+name: Concept scan
+on:
+  workflow_dispatch:
+    inputs:
+      common:
+        description: "spolecne argumenty"
+        default: "--model bitnet1 --chip --steps 2000 --batch 32 --eval-every 500"
+      variants:
+        description: "JSON pole argumentu jednotlivych variant"
+        default: '["--opt adamw --lr 3e-3", "--opt nsgd --norm row --lr-shift 5"]'
+
+jobs:
+  train:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        v: ${{ fromJSON(inputs.variants) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: PyTorch (CPU)
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - name: Korpus
+        run: python3 tools/bitlm/build_mix_corpus.py data/cz_mix.tok data/rur_cz_pg13083.txt data/cz/pg*.txt
+      - name: Trenink
+        id: t
+        run: |
+          mkdir -p out
+          N=$(echo "${{ matrix.v }}" | tr -c 'a-zA-Z0-9.-' '_')
+          echo "n=$N" >> "$GITHUB_OUTPUT"
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/concept_lab.py data/cz_mix.tok ${{ inputs.common }} ${{ matrix.v }} \
+              --out out/scan_$N.json | tee out/scan_$N.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scan-${{ steps.t.outputs.n }}
+          path: out/

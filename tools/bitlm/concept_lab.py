@@ -14,6 +14,17 @@ Varianty (--model):
   bitnet158 transformer, vahy ternarni {-1,0,+1} (BitNet b1.58, absmean), aktivace 8 bit.
 Embedding (a s nim svazany vystup) je u vsech int8, LayerNorm a vnitrek attention float.
 
+Uceni jako v cipu (--opt sgd|nsgd|lion): vsechny parametry jsou celociselne (int16 stin,
+pevny krok = mocnina dvou, pocatecni max|p| ~ 2^12 LSB;
+embedding s --chip inicializovan N(0, 0,02) jako GPT-2), update = gradient posunuty o mocninu
+dvou se stochastickym zaokrouhlenim (jako BitLM v RTL), bez Adamu:
+  sgd   q -= SR(g * 2^lr_shift / krok)                (pevny posun pro vsechny tenzory)
+  nsgd  q -= SR(g / 2^ceil(log2 max|g|) * 2^lr_shift)  (max po tenzoru nebo radku, --norm)
+  lion  q -= sign(b1*m + (1-b1)*g) * 2^lr_shift; m = b2*m + (1-b2)*g   (+1 B/vahu na moment)
+--chip: 1-bit vahy dopredu jako sign(w) * 2^-round(log2 sqrt(fan_in)) (posun misto
+prumeru |w|, bez centrovani) - presne to, co umi cip; ternarni prah 0,5*mean|w|.
+LR plan (--sched): posun +1 (polovicni krok) v 50 %, 75 % a 88 % treninku.
+
 Pouziti: concept_lab.py data/cz_mix.tok --model bitnet158 --out results/cz_mix/concept_bitnet158.json
 """
 import argparse
@@ -62,14 +73,74 @@ def emb_int8(w):
     return ste(w, torch.round(w * s) / s)
 
 
+CHIP = False   # nastavuje --chip
+
+
 class BitLinear(nn.Linear):
     def __init__(self, i, o, mode):
         super().__init__(i, o, bias=False)
         self.mode = mode
+        self.shift = 2.0 ** -round(math.log2(math.sqrt(i)))
 
     def forward(self, x):
-        w = w_ternary(self.weight) if self.mode == "ternary" else w_binary(self.weight)
+        w = self.weight
+        if CHIP:
+            if self.mode == "ternary":
+                t = 0.5 * w.abs().mean().detach()
+                q = torch.sign(w) * (w.abs() > t)
+            else:
+                q = torch.sign(w)
+            w = ste(w, q * self.shift)
+        else:
+            w = w_ternary(w) if self.mode == "ternary" else w_binary(w)
         return F.linear(act_quant(x), w)
+
+
+class ChipOpt:
+    """Celociselne uceni jako v cipu: int16 stin + posun o mocninu dvou + stochasticke zaokrouhleni."""
+
+    def __init__(self, model, kind, lr_shift, norm="tensor", b1=0.9, b2=0.99):
+        self.kind, self.lr_shift, self.norm, self.b1, self.b2 = kind, lr_shift, norm, b1, b2
+        self.groups = []
+        for mod in model.modules():
+            for name, p in mod.named_parameters(recurse=False):
+                # krok stinu: mocnina dvou, aby pocatecni max|p| ~ 2^12 LSB (8x rezerva do int16)
+                step = 2.0 ** math.floor(math.log2(p.data.abs().max().clamp_min(1e-6).item() / 4096))
+                q = torch.clamp(torch.round(p.data / step), -32767, 32767)
+                p.data.copy_(q * step)
+                st = {"p": p, "q": q, "step": step}
+                if kind == "lion":
+                    st["m"] = torch.zeros_like(p.data)
+                self.groups.append(st)
+
+    def zero_grad(self, set_to_none=True):
+        for g in self.groups:
+            g["p"].grad = None
+
+    @torch.no_grad()
+    def step(self):
+        k = 2.0 ** self.lr_shift
+        for g in self.groups:
+            p, q, step = g["p"], g["q"], g["step"]
+            if p.grad is None:
+                continue
+            gr = p.grad
+            if self.kind == "sgd":
+                u = gr * (k / step)
+            elif self.kind == "nsgd":
+                if self.norm == "row" and gr.dim() == 2:
+                    m = gr.abs().amax(dim=1, keepdim=True)
+                else:
+                    m = gr.abs().amax()
+                e = torch.ceil(torch.log2(m.clamp_min(1e-30)))
+                u = gr * torch.exp2(-e) * k
+            else:  # lion
+                mom = g["m"]
+                u = torch.sign(self.b1 * mom + (1 - self.b1) * gr) * k
+                mom.mul_(self.b2).add_(gr, alpha=1 - self.b2)
+            u = torch.floor(u + torch.rand_like(u))          # stochasticke zaokrouhleni
+            q.sub_(u).clamp_(-32767, 32767)
+            p.data.copy_(q * step)
 
 
 class BitBlock(nn.Module):
@@ -99,6 +170,9 @@ class BitGPT(nn.Module):
         self.blocks = nn.ModuleList(BitBlock(d, heads, ff, mode) for _ in range(layers))
         self.ln_f = nn.LayerNorm(d)
         self.ctx = ctx
+        if CHIP:
+            nn.init.normal_(self.tok.weight, std=0.02)
+            nn.init.normal_(self.pos.weight, std=0.02)
 
     def forward(self, idx):
         t = idx.shape[1]
@@ -163,9 +237,16 @@ def main():
     ap.add_argument("--val-len", type=int, default=11152)
     ap.add_argument("--eval-every", type=int, default=500)
     ap.add_argument("--seed", type=int, default=12345)
+    ap.add_argument("--opt", default="adamw", choices=["adamw", "sgd", "nsgd", "lion"])
+    ap.add_argument("--lr-shift", type=int, default=0, help="krok updatu 2^lr_shift (v LSB stinu, u sgd v jednotkach g/krok)")
+    ap.add_argument("--norm", default="tensor", choices=["tensor", "row"])
+    ap.add_argument("--chip", action="store_true", help="1-bit vahy s pevnym posunem misto prumeru |w|")
+    ap.add_argument("--sched", action="store_true", help="u sgd/nsgd/lion pulit krok v 50/75/88 %%")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
 
+    global CHIP
+    CHIP = a.chip
     torch.manual_seed(a.seed)
     torch.set_num_threads(int(os.environ.get("TORCH_THREADS", "4")))
     data = torch.tensor(list(open(a.corpus, "rb").read()), dtype=torch.long) & 31
@@ -180,8 +261,13 @@ def main():
     print(f"{a.model}: {n_params} parametru (BitLM {BITLM_PARAMS}, {100 * (n_params - BITLM_PARAMS) / BITLM_PARAMS:+.2f} %)",
           flush=True)
 
-    opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=0.01, betas=(0.9, 0.98))
-    sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=a.lr, total_steps=a.steps, pct_start=0.05)
+    if a.opt == "adamw":
+        opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=0.01, betas=(0.9, 0.98))
+        sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=a.lr, total_steps=a.steps, pct_start=0.05)
+    else:
+        opt = ChipOpt(model, a.opt, a.lr_shift, a.norm)
+        sched = None
+    print(f"optimalizator {a.opt} lr_shift {a.lr_shift} norm {a.norm} chip {a.chip} sched {a.sched}", flush=True)
     log, best, t0 = [], None, time.time()
     for step in range(1, a.steps + 1):
         ix = torch.randint(ctx, split - 1, (a.batch,))
@@ -197,9 +283,14 @@ def main():
             preds = step * a.batch * ctx
         opt.zero_grad(set_to_none=True)
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-        opt.step()
-        sched.step()
+        if sched is not None:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            opt.step()
+            sched.step()
+        else:
+            if a.sched and step in (a.steps // 2, a.steps * 3 // 4, a.steps * 7 // 8):
+                opt.lr_shift -= 1
+            opt.step()
         if step % a.eval_every == 0 or step == a.steps:
             ce, acc = evaluate_stride(model, data, split, ctx, 4)
             log.append({"step": step, "predictions": preds, "val_ce_bits": ce, "val_acc": acc})
@@ -212,7 +303,8 @@ def main():
     g = torch.Generator().manual_seed(7)
     prompt = data[split:split + ctx].tolist()
     sample = generate(model, prompt, 400, ctx, g)
-    res = {"model": a.model, "params": n_params, "bitlm_params": BITLM_PARAMS, "ctx": ctx,
+    res = {"model": a.model, "opt": a.opt, "lr_shift": a.lr_shift, "norm": a.norm, "chip": a.chip,
+           "sched": a.sched, "params": n_params, "bitlm_params": BITLM_PARAMS, "ctx": ctx,
            "steps": a.steps, "batch": a.batch, "best_step": best[1], "val_ce_bits": ce, "val_acc": acc,
            "train_seconds_cpu": round(time.time() - t0, 1), "sample": sample, "log": log}
     json.dump(res, open(a.out, "w"), indent=1, ensure_ascii=False)
