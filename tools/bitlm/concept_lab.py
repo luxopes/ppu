@@ -54,6 +54,8 @@ def ste(x, q):
 
 def act_quant(x, bits=8):
     """Aktivace: per-token absmax na int8 (BitNet)."""
+    if HW["pow2"]:
+        return q_tok(x, bits)
     qmax = 2 ** (bits - 1) - 1
     s = qmax / x.abs().amax(dim=-1, keepdim=True).clamp_min(1e-5)
     return ste(x, torch.clamp(torch.round(x * s), -qmax - 1, qmax) / s)
@@ -197,10 +199,65 @@ class ChipOpt:
             p.data.copy_(q * step)
 
 
+HW = {"norm": "ln", "act": "gelu", "attn": "float", "pow2": False}   # --hw-*: zjednoduseni pro cip
+
+
+def pow2_scale(m):
+    """Mocnina dvou >= m (cip: posun misto nasobeni)."""
+    return torch.exp2(torch.ceil(torch.log2(m.clamp_min(1e-30))))
+
+
+def q_tok(x, bits=8):
+    """Per-token kvantizace na int s mocninou dvou (STE), vraci dekvantovane hodnoty."""
+    qmax = 2 ** (bits - 1) - 1
+    s = pow2_scale(x.abs().amax(dim=-1, keepdim=True) / qmax)
+    return ste(x, torch.clamp(torch.round(x / s), -qmax - 1, qmax) * s)
+
+
+class Norm(nn.Module):
+    """ln = LayerNorm (float, afinni); rms = RMSNorm bez parametru; amax = deleni per-token absmax
+    zaokrouhlenym na mocninu dvou (v cipu zdarma: je to posun, ktery uz dela kvantizace aktivaci)."""
+
+    def __init__(self, d):
+        super().__init__()
+        self.ln = nn.LayerNorm(d) if HW["norm"] == "ln" else None
+
+    def forward(self, x):
+        if self.ln is not None:
+            return self.ln(x)
+        if HW["norm"] == "rms":
+            return x * torch.rsqrt(x.pow(2).mean(dim=-1, keepdim=True) + 1e-6)
+        m = x.abs().amax(dim=-1, keepdim=True).detach()
+        return x / (pow2_scale(m) if HW["pow2"] else m.clamp_min(1e-6))
+
+
+def act_fn(x):
+    if HW["act"] == "relu":
+        return F.relu(x)
+    if HW["act"] == "relu2":
+        return F.relu(x).pow(2)
+    return F.gelu(x)
+
+
+def int_attention(q, k, v):
+    """Attention jako v cipu: q, k, v int8 (per-token mocnina dvou), skore int (q.k) s posunem,
+    softmax pres 2^x s 8bitovou tabulkou, pravdepodobnosti uint8, p.v int8 x uint8."""
+    q, k, v = q_tok(q), q_tok(k), q_tok(v)
+    t, dh = q.shape[-2], q.shape[-1]
+    sc = (q @ k.transpose(-1, -2)) * (2.0 ** -round(math.log2(math.sqrt(dh))))
+    mask = torch.ones(t, t, dtype=torch.bool, device=q.device).tril()
+    sc = sc.masked_fill(~mask, float("-inf"))
+    e = torch.exp(sc - sc.amax(dim=-1, keepdim=True))
+    e = ste(e, torch.round(e * 255) / 255)                      # tabulka exp: 8 bitu
+    p = e / e.sum(dim=-1, keepdim=True)
+    p = ste(p, torch.round(p * 255) / 255)                      # pravdepodobnosti uint8
+    return p @ v
+
+
 class BitBlock(nn.Module):
     def __init__(self, d, heads, ff, mode):
         super().__init__()
-        self.ln1, self.ln2 = nn.LayerNorm(d), nn.LayerNorm(d)
+        self.ln1, self.ln2 = Norm(d), Norm(d)
         self.qkv = BitLinear(d, 3 * d, mode)
         self.proj = BitLinear(d, d, mode)
         self.fc1 = BitLinear(d, ff, mode)
@@ -211,9 +268,12 @@ class BitBlock(nn.Module):
         b, t, d = x.shape
         q, k, v = self.qkv(self.ln1(x)).split(d, dim=2)
         q, k, v = (z.view(b, t, self.heads, d // self.heads).transpose(1, 2) for z in (q, k, v))
-        y = F.scaled_dot_product_attention(q, k, v, is_causal=True)
+        if HW["attn"] == "int":
+            y = int_attention(q, k, v)
+        else:
+            y = F.scaled_dot_product_attention(q, k, v, is_causal=True)
         x = x + self.proj(y.transpose(1, 2).reshape(b, t, d))
-        return x + self.fc2(F.gelu(self.fc1(self.ln2(x))))
+        return x + self.fc2(act_fn(self.fc1(self.ln2(x))))
 
 
 class BitGPT(nn.Module):
@@ -222,7 +282,7 @@ class BitGPT(nn.Module):
         self.tok = nn.Embedding(V, d)
         self.pos = nn.Embedding(ctx, d)
         self.blocks = nn.ModuleList(BitBlock(d, heads, ff, mode) for _ in range(layers))
-        self.ln_f = nn.LayerNorm(d)
+        self.ln_f = Norm(d)
         self.ctx = ctx
         if CHIP:
             nn.init.normal_(self.tok.weight, std=0.02)
@@ -302,8 +362,13 @@ def main():
     ap.add_argument("--bop-tau", type=float, default=3.0, help="bop: prah preklopeni (v RMS momentu)")
     ap.add_argument("--gq", type=int, default=0, help="bitu gradientu ve zpetnem pruchodu BitLinear (0 = float)")
     ap.add_argument("--sched", action="store_true", help="u sgd/nsgd/lion pulit krok v 50/75/88 %%")
+    ap.add_argument("--hw-norm", default="ln", choices=["ln", "rms", "amax"])
+    ap.add_argument("--hw-act", default="gelu", choices=["gelu", "relu", "relu2"])
+    ap.add_argument("--hw-attn", default="float", choices=["float", "int"])
+    ap.add_argument("--hw-pow2", action="store_true", help="skaly aktivaci jako mocniny dvou")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
+    HW.update(norm=a.hw_norm, act=a.hw_act, attn=a.hw_attn, pow2=a.hw_pow2)
 
     global CHIP, GQ
     CHIP, GQ = a.chip, a.gq
@@ -364,7 +429,7 @@ def main():
     g = torch.Generator().manual_seed(7)
     prompt = data[split:split + ctx].tolist()
     sample = generate(model, prompt, 400, ctx, g)
-    res = {"model": a.model, "opt": a.opt, "lr_shift": a.lr_shift, "norm": a.norm, "chip": a.chip, "gq": a.gq, "b1": a.b1, "b2": a.b2, "mbits": a.mbits,
+    res = {"model": a.model, "opt": a.opt, "lr_shift": a.lr_shift, "norm": a.norm, "chip": a.chip, "hw": dict(HW), "gq": a.gq, "b1": a.b1, "b2": a.b2, "mbits": a.mbits,
            "sched": a.sched, "params": n_params, "bitlm_params": BITLM_PARAMS, "ctx": ctx,
            "steps": a.steps, "batch": a.batch, "best_step": best[1], "val_ce_bits": ce, "val_acc": acc,
            "train_seconds_cpu": round(time.time() - t0, 1), "sample": sample, "log": log}
