@@ -1,0 +1,78 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "rms",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false
+ },
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1177600,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.601302433486585,
+ "val_acc": 0.43624461979913914,
+ "train_seconds_cpu": 3062.2,
+ "sample": "r. . khote lhotinar! shoval jste vevice direl... krat patrne ? nalel si bravity, a ceji mely, vam buhy na stovau. rekne a ovsem zapily, z prosli jiz pravi, stojte vsichni zmutna. zajimaval se ke byli staroru po zobytovali? stavali vsichni se ve vsichni, ani vytrymi, proslovaji vzpomneli. tvrde bozno netrpelivejsi v tvornych znovec s tabor. vzdyt rychle je. a jech tam grantky, vec nevim byl nesnouz",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.2398047907791248,
+   "val_acc": 0.3127690100430416
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.0020500365068505,
+   "val_acc": 0.35078909612625536
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.825502526880504,
+   "val_acc": 0.3916786226685796
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.6736470554910614,
+   "val_acc": 0.4182209469153515
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.6202341889427196,
+   "val_acc": 0.4282639885222382
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.6351239365816492,
+   "val_acc": 0.43436154949784794
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.6192291509537275,
+   "val_acc": 0.4350789096126255
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.6121330549892487,
+   "val_acc": 0.4347202295552367
+  }
+ ]
+}

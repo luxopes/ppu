@@ -1,0 +1,78 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "ln",
+  "act": "gelu",
+  "attn": "int",
+  "pow2": false
+ },
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 2.561056396822275,
+ "val_acc": 0.4517575322812052,
+ "train_seconds_cpu": 3616.2,
+ "sample": "revedli je lhysta se shovale stepnevi bedisne. nekrat prosim dosti. lezela vis, dostizi i potuce. buhe nepromysliji, seriti se na predes bylo vzdy tak a sam slavek. vstoupimu zaplavila ohledla. vubec starec ve poovestelo nestastnika jedne pro dovedu-li, pridyeli mne pro je v nejak tvari civilneho ni netrpeltivosti, tvrdosi zivotecni mne. kdoz ni se nejrychli dech po lita hrdinvec na ja by cely. ta",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.4135258195761318,
+   "val_acc": 0.2833572453371593
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.913666497049656,
+   "val_acc": 0.383428981348637
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.7640801820279863,
+   "val_acc": 0.4013629842180775
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.6817684819168526,
+   "val_acc": 0.4250358680057389
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.621543156054099,
+   "val_acc": 0.4375896700143472
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.6156835428057086,
+   "val_acc": 0.4340028694404591
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.536303923339014,
+   "val_acc": 0.4490674318507891
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.5634713905300277,
+   "val_acc": 0.4494261119081779
+  }
+ ]
+}

@@ -1,0 +1,78 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "ln",
+  "act": "relu",
+  "attn": "float",
+  "pow2": false
+ },
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 2.529755297748376,
+ "val_acc": 0.4612625538020086,
+ "train_seconds_cpu": 4707.7,
+ "sample": "r. gall. delak slavnes? preminu a pri bed sem. helena. ne? zvratily lez, zavisy, ne, ja i potuchu bude na ty vsudecky. zato se na predpozornosti se doma, az se, co jisty nemuze predstavovskem nevladit. tam ja jsem nespalena casto i fraton a zverejsi---nastaly ticha, proslouzil vzpomneli cevou domu, sirotlo tu oknov vyse, ze in jen s tam desite nebylo, sjego nahle po pitat koncila navstev se osnou ",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.388405033772313,
+   "val_acc": 0.26757532281205165
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.875264248632957,
+   "val_acc": 0.39096126255380204
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.6931517535061356,
+   "val_acc": 0.41893830703012913
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.6579202631086956,
+   "val_acc": 0.42037302725968434
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.5890188551740105,
+   "val_acc": 0.43220946915351505
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.5790334743627468,
+   "val_acc": 0.43615494978479197
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.5175964431294844,
+   "val_acc": 0.4612625538020086
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.535702650277863,
+   "val_acc": 0.4565997130559541
+  }
+ ]
+}

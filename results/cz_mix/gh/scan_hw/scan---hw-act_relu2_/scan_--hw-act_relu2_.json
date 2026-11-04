@@ -1,0 +1,78 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "ln",
+  "act": "relu2",
+  "attn": "float",
+  "pow2": false
+ },
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 2.500169631112737,
+ "val_acc": 0.4652080344332855,
+ "train_seconds_cpu": 3253.1,
+ "sample": "r. . shladal k slavnost! jejich ovevi bedlone. nekradeent? zvolali rosave petruska.,--zvit--tucim-- my nevedovem. rekl, a ovsem zapravic bylo videla. madame se, co jist snad byla zajimaje bez keluterne. jeho porunaneho hrale a povida streho, vzav po to, ani vydalovat, zahy byl vzpomne krokyne domu, strach jim okdovy. dvori tim jej s maminkymi ni ryce, stesti dech po litochejici censich byl nesnou ",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.2947279383977057,
+   "val_acc": 0.3016499282639885
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.8196594318625006,
+   "val_acc": 0.38558106169296985
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.6870665858747538,
+   "val_acc": 0.42288378766140605
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.6350797037295344,
+   "val_acc": 0.43113342898134865
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.575810619171361,
+   "val_acc": 0.43938307030129126
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.5405654530688397,
+   "val_acc": 0.44368723098995694
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.516312600783444,
+   "val_acc": 0.45588235294117646
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.5352792719254142,
+   "val_acc": 0.4569583931133429
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 8 b1 0.9 b2 0.99 mbits 8
+  1000  predikci    4096000  val CE(1/4) 3.4135  acc 0.2834  (443 s)
+  2000  predikci    8192000  val CE(1/4) 2.9137  acc 0.3834  (873 s)
+  3000  predikci   12288000  val CE(1/4) 2.7641  acc 0.4014  (1312 s)
+  4000  predikci   16384000  val CE(1/4) 2.6818  acc 0.4250  (1753 s)
+  5000  predikci   20480000  val CE(1/4) 2.6215  acc 0.4376  (2191 s)
+  6000  predikci   24576000  val CE(1/4) 2.6157  acc 0.4340  (2627 s)
+  7000  predikci   28672000  val CE(1/4) 2.5363  acc 0.4491  (3059 s)
+  8000  predikci   32768000  val CE(1/4) 2.5635  acc 0.4494  (3484 s)
+VYSLEDEK bitnet1: CE 2.5611 acc 0.4518 (nejlepsi krok 7000)
+ukazka: revedli je lhysta se shovale stepnevi bedisne. nekrat prosim dosti. lezela vis, dostizi i potuce. buhe nepromysliji, seriti se na predes bylo vzdy tak a sam slavek. vstoupimu zaplavila ohledla. vubec 

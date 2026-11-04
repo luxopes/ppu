@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 8 b1 0.9 b2 0.99 mbits 8
+  1000  predikci    4096000  val CE(1/4) 3.3884  acc 0.2676  (582 s)
+  2000  predikci    8192000  val CE(1/4) 2.8753  acc 0.3910  (1159 s)
+  3000  predikci   12288000  val CE(1/4) 2.6932  acc 0.4189  (1728 s)
+  4000  predikci   16384000  val CE(1/4) 2.6579  acc 0.4204  (2307 s)
+  5000  predikci   20480000  val CE(1/4) 2.5890  acc 0.4322  (2880 s)
+  6000  predikci   24576000  val CE(1/4) 2.5790  acc 0.4362  (3452 s)
+  7000  predikci   28672000  val CE(1/4) 2.5176  acc 0.4613  (4028 s)
+  8000  predikci   32768000  val CE(1/4) 2.5357  acc 0.4566  (4603 s)
+VYSLEDEK bitnet1: CE 2.5298 acc 0.4613 (nejlepsi krok 7000)
+ukazka: r. gall. delak slavnes? preminu a pri bed sem. helena. ne? zvratily lez, zavisy, ne, ja i potuchu bude na ty vsudecky. zato se na predpozornosti se doma, az se, co jisty nemuze predstavovskem nevladit

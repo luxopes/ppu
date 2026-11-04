@@ -1,0 +1,78 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "amax",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false
+ },
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1177600,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 3.605624303498795,
+ "val_acc": 0.25538020086083213,
+ "train_seconds_cpu": 4868.8,
+ "sample": "art. sh je loka nase sec jemaste vevi bedisnelylakrarepese ze? nalyl si, zavizje ne, ji idrituva. bral no jy vchyjrdeseratovilinzaprli, z prosvgo daddanisizsedotel ji. kruzerenapreni m ohl, m neluce muto mala truobneselopo stavahu.. jstone hove vsel-ti, pnidy niloveteroslk grakyviceni kro. nenebobni nitelo tujokdovetvi nyz zinikec s m! vd. ve ni ry o, set. i dech po vila hko hvecinovza bysenosnota",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.929015636044346,
+   "val_acc": 0.19225251076040173
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.6459525759993743,
+   "val_acc": 0.24820659971305595
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 3.6284702241965188,
+   "val_acc": 0.24856527977044476
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 3.6217938586770124,
+   "val_acc": 0.2564562410329986
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 3.6261790856330496,
+   "val_acc": 0.25430416068866574
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 3.610631767140112,
+   "val_acc": 0.2546628407460545
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 3.605177782252818,
+   "val_acc": 0.25573888091822095
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 3.6019733718923033,
+   "val_acc": 0.25430416068866574
+  }
+ ]
+}

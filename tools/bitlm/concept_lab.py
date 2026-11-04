@@ -199,7 +199,7 @@ class ChipOpt:
             p.data.copy_(q * step)
 
 
-HW = {"norm": "ln", "act": "gelu", "attn": "float", "pow2": False}   # --hw-*: zjednoduseni pro cip
+HW = {"norm": "ln", "act": "gelu", "attn": "float", "pow2": False, "gain": False}   # --hw-*: zjednoduseni pro cip
 
 
 def pow2_scale(m):
@@ -221,14 +221,19 @@ class Norm(nn.Module):
     def __init__(self, d):
         super().__init__()
         self.ln = nn.LayerNorm(d) if HW["norm"] == "ln" else None
+        # --hw-gain: uceny zisk po kanalech (v cipu jedno int nasobeni na prvek)
+        self.g = nn.Parameter(torch.ones(d)) if HW["gain"] and self.ln is None else None
 
     def forward(self, x):
         if self.ln is not None:
             return self.ln(x)
         if HW["norm"] == "rms":
-            return x * torch.rsqrt(x.pow(2).mean(dim=-1, keepdim=True) + 1e-6)
-        m = x.abs().amax(dim=-1, keepdim=True).detach()
-        return x / (pow2_scale(m) if HW["pow2"] else m.clamp_min(1e-6))
+            y = x * torch.rsqrt(x.pow(2).mean(dim=-1, keepdim=True) + 1e-6)
+        else:
+            # absmax -> max 1; x4 (posun) vrati RMS zhruba na 1 jako u LayerNorm
+            m = x.abs().amax(dim=-1, keepdim=True).detach()
+            y = 4.0 * x / (pow2_scale(m) if HW["pow2"] else m.clamp_min(1e-6))
+        return y * self.g if self.g is not None else y
 
 
 def act_fn(x):
@@ -366,9 +371,10 @@ def main():
     ap.add_argument("--hw-act", default="gelu", choices=["gelu", "relu", "relu2"])
     ap.add_argument("--hw-attn", default="float", choices=["float", "int"])
     ap.add_argument("--hw-pow2", action="store_true", help="skaly aktivaci jako mocniny dvou")
+    ap.add_argument("--hw-gain", action="store_true", help="rms/amax norma s ucenym ziskem po kanalech")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
-    HW.update(norm=a.hw_norm, act=a.hw_act, attn=a.hw_attn, pow2=a.hw_pow2)
+    HW.update(norm=a.hw_norm, act=a.hw_act, attn=a.hw_attn, pow2=a.hw_pow2, gain=a.hw_gain)
 
     global CHIP, GQ
     CHIP, GQ = a.chip, a.gq
