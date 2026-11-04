@@ -117,8 +117,9 @@ class BitLinear(nn.Linear):
 class ChipOpt:
     """Celociselne uceni jako v cipu: int16 stin + posun o mocninu dvou + stochasticke zaokrouhleni."""
 
-    def __init__(self, model, kind, lr_shift, norm="tensor", b1=0.9, b2=0.99):
+    def __init__(self, model, kind, lr_shift, norm="tensor", b1=0.9, b2=0.99, mbits=0):
         self.kind, self.lr_shift, self.norm, self.b1, self.b2 = kind, lr_shift, norm, b1, b2
+        self.mbits = mbits
         self.groups = []
         for mod in model.modules():
             for name, p in mod.named_parameters(recurse=False):
@@ -156,6 +157,11 @@ class ChipOpt:
                 mom = g["m"]
                 u = torch.sign(self.b1 * mom + (1 - self.b1) * gr) * k
                 mom.mul_(self.b2).add_(gr, alpha=1 - self.b2)
+                if self.mbits:
+                    # moment ulozeny na mbits bitu: mocnina dvou absmax po tenzoru, stochasticke zaokrouhleni
+                    qm = 2 ** (self.mbits - 1) - 1
+                    sc = torch.exp2(torch.ceil(torch.log2(mom.abs().amax().clamp_min(1e-30) / qm)))
+                    mom.copy_(torch.clamp(torch.floor(mom / sc + torch.rand_like(mom)), -qm - 1, qm) * sc)
             u = torch.floor(u + torch.rand_like(u))          # stochasticke zaokrouhleni
             q.sub_(u).clamp_(-32767, 32767)
             p.data.copy_(q * step)
@@ -259,6 +265,9 @@ def main():
     ap.add_argument("--lr-shift", type=int, default=0, help="krok updatu 2^lr_shift (v LSB stinu, u sgd v jednotkach g/krok)")
     ap.add_argument("--norm", default="tensor", choices=["tensor", "row"])
     ap.add_argument("--chip", action="store_true", help="1-bit vahy s pevnym posunem misto prumeru |w|")
+    ap.add_argument("--b1", type=float, default=0.9, help="lion: vaha momentu pro znamenko (0 = signSGD)")
+    ap.add_argument("--b2", type=float, default=0.99, help="lion: zapominani momentu")
+    ap.add_argument("--mbits", type=int, default=0, help="lion: bitu ulozeneho momentu (0 = float)")
     ap.add_argument("--gq", type=int, default=0, help="bitu gradientu ve zpetnem pruchodu BitLinear (0 = float)")
     ap.add_argument("--sched", action="store_true", help="u sgd/nsgd/lion pulit krok v 50/75/88 %%")
     ap.add_argument("--out", required=True)
@@ -284,9 +293,9 @@ def main():
         opt = torch.optim.AdamW(model.parameters(), lr=a.lr, weight_decay=0.01, betas=(0.9, 0.98))
         sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=a.lr, total_steps=a.steps, pct_start=0.05)
     else:
-        opt = ChipOpt(model, a.opt, a.lr_shift, a.norm)
+        opt = ChipOpt(model, a.opt, a.lr_shift, a.norm, a.b1, a.b2, a.mbits)
         sched = None
-    print(f"optimalizator {a.opt} lr_shift {a.lr_shift} norm {a.norm} chip {a.chip} sched {a.sched} gq {a.gq}", flush=True)
+    print(f"optimalizator {a.opt} lr_shift {a.lr_shift} norm {a.norm} chip {a.chip} sched {a.sched} gq {a.gq} b1 {a.b1} b2 {a.b2} mbits {a.mbits}", flush=True)
     log, best, t0 = [], None, time.time()
     for step in range(1, a.steps + 1):
         ix = torch.randint(ctx, split - 1, (a.batch,))
@@ -322,7 +331,7 @@ def main():
     g = torch.Generator().manual_seed(7)
     prompt = data[split:split + ctx].tolist()
     sample = generate(model, prompt, 400, ctx, g)
-    res = {"model": a.model, "opt": a.opt, "lr_shift": a.lr_shift, "norm": a.norm, "chip": a.chip, "gq": a.gq,
+    res = {"model": a.model, "opt": a.opt, "lr_shift": a.lr_shift, "norm": a.norm, "chip": a.chip, "gq": a.gq, "b1": a.b1, "b2": a.b2, "mbits": a.mbits,
            "sched": a.sched, "params": n_params, "bitlm_params": BITLM_PARAMS, "ctx": ctx,
            "steps": a.steps, "batch": a.batch, "best_step": best[1], "val_ce_bits": ce, "val_acc": acc,
            "train_seconds_cpu": round(time.time() - t0, 1), "sample": sample, "log": log}
