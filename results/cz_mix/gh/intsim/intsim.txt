@@ -1,0 +1,13 @@
+/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+intsim d=128 L=5 H=4 ff=648: 1179008 parametru, korpus 2198665
+  1000  val CE(1/4) 3.2816  acc 0.2930  lr_shift 4  (0.45 h)
+  2000  val CE(1/4) 2.9262  acc 0.3809  lr_shift 4  (0.93 h)
+  3000  val CE(1/4) 2.8175  acc 0.4046  lr_shift 4  (1.39 h)
+  4000  val CE(1/4) 2.7533  acc 0.4060  lr_shift 3  (1.86 h)
+  5000  val CE(1/4) 2.7151  acc 0.4193  lr_shift 3  (2.33 h)
+  6000  val CE(1/4) 2.6615  acc 0.4211  lr_shift 2  (2.80 h)
+  7000  val CE(1/4) 2.6340  acc 0.4390  lr_shift 1  (3.27 h)
+  8000  val CE(1/4) 2.5906  acc 0.4390  lr_shift 1  (3.74 h)
+VYSLEDEK intsim: CE 2.5775 acc 0.4397 (nejlepsi krok 8000)
+ukazka: r. . ghrad lhkarni nase pres ne ovevil jdisne. nakrad petr zarmysly lezela v zjedna, jimiz tu vami nabri! ja vsude dosti. ovsem? ale trapili svoje hadani a sedite velitisu, ubozi zajima hlasite. byli 

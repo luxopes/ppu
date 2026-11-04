@@ -94,4 +94,6 @@ Pro kazdy parametr:
 
 - `check_bittf_golden.sh`: maly model po 3 krocich (vsechny kontrolni soucty) a plna velikost
   40 kroku (hash stavu kazdych 5 kroku) - **C a Python bitove shodne**.
-- Kvalita (8000 kroku, cz_mix, stejne jako scany): workflow `intsim.yml`, vysledek v `results/cz_mix/gh/intsim`.
+- Kvalita (8000 kroku, cz_mix, stejne jako scany): workflow `intsim.yml`, vysledek v `results/cz_mix/gh/intsim`:
+  **CE 2,578 bitu/znak** (acc 0,440), PyTorch simulace stejne specifikace 2,549-2,558, baseline 2,530/2,562
+  (rozptyl mezi seedy ~0,03) -> celociselny cip uci stejne dobre jako float model v ramci sumu.

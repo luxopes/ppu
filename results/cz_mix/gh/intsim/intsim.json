@@ -1,0 +1,67 @@
+{
+ "model": "bittf-intsim",
+ "params": 1179008,
+ "d": 128,
+ "layers": 5,
+ "heads": 4,
+ "ff": 648,
+ "steps": 8000,
+ "batch": 32,
+ "lr_shift": 4,
+ "seed": 12345,
+ "best_step": 8000,
+ "val_ce_bits": 2.577549829979509,
+ "val_acc": 0.4397417503586801,
+ "train_hours": 3.7405378262201947,
+ "sample": "r. . ghrad lhkarni nase pres ne ovevil jdisne. nakrad petr zarmysly lezela v zjedna, jimiz tu vami nabri! ja vsude dosti. ovsem? ale trapili svoje hadani a sedite velitisu, ubozi zajima hlasite. byli staricek trestnice. postavilo ivana. nejak zavrel-li, ani vytromnet, zahy byl vzpomne krokvilny, bud netrpe tu okamziti, nybrz nejen s tam. .iva nicitil, rekl i dech po velenho a veci. vzkrikl nesnovi",
+ "log": [
+  {
+   "step": 1000,
+   "val_ce_bits": 3.2815983706131853,
+   "val_acc": 0.2930416068866571,
+   "hours": 0.4502111409107844
+  },
+  {
+   "step": 2000,
+   "val_ce_bits": 2.9262461314751054,
+   "val_acc": 0.38091822094691535,
+   "hours": 0.9262640558348761
+  },
+  {
+   "step": 3000,
+   "val_ce_bits": 2.817488259999611,
+   "val_acc": 0.40459110473457677,
+   "hours": 1.3880672747559017
+  },
+  {
+   "step": 4000,
+   "val_ce_bits": 2.753285322380446,
+   "val_acc": 0.406025824964132,
+   "hours": 1.8560936648978128
+  },
+  {
+   "step": 5000,
+   "val_ce_bits": 2.7151300285974447,
+   "val_acc": 0.41929698708751795,
+   "hours": 2.3251479414436553
+  },
+  {
+   "step": 6000,
+   "val_ce_bits": 2.661453971039177,
+   "val_acc": 0.42109038737446197,
+   "hours": 2.796908632318179
+  },
+  {
+   "step": 7000,
+   "val_ce_bits": 2.634014955014842,
+   "val_acc": 0.43902439024390244,
+   "hours": 3.269510435130861
+  },
+  {
+   "step": 8000,
+   "val_ce_bits": 2.5905769270361256,
+   "val_acc": 0.43902439024390244,
+   "hours": 3.7405378262201947
+  }
+ ]
+}
