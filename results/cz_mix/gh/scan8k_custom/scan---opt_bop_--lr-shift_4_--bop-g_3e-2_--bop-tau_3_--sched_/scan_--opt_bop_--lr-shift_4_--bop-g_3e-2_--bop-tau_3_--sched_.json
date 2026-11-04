@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "bop",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 2.699727541005249,
+ "val_acc": 0.41490315638450503,
+ "train_seconds_cpu": 5275.7,
+ "sample": "ret. shladil k nasi neho jeji peovedi bedisne. nakradne svozo? jako lezela visy, ne, ja iden, vasi nabricejnoval. rekne na vsechny slyse bylo videli, mada z slovek jistysnemu zapleni a otcetl keluje mustala a truovneho. postavilo iafimorne hlavovsti-li, ani vytrela, proslovi a vyporne krokvolny, bud netrik tu okamziti vodi zivote po tak. .. za nebylo, rek. i dech se vitahnujehveci. vzal hocne, ota",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.545780941973969,
+   "val_acc": 0.26076040172166426
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.9351393122108425,
+   "val_acc": 0.36944045911047346
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.795954571080585,
+   "val_acc": 0.4149928263988522
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.7936468511195,
+   "val_acc": 0.40459110473457677
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.827338513975332,
+   "val_acc": 0.40100430416068866
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.698125051572461,
+   "val_acc": 0.41929698708751795
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.693254147584363,
+   "val_acc": 0.4117647058823529
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.7337119997593553,
+   "val_acc": 0.40925394548063126
+  }
+ ]
+}

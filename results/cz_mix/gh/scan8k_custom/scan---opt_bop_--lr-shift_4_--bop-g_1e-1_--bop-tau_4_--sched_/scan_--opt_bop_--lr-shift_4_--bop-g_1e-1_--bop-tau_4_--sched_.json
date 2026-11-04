@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "bop",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 6000,
+ "val_ce_bits": 2.896729704811964,
+ "val_acc": 0.38100789096126253,
+ "train_seconds_cpu": 4937.5,
+ "sample": "ret. shodu lokanci. ase prechal a pvic jdisneho, kran pros zarmnely ledela, pryvoln, jimi potuvali na vida novem. rikl, a ovsechned pric bylosti proddivniho slove vsictyrnemu zaplaajima a racin. uz byly jeho porukojestlopil cestou. fantonemu ve vsechni, pridy na mastoupil v rakymi trestan. ven bodni netrpentujek, v tvraty. za boze s mne. . vzami se o, rek. a dechtel ji starostvec! zvla byl nesnost",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.5975488549198213,
+   "val_acc": 0.2539454806312769
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.33874362157953,
+   "val_acc": 0.2919655667144907
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 3.120522606455869,
+   "val_acc": 0.34612625538020086
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.9199639065705156,
+   "val_acc": 0.38414634146341464
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.9780474685746054,
+   "val_acc": 0.3798421807747489
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.8704288604193704,
+   "val_acc": 0.3819942611190818
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.8822461540391906,
+   "val_acc": 0.381635581061693
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.900853924777726,
+   "val_acc": 0.37697274031563843
+  }
+ ]
+}

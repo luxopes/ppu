@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator bop lr_shift 4 norm tensor chip True sched True gq 0 b1 0.9 b2 0.99 mbits 0
+  1000  predikci    4096000  val CE(1/4) 3.5458  acc 0.2608  (632 s)
+  2000  predikci    8192000  val CE(1/4) 2.9351  acc 0.3694  (1262 s)
+  3000  predikci   12288000  val CE(1/4) 2.7960  acc 0.4150  (1903 s)
+  4000  predikci   16384000  val CE(1/4) 2.7936  acc 0.4046  (2539 s)
+  5000  predikci   20480000  val CE(1/4) 2.8273  acc 0.4010  (3183 s)
+  6000  predikci   24576000  val CE(1/4) 2.6981  acc 0.4193  (3824 s)
+  7000  predikci   28672000  val CE(1/4) 2.6933  acc 0.4118  (4474 s)
+  8000  predikci   32768000  val CE(1/4) 2.7337  acc 0.4093  (5124 s)
+VYSLEDEK bitnet1: CE 2.6997 acc 0.4149 (nejlepsi krok 7000)
+ukazka: ret. shladil k nasi neho jeji peovedi bedisne. nakradne svozo? jako lezela visy, ne, ja iden, vasi nabricejnoval. rekne na vsechny slyse bylo videli, mada z slovek jistysnemu zapleni a otcetl keluje m

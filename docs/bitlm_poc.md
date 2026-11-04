@@ -219,3 +219,25 @@ Závěry:
 Další krok: trénink 1bitového (ternárního) transformeru v HW. Otevřená otázka
 je, zda transformer zvládne celočíselné SGD se stochastickým zaokrouhlením
 místo Adamu. Ověřit nejdřív v referenčním modelu.
+
+## 10. Optimalizator pro trenink 1-bit transformeru v cipu
+
+`tools/bitlm/concept_lab.py --chip --opt ...`, 1-bit transformer (d=128, 5 vrstev, 1,18M parametru),
+kontext 128, cz_mix, 8000 kroku x 32 sekvenci, workflow `concept_scan.yml`, vysledky `results/cz_mix/gh/scan*`.
+Vsechny parametry celociselne (int16 stin, krok = mocnina dvou), update se stochastickym zaokrouhlenim.
+
+| optimalizator | bit/znak | presnost | pamet navic na 1-bit vahu |
+|---|---|---|---|
+| AdamW (float, reference) | 2,451 | 47,8 % | 2x fp32 |
+| **Lion, moment int8, zpetny pruchod int8** | **2,530** | **45,8 %** | int16 stin + int8 moment |
+| Lion (float moment) | 2,538 | 45,3 % | |
+| afac (Lion + faktorizovana adaptivita radky/sloupce) | 2,540 | 44,1 % | + O(radky+sloupce) |
+| bop (preklapeni bitu, bez stinu) | 2,700 | 41,5 % | jen int8 moment |
+| signSGD (Lion bez momentu) | 2,760 | 40,3 % | int16 stin |
+| Lion, moment int4 | 3,359 | 28,8 % | |
+| SGD / normalizovane SGD (2000 kroku) | 3,13-3,60 | <=34 % | |
+
+Zavery: prosty SGD (dnesni BitLM) na transformer nestaci; Lion s int8 momentem a int8 zpetnym
+pruchodem je jen 0,08 bitu za Adamem -> do HW jde Lion (update = +-2^k, bez nasobeni/deleni).
+Faktorizovana adaptivita nic neprinesla. Bop setri 16bitovy stin (1+8 bitu/vahu, ~2,5x vetsi model
+ve stejne pameti) za 0,17 bitu - kandidat na pametove usporny rezim pri skalovani.

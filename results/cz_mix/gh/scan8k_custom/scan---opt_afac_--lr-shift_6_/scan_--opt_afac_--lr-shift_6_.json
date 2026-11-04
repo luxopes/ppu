@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "afac",
+ "lr_shift": 6,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.5399702677493847,
+ "val_acc": 0.44081779053084647,
+ "train_seconds_cpu": 3515.5,
+ "sample": "r. . g, jde ho slavnast! jendal ovevi bedisne... krarek se zarovely lezel petruska., jimi potuveri nad nemoci? usedive, na vsechny slyse bylo videlny, ale zaslechl jisty nemucimi zajimavet, prijilycim toho lasku objevil. bez bylo vas? tonek zadovi je mohl muzeti mam proslouzit. vice z kromeni domu, tim blonti okamzite, nybrz nikdo s tam. . vzani se o, rekl i dech po rganti. alvecenovic byl nesnotk",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.1687619821973416,
+   "val_acc": 0.319583931133429
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.9793750226431213,
+   "val_acc": 0.366571018651363
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.7893894746349823,
+   "val_acc": 0.3884505021520803
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.7251985417185134,
+   "val_acc": 0.41965566714490676
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.682672594465691,
+   "val_acc": 0.42431850789096126
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.672517814938027,
+   "val_acc": 0.430416068866571
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.621936987935177,
+   "val_acc": 0.437948350071736
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.543774032466469,
+   "val_acc": 0.43149210903873747
+  }
+ ]
+}

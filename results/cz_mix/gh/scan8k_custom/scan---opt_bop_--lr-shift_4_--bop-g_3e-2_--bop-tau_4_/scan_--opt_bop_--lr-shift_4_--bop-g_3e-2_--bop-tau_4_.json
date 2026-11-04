@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "bop",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.753486334987368,
+ "val_acc": 0.4036944045911047,
+ "train_seconds_cpu": 4957.5,
+ "sample": "ret. sho uplhy se snasec jejich ovevil jsi nahy, krat proste dobrehr sahla, provdat, jimi povici. byly nepravych jidel, a ovsem zapoliva bylo ji prodivadi. sedlo k jist spemu napsaajim ohledl nevuje musili jako zorneho. pres anaoviarnutre se ve vsechni, aniky nic, ztrikl, vy nevim tez krokvorne, bud nicelo tu okamzitost, ze to jej s tam. .ili nic, ve, rekl i dech po vita hrdili cen vzpecho nesnoti",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.4293702135471094,
+   "val_acc": 0.2686513629842181
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.9686577863165327,
+   "val_acc": 0.36908177905308465
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.910690183553101,
+   "val_acc": 0.37697274031563843
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.831882353843417,
+   "val_acc": 0.39275466284074606
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.8179167111813075,
+   "val_acc": 0.396700143472023
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.7847008554780035,
+   "val_acc": 0.40064562410329985
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.8932578601956225,
+   "val_acc": 0.3848637015781923
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.7625277368323826,
+   "val_acc": 0.4027977044476327
+  }
+ ]
+}

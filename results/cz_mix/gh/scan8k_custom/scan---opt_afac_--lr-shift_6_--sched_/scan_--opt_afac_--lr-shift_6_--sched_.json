@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "afac",
+ "lr_shift": 6,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.5414345630769026,
+ "val_acc": 0.4603658536585366,
+ "train_seconds_cpu": 4228.7,
+ "sample": "r. . shalupis? pani! shov zajel ovev koutisne... krasne se zarmeletl sati petry, ale jimi potuchou nad nepravych. rekl, ale se na prece z prostovych pravinulo otcovenstvi. muzila jako bohlatovati a byla jeho porucina. dopala bylo ivanaton se ve vsech mnohu dverilost proslovani vojak. mirek neni objiti, ale tu okrov vsechno zivot? po tom. . vzacneme o, rekl i dech po pilach. ale co jiz tuhle? r. ta",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.253062265636788,
+   "val_acc": 0.2980631276901004
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.950004250920579,
+   "val_acc": 0.38916786226685796
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.7564179023980717,
+   "val_acc": 0.40566714490674316
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.664971841968529,
+   "val_acc": 0.4268292682926829
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.631444808703308,
+   "val_acc": 0.42790530846484937
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.633273421024149,
+   "val_acc": 0.4282639885222382
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.5952797698283097,
+   "val_acc": 0.44261119081779055
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.5185408879540465,
+   "val_acc": 0.4616212338593974
+  }
+ ]
+}

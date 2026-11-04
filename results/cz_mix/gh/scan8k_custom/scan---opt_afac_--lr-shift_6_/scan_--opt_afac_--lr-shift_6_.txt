@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator afac lr_shift 6 norm tensor chip True sched False gq 0 b1 0.9 b2 0.99 mbits 0
+  1000  predikci    4096000  val CE(1/4) 3.1688  acc 0.3196  (417 s)
+  2000  predikci    8192000  val CE(1/4) 2.9794  acc 0.3666  (840 s)
+  3000  predikci   12288000  val CE(1/4) 2.7894  acc 0.3885  (1277 s)
+  4000  predikci   16384000  val CE(1/4) 2.7252  acc 0.4197  (1702 s)
+  5000  predikci   20480000  val CE(1/4) 2.6827  acc 0.4243  (2118 s)
+  6000  predikci   24576000  val CE(1/4) 2.6725  acc 0.4304  (2536 s)
+  7000  predikci   28672000  val CE(1/4) 2.6219  acc 0.4379  (2975 s)
+  8000  predikci   32768000  val CE(1/4) 2.5438  acc 0.4315  (3398 s)
+VYSLEDEK bitnet1: CE 2.5400 acc 0.4408 (nejlepsi krok 8000)
+ukazka: r. . g, jde ho slavnast! jendal ovevi bedisne... krarek se zarovely lezel petruska., jimi potuveri nad nemoci? usedive, na vsechny slyse bylo videlny, ale zaslechl jisty nemucimi zajimavet, prijilycim

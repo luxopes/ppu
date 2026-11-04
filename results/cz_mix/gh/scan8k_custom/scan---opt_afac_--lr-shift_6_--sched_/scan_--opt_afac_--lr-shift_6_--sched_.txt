@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator afac lr_shift 6 norm tensor chip True sched True gq 0 b1 0.9 b2 0.99 mbits 0
+  1000  predikci    4096000  val CE(1/4) 3.2531  acc 0.2981  (508 s)
+  2000  predikci    8192000  val CE(1/4) 2.9500  acc 0.3892  (1017 s)
+  3000  predikci   12288000  val CE(1/4) 2.7564  acc 0.4057  (1522 s)
+  4000  predikci   16384000  val CE(1/4) 2.6650  acc 0.4268  (2029 s)
+  5000  predikci   20480000  val CE(1/4) 2.6314  acc 0.4279  (2541 s)
+  6000  predikci   24576000  val CE(1/4) 2.6333  acc 0.4283  (3066 s)
+  7000  predikci   28672000  val CE(1/4) 2.5953  acc 0.4426  (3585 s)
+  8000  predikci   32768000  val CE(1/4) 2.5185  acc 0.4616  (4100 s)
+VYSLEDEK bitnet1: CE 2.5414 acc 0.4604 (nejlepsi krok 8000)
+ukazka: r. . shalupis? pani! shov zajel ovev koutisne... krasne se zarmeletl sati petry, ale jimi potuchou nad nepravych. rekl, ale se na prece z prostovych pravinulo otcovenstvi. muzila jako bohlatovati a by

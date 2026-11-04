@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator bop lr_shift 4 norm tensor chip True sched False gq 0 b1 0.9 b2 0.99 mbits 0
+  1000  predikci    4096000  val CE(1/4) 3.4294  acc 0.2687  (610 s)
+  2000  predikci    8192000  val CE(1/4) 2.9687  acc 0.3691  (1210 s)
+  3000  predikci   12288000  val CE(1/4) 2.9107  acc 0.3770  (1813 s)
+  4000  predikci   16384000  val CE(1/4) 2.8319  acc 0.3928  (2416 s)
+  5000  predikci   20480000  val CE(1/4) 2.8179  acc 0.3967  (3015 s)
+  6000  predikci   24576000  val CE(1/4) 2.7847  acc 0.4006  (3612 s)
+  7000  predikci   28672000  val CE(1/4) 2.8933  acc 0.3849  (4211 s)
+  8000  predikci   32768000  val CE(1/4) 2.7625  acc 0.4028  (4804 s)
+VYSLEDEK bitnet1: CE 2.7535 acc 0.4037 (nejlepsi krok 8000)
+ukazka: ret. sho uplhy se snasec jejich ovevil jsi nahy, krat proste dobrehr sahla, provdat, jimi povici. byly nepravych jidel, a ovsem zapoliva bylo ji prodivadi. sedlo k jist spemu napsaajim ohledl nevuje m
