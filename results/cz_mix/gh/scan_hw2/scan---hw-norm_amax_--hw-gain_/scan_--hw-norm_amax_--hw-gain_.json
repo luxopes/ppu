@@ -1,0 +1,79 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "amax",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false,
+  "gain": true
+ },
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1179008,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 2.8375115330403737,
+ "val_acc": 0.3939203730272597,
+ "train_seconds_cpu": 4032.0,
+ "sample": "reti shou plny slavnasecne,.... a evim jdis gryock, rekne? za? jako lekara,vis! dos, ja mi dusta. bude na jako usji vydravovali zapravost prosti hlad, ale jsem, co jiste nemuzim. zajim ohroti nepujdeme. jeho porucineho. potece, obivaju on sam dovral- mne nady nic, starych vyrakyvaveni kromenke bozni netricku, okamzitil nyni nebo obsem! vsechna nerych, rek. i dech se mila hrozlila na ja bys nesnou ",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.5239426412257235,
+   "val_acc": 0.2654232424677188
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.4251559486963914,
+   "val_acc": 0.27439024390243905
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 3.1074658454683886,
+   "val_acc": 0.34433285509325684
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 3.110403121617414,
+   "val_acc": 0.3486370157819225
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.8902975753834297,
+   "val_acc": 0.3862984218077475
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.930150174961843,
+   "val_acc": 0.381635581061693
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.840663151389242,
+   "val_acc": 0.3906025824964132
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.9053450989686227,
+   "val_acc": 0.3913199426111908
+  }
+ ]
+}

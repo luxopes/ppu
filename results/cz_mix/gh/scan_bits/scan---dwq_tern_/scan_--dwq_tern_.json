@@ -1,0 +1,81 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "ln",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false,
+  "gain": false
+ },
+ "gq": 8,
+ "dwq": "tern",
+ "abits": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.936350038489302,
+ "val_acc": 0.37652439024390244,
+ "train_seconds_cpu": 6322.7,
+ "sample": "ret. shradal kaznicnase! jeji jedin v bedisne.. cara gentroze? nastr satilovity, a ceji idel, vami nad nepravych. riky, a ovsem zapravda bylosti se domansi sedet. vsict se mu naprini mloucne patilari, to sala ji objestlopy s anahli fabrochazi dovrel-li, pridy nichazteckajky radymi treskacivne domu mniktelo tu okam, tvratyz zivotecno mne dlivek neryce, rek. a dechtel jito hrdecila na ja byset. zalg",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.54952802199892,
+   "val_acc": 0.26076040172166426
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.3803175123566946,
+   "val_acc": 0.28263988522238165
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 3.2685826117229384,
+   "val_acc": 0.2998565279770445
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 3.14096413764441,
+   "val_acc": 0.3321377331420373
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.998652350217369,
+   "val_acc": 0.3565279770444763
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.9887966359354583,
+   "val_acc": 0.36585365853658536
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.9367287418190324,
+   "val_acc": 0.38127690100430417
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.911829088692175,
+   "val_acc": 0.3798421807747489
+  }
+ ]
+}

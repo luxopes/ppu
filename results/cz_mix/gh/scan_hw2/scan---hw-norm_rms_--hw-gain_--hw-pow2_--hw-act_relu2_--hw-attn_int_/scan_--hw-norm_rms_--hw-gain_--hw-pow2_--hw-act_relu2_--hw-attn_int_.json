@@ -1,0 +1,79 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "rms",
+  "act": "relu2",
+  "attn": "int",
+  "pow2": true,
+  "gain": true
+ },
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1179008,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.5519183096373546,
+ "val_acc": 0.46278694404591103,
+ "train_seconds_cpu": 5697.9,
+ "sample": "r.t. ghalle? kazniva se v zeme esievne kdesne. nas, rekne? zarmeli. lezela vite, ne, ja i potuci. bral na jednou. rikavo. ovsemi a slyse bylo videli. madame slotel jisty nemuzemi zajimati bez nepujcimi trebave poobnehy. pochodilo na jednoho radovi a ti, pridaval mam proslo v nevolvani kromene a objima, blouhe okno, tvrdivi si boze s maminkami nicimi., rekl i dech po vitezsky preceny ja byl nesnati",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.231365506856949,
+   "val_acc": 0.3002152080344333
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.9047207540770748,
+   "val_acc": 0.3802008608321377
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.7392693578169265,
+   "val_acc": 0.41068866571018653
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.644755596702257,
+   "val_acc": 0.4232424677187948
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.61380766560576,
+   "val_acc": 0.4372309899569584
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.5710892793897546,
+   "val_acc": 0.4368723098995696
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.5603621258082114,
+   "val_acc": 0.4418938307030129
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.5524030549527876,
+   "val_acc": 0.46413199426111906
+  }
+ ]
+}

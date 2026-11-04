@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 8 b1 0.9 b2 0.99 mbits 8
+  1000  predikci    4096000  val CE(1/4) 3.4388  acc 0.2672  (817 s)
+  2000  predikci    8192000  val CE(1/4) 2.9973  acc 0.3655  (1614 s)
+  3000  predikci   12288000  val CE(1/4) 2.8529  acc 0.3960  (2424 s)
+  4000  predikci   16384000  val CE(1/4) 2.7945  acc 0.4057  (3238 s)
+  5000  predikci   20480000  val CE(1/4) 2.7472  acc 0.4197  (4057 s)
+  6000  predikci   24576000  val CE(1/4) 2.6958  acc 0.4164  (4880 s)
+  7000  predikci   28672000  val CE(1/4) 2.6607  acc 0.4301  (5713 s)
+  8000  predikci   32768000  val CE(1/4) 2.6290  acc 0.4354  (6533 s)
+VYSLEDEK bitnet1: CE 2.6300 acc 0.4388 (nejlepsi krok 8000)
+ukazka: revidany dalo pravin, je jen steskevi bedisne..... a gener zarovily lezela v syne takovymi dvum po nabri! ja vsudech se na vsechna slyse bylo vzali a mada, seditel jim sruzbum pasek. ale celo nevubec,

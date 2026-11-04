@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 8 b1 0.9 b2 0.99 mbits 8
+  1000  predikci    4096000  val CE(1/4) 3.3048  acc 0.2927  (356 s)
+  2000  predikci    8192000  val CE(1/4) 2.9263  acc 0.3698  (715 s)
+  3000  predikci   12288000  val CE(1/4) 2.8399  acc 0.3999  (1076 s)
+  4000  predikci   16384000  val CE(1/4) 2.8224  acc 0.3899  (1434 s)
+  5000  predikci   20480000  val CE(1/4) 2.7063  acc 0.4225  (1812 s)
+  6000  predikci   24576000  val CE(1/4) 2.7076  acc 0.4089  (2211 s)
+  7000  predikci   28672000  val CE(1/4) 2.6444  acc 0.4293  (2597 s)
+  8000  predikci   32768000  val CE(1/4) 2.6827  acc 0.4261  (2983 s)
+VYSLEDEK bitnet1: CE 2.6488 acc 0.4311 (nejlepsi krok 7000)
+ukazka: rete, hous lhka nas neho jejich ovevi bediseli. caru wenta zarovaly lezel petru, a ceji i potuci. brab nepravych jiden, a ovsem zapravic bylo vzdy haziny a sedet. vsichni neubili zajimaje bez nevlasim

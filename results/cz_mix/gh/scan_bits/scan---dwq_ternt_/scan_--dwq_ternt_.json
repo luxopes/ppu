@@ -1,0 +1,81 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "ln",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false,
+  "gain": false
+ },
+ "gq": 8,
+ "dwq": "ternt",
+ "abits": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 2.6881780369569186,
+ "val_acc": 0.4322991391678623,
+ "train_seconds_cpu": 3531.5,
+ "sample": "art. shrdineho slavnaseho za stesi vice direci. ---- gen.--ze? nastale se prisy, ano, zvidat, vam buhe na stova.. rekne na vsecne predstaveni vzali a mada, sloutci jisty nemuzem. zajimaje bal nepuje mustangu? jez bylo dopade antonik jste houstan. pa-li, pridy jsem starostky rady pocal kromyslne, bud netrpot pohledne. dvori tim jej s mam. .. za ne, ve, rek. a dece ta jito hrozhvecni vzat! schor. ta",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.430169689581091,
+   "val_acc": 0.27116212338593976
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.1024925947774853,
+   "val_acc": 0.33249641319942613
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.9682323550291416,
+   "val_acc": 0.36764705882352944
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.866871613709406,
+   "val_acc": 0.3848637015781923
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.7920558739142,
+   "val_acc": 0.3931133428981349
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.719019554960242,
+   "val_acc": 0.4063845050215208
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.6769304406796475,
+   "val_acc": 0.4264705882352941
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.695290690631302,
+   "val_acc": 0.4200143472022956
+  }
+ ]
+}

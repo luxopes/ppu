@@ -1,0 +1,81 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "ln",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false,
+  "gain": false
+ },
+ "gq": 8,
+ "dwq": "int4",
+ "abits": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.630010983667884,
+ "val_acc": 0.43884505021520803,
+ "train_seconds_cpu": 6637.7,
+ "sample": "revidany dalo pravin, je jen steskevi bedisne..... a gener zarovily lezela v syne takovymi dvum po nabri! ja vsudech se na vsechna slyse bylo vzali a mada, seditel jim sruzbum pasek. ale celo nevubec, to ja velikove sel prestavali. fabron se ve vsech mohli dveriti. tedy jsme nevim trestanecne prosim netrpeltelosti, tvrdovi zivotecno matko. vzdyt se o, rekl i dech se milost.. cvecenych tahne? ry, j",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.4388395812645793,
+   "val_acc": 0.26721664275466284
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.9973176898355893,
+   "val_acc": 0.36549497847919654
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.8529338277952907,
+   "val_acc": 0.39598278335724535
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.794494318455723,
+   "val_acc": 0.40566714490674316
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.7472415358723707,
+   "val_acc": 0.41965566714490676
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.6958040033260553,
+   "val_acc": 0.4164275466284075
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.660712759968827,
+   "val_acc": 0.4300573888091822
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.6290033163429847,
+   "val_acc": 0.43543758967001434
+  }
+ ]
+}

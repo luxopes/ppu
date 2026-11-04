@@ -1,0 +1,81 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "ln",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false,
+  "gain": false
+ },
+ "gq": 8,
+ "dwq": "same",
+ "abits": 4,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 2.6487661630312207,
+ "val_acc": 0.43113342898134865,
+ "train_seconds_cpu": 3044.4,
+ "sample": "rete, hous lhka nas neho jejich ovevi bediseli. caru wenta zarovaly lezel petru, a ceji i potuci. brab nepravych jiden, a ovsem zapravic bylo vzdy haziny a sedet. vsichni neubili zajimaje bez nevlasimu. jeho porukanem dopale a ali.. jako meho zavrel-li, pridaval si, proslovi a vzpomne krouvornu, bud netrpovida, ze ve svobot i odecnova! vskival naryvo, rek. i dech tam glora. ali con vyptahou? snad ",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.3048440122057934,
+   "val_acc": 0.2926829268292683
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.9263139186013354,
+   "val_acc": 0.3697991391678623
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.8398652861196,
+   "val_acc": 0.3999282639885222
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.8224267249982566,
+   "val_acc": 0.3898852223816356
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.706296632778087,
+   "val_acc": 0.42252510760401724
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.7076282295492593,
+   "val_acc": 0.40889526542324245
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.644419799712833,
+   "val_acc": 0.4293400286944046
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.6827349563125327,
+   "val_acc": 0.4261119081779053
+  }
+ ]
+}

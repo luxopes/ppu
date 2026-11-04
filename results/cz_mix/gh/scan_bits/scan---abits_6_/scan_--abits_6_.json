@@ -1,0 +1,81 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "ln",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false,
+  "gain": false
+ },
+ "gq": 8,
+ "dwq": "same",
+ "abits": 6,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.490830395782934,
+ "val_acc": 0.45911047345767575,
+ "train_seconds_cpu": 2577.5,
+ "sample": "r. . shradal kazda nashou welch a pvil jdirne. hlu, rozumi zadujily. satecke sy, ne, jimiz tu vam bude nepromysliji, sera ovsem zapuly, ze nesmival a madame slovcka, jaksi mu napred od ohlenou. vlastne tresla jsem nespala? staval jako souhlasil vsechno, ani vydle netri slova a vzpomneli. ovsek boham netrpelivost, v tom nyni znovu ne mne dlive niciti., rekl i dech se vitati. ali co jiz tahne? snad ",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.2853938748847775,
+   "val_acc": 0.3002152080344333
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.8254926096255493,
+   "val_acc": 0.3862984218077475
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.6936516115811093,
+   "val_acc": 0.41571018651362984
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.6448284758927283,
+   "val_acc": 0.4329268292682927
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.5041914096248505,
+   "val_acc": 0.45086083213773315
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.5634512401839733,
+   "val_acc": 0.4383070301291248
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.547650242099326,
+   "val_acc": 0.4494261119081779
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.4668458226150523,
+   "val_acc": 0.4583931133428981
+  }
+ ]
+}

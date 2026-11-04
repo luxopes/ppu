@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 8 b1 0.9 b2 0.99 mbits 8
+  1000  predikci    4096000  val CE(1/4) 3.3376  acc 0.2830  (598 s)
+  2000  predikci    8192000  val CE(1/4) 2.8328  acc 0.3874  (1196 s)
+  3000  predikci   12288000  val CE(1/4) 2.7815  acc 0.4075  (1801 s)
+  4000  predikci   16384000  val CE(1/4) 2.7073  acc 0.4143  (2405 s)
+  5000  predikci   20480000  val CE(1/4) 2.6361  acc 0.4351  (3010 s)
+  6000  predikci   24576000  val CE(1/4) 2.6146  acc 0.4365  (3613 s)
+  7000  predikci   28672000  val CE(1/4) 2.6000  acc 0.4444  (4208 s)
+  8000  predikci   32768000  val CE(1/4) 2.6001  acc 0.4448  (4811 s)
+VYSLEDEK bitnet1: CE 2.5849 acc 0.4534 (nejlepsi krok 7000)
+ukazka: r. . shaje lojza si neho jej steskeve bedarem... kral patrne ? nastr si, zavis v noci sve potuchani my na jeho usedi seriti se na predstoupinstvi, zapiny a sedet. vsichni jeho pasek. mlouc, protoze-li

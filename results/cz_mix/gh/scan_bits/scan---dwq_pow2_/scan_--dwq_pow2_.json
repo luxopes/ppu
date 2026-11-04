@@ -1,0 +1,81 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "ln",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false,
+  "gain": false
+ },
+ "gq": 8,
+ "dwq": "pow2",
+ "abits": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.5371614816400716,
+ "val_acc": 0.4469153515064562,
+ "train_seconds_cpu": 9221.0,
+ "sample": "r. . shradil kazdy nas cervenejevi, v bedinnem na ranem svozsky ploste. byl by v nehozbote dvuva. byly neprovolukem, seralovy ryzadu zachytnosti pohledali z hlavali vstyru muzi pred omlouvati a vubec stareho porucitele. pocitaval i fabry. par dovedl tisefem vytrest, proslo by tak cernosti. nenapoved netrpelivost, v tvarnych znovu ne mato kilonci rychle jegonu, chtel jit hodinavec! zvolal se osnole",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.283045980566042,
+   "val_acc": 0.28371592539454804
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.882797398654965,
+   "val_acc": 0.3866571018651363
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.7810972913973666,
+   "val_acc": 0.41606886657101866
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.6412816044001297,
+   "val_acc": 0.44045911047345765
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.6058081045565396,
+   "val_acc": 0.4386657101865136
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.5952047587438583,
+   "val_acc": 0.43220946915351505
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.5418175065068804,
+   "val_acc": 0.4562410329985653
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.526574480347897,
+   "val_acc": 0.4365136298421808
+  }
+ ]
+}

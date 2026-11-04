@@ -80,6 +80,7 @@ def emb_int8(w):
 CHIP = False   # nastavuje --chip
 GQ = 0         # --gq: bitu gradientu ve zpetnem pruchodu (0 = float)
 ABITS = 8      # --abits: bitu aktivaci na vstupu BitLinear (sirka scitacek v poli)
+DWL = 8        # --dw-levels: pocet urovni exponentu u --dwq pow2
 DWQ = "same"   # --dwq: kvantizace gradientu jen pro vypocet dW (same = jako dx, GQ bitu)
 
 
@@ -114,7 +115,7 @@ def q_dw(g):
     if DWQ == "ternt":
         return q_sr(g, 2, per_token=True)
     if DWQ == "pow2":
-        return q_pow2(g)
+        return q_pow2(g, DWL)
     return q_sr(g, GQ)
 
 
@@ -424,6 +425,7 @@ def main():
     ap.add_argument("--bop-g", type=float, default=1e-2, help="bop: rychlost momentu")
     ap.add_argument("--bop-tau", type=float, default=3.0, help="bop: prah preklopeni (v RMS momentu)")
     ap.add_argument("--gq", type=int, default=0, help="bitu gradientu ve zpetnem pruchodu BitLinear (0 = float)")
+    ap.add_argument("--dw-levels", type=int, default=8, help="--dwq pow2: urovni exponentu (posuvnik)")
     ap.add_argument("--abits", type=int, default=8, help="bitu aktivaci na vstupu BitLinear")
     ap.add_argument("--dwq", default="same", choices=["same", "int4", "int4t", "tern", "ternt", "pow2"],
                     help="kvantizace gradientu pro dW (pocet pruchodu pole scitacek)")
@@ -437,8 +439,8 @@ def main():
     a = ap.parse_args()
     HW.update(norm=a.hw_norm, act=a.hw_act, attn=a.hw_attn, pow2=a.hw_pow2, gain=a.hw_gain)
 
-    global CHIP, GQ, DWQ, ABITS
-    CHIP, GQ, DWQ, ABITS = a.chip, a.gq, a.dwq, a.abits
+    global CHIP, GQ, DWQ, ABITS, DWL
+    CHIP, GQ, DWQ, ABITS, DWL = a.chip, a.gq, a.dwq, a.abits, a.dw_levels
     torch.manual_seed(a.seed)
     torch.set_num_threads(int(os.environ.get("TORCH_THREADS", "4")))
     data = torch.tensor(list(open(a.corpus, "rb").read()), dtype=torch.long) & 31
@@ -496,7 +498,7 @@ def main():
     g = torch.Generator().manual_seed(7)
     prompt = data[split:split + ctx].tolist()
     sample = generate(model, prompt, 400, ctx, g)
-    res = {"model": a.model, "opt": a.opt, "lr_shift": a.lr_shift, "norm": a.norm, "chip": a.chip, "hw": dict(HW), "gq": a.gq, "dwq": a.dwq, "abits": a.abits, "b1": a.b1, "b2": a.b2, "mbits": a.mbits,
+    res = {"model": a.model, "opt": a.opt, "lr_shift": a.lr_shift, "norm": a.norm, "chip": a.chip, "hw": dict(HW), "gq": a.gq, "dwq": a.dwq, "abits": a.abits, "dw_levels": a.dw_levels, "b1": a.b1, "b2": a.b2, "mbits": a.mbits,
            "sched": a.sched, "params": n_params, "bitlm_params": BITLM_PARAMS, "ctx": ctx,
            "steps": a.steps, "batch": a.batch, "best_step": best[1], "val_ce_bits": ce, "val_acc": acc,
            "train_seconds_cpu": round(time.time() - t0, 1), "sample": sample, "log": log}

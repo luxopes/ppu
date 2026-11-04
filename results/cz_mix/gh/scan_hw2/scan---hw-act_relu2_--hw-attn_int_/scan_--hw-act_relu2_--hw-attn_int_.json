@@ -1,0 +1,79 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "ln",
+  "act": "relu2",
+  "attn": "int",
+  "pow2": false,
+  "gain": false
+ },
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.540109598864776,
+ "val_acc": 0.45471664275466284,
+ "train_seconds_cpu": 5604.8,
+ "sample": "r. . ano, plozil si nejce za steskevu bedlove. nekrad prosim dosti rosavi, vis vedelijsim potucim z myrice noveho reveni. ovsemne prece z prosty pohledal a silnost jisty nemuze pred od ohryty nevleknuti. malo truhlo sedat? starahu. fabry helene vsechno, pridaval miru, zalk bratru cernek. . neni, bum netrpelo, okamzite, nyni ini ze s tam d. vzdan se o, rekl i dech po miraku. ali cely ja byl nesno j",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.2594205841582227,
+   "val_acc": 0.29555236728837875
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.8682600925703037,
+   "val_acc": 0.39562410329985653
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.6832841006179424,
+   "val_acc": 0.42252510760401724
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.6497254363627936,
+   "val_acc": 0.43077474892395984
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.5887049930048605,
+   "val_acc": 0.4465566714490674
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.5819900954756574,
+   "val_acc": 0.4383070301291248
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.5837850080798206,
+   "val_acc": 0.4501434720229555
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.5385299364893723,
+   "val_acc": 0.4565997130559541
+  }
+ ]
+}

@@ -1,0 +1,81 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "ln",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false,
+  "gain": false
+ },
+ "gq": 8,
+ "dwq": "int4t",
+ "abits": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 2.5849272768738394,
+ "val_acc": 0.4533715925394548,
+ "train_seconds_cpu": 4882.0,
+ "sample": "r. . shaje lojza si neho jej steskeve bedarem... kral patrne ? nastr si, zavis v noci sve potuchani my na jeho usedi seriti se na predstoupinstvi, zapiny a sedet. vsichni jeho pasek. mlouc, protoze-li toho jako uobenska. byl bylo ivanovice a ve vseliti, pridavny mamterni, vyrazymi trestanecniku, bum netrpeli, okdo vesle, ze inijehne mu v kazajen se oci jegen decht! mel starostvice. vza byl nesnoug",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.337629225325313,
+   "val_acc": 0.28299856527977046
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.8327592729001663,
+   "val_acc": 0.38737446197991393
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.781529671079949,
+   "val_acc": 0.40746054519368724
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.7072713031217313,
+   "val_acc": 0.4142754662840746
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.636110924534951,
+   "val_acc": 0.4350789096126255
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.6146401307250926,
+   "val_acc": 0.4365136298421808
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.600005578691368,
+   "val_acc": 0.44440459110473457
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.6001276335696257,
+   "val_acc": 0.4447632711621234
+  }
+ ]
+}

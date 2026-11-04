@@ -1,0 +1,12 @@
+bitnet1: 1179008 parametru (BitLM 1180160, -0.10 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 8 b1 0.9 b2 0.99 mbits 8
+  1000  predikci    4096000  val CE(1/4) 3.2314  acc 0.3002  (690 s)
+  2000  predikci    8192000  val CE(1/4) 2.9047  acc 0.3802  (1372 s)
+  3000  predikci   12288000  val CE(1/4) 2.7393  acc 0.4107  (2060 s)
+  4000  predikci   16384000  val CE(1/4) 2.6448  acc 0.4232  (2750 s)
+  5000  predikci   20480000  val CE(1/4) 2.6138  acc 0.4372  (3433 s)
+  6000  predikci   24576000  val CE(1/4) 2.5711  acc 0.4369  (4122 s)
+  7000  predikci   28672000  val CE(1/4) 2.5604  acc 0.4419  (4806 s)
+  8000  predikci   32768000  val CE(1/4) 2.5524  acc 0.4641  (5491 s)
+VYSLEDEK bitnet1: CE 2.5519 acc 0.4628 (nejlepsi krok 8000)
+ukazka: r.t. ghalle? kazniva se v zeme esievne kdesne. nas, rekne? zarmeli. lezela vite, ne, ja i potuci. bral na jednou. rikavo. ovsemi a slyse bylo videli. madame slotel jisty nemuzemi zajimati bez nepujcim

@@ -1,0 +1,79 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "amax",
+  "act": "relu2",
+  "attn": "int",
+  "pow2": true,
+  "gain": true
+ },
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1179008,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 4000,
+ "val_ce_bits": 3.3219024961101757,
+ "val_acc": 0.29465566714490676,
+ "train_seconds_cpu": 5673.1,
+ "sample": "ret. sho umlhy slarnase uvema jedinvi bedisngi. ckystene. nez? jaly led, zavisji ne, ji idrytuva. brad nepry vsu. rdeseratovilinzansly, z pansvgorihadla si sedytel jimt snemutimi, a omlohlato nevute muti mruve poovneho. prestavalii. jstou sem dovsta-li, anidy tilovit, zaji bylkym vedl krouvniky, bud netelo tu okdtve. svodi tinom! bo mat. kile ni ryve, ret. andech se mila hkolavecmnym a bysechrzo j",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.630342690366101,
+   "val_acc": 0.2532281205164993
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.6292445280897394,
+   "val_acc": 0.24928263988522237
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 3.518779762513328,
+   "val_acc": 0.25753228120516497
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 3.338159956383466,
+   "val_acc": 0.28730272596843615
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 3.3623046821646017,
+   "val_acc": 0.29949784791965567
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 3.5402648321169425,
+   "val_acc": 0.26291248206599716
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 3.6935625376791714,
+   "val_acc": 0.24031563845050216
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 3.701309177143431,
+   "val_acc": 0.24892395982783358
+  }
+ ]
+}

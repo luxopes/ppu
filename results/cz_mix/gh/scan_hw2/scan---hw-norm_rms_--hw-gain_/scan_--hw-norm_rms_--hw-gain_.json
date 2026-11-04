@@ -1,0 +1,79 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "rms",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false,
+  "gain": true
+ },
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1179008,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.5215203913956663,
+ "val_acc": 0.4528335724533716,
+ "train_seconds_cpu": 4822.6,
+ "sample": "r. . gestapery slavnost! jen stesitvi bedisne...-----------------------------------,----------------------------------------------------- prosel pridymatene slova velmi snehu. pali jim ohledl ke bysimu. horla jsem nespala? s bilou a jstre se ve vsech mochu dybni mam proslo v nevitelni kroky knihovni netrpelivosti v tvrnici zivoten s major. vzali se oci je. i jech te vitahu. ali cas vzal ho nesnost",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.3410669122625665,
+   "val_acc": 0.2804878048780488
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.833569187318742,
+   "val_acc": 0.39705882352941174
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.7089085503222825,
+   "val_acc": 0.4200143472022956
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.6361769184974606,
+   "val_acc": 0.43543758967001434
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.643371918550764,
+   "val_acc": 0.4365136298421808
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.5734806485538573,
+   "val_acc": 0.44045911047345765
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.531943126308797,
+   "val_acc": 0.453012912482066
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.500514555766753,
+   "val_acc": 0.445480631276901
+  }
+ ]
+}

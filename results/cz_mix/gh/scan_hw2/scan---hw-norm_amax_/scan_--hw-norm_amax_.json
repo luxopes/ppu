@@ -1,0 +1,79 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "hw": {
+  "norm": "amax",
+  "act": "gelu",
+  "attn": "float",
+  "pow2": false,
+  "gain": false
+ },
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1177600,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 7000,
+ "val_ce_bits": 3.2383578111682594,
+ "val_acc": 0.3168938307030129,
+ "train_seconds_cpu": 3448.1,
+ "sample": "ret. sho daloka nasnasho jem ste vevi bedisne. nakrar proz zarosti. lezabare syvel ceji idrituva. bral nepro vsuseri se na vserizanily, z padstgori domadsi sedotel jist se mubilil, j----hleto nevuje muto mruve poobnestaho? s bylovivajstone za dovrou-li, prady tilovit, zalk grakyvi tel krouvneny, bum netelo tu oknove. denyz tinik obo m! vdesle ni ryve, ret. a dechtou lita hrozhveciny ja bysce. zala",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.5552765556750936,
+   "val_acc": 0.2535868005738881
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.3995726840253666,
+   "val_acc": 0.2654232424677188
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 3.3959910705568115,
+   "val_acc": 0.2865853658536585
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 3.3135174412541066,
+   "val_acc": 0.296987087517934
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 3.3017455648719456,
+   "val_acc": 0.3098995695839311
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 3.2676874847124266,
+   "val_acc": 0.29949784791965567
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 3.2526442407069984,
+   "val_acc": 0.30416068866571017
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 3.2712759360335224,
+   "val_acc": 0.30738880918220945
+  }
+ ]
+}
