@@ -74,6 +74,23 @@ def emb_int8(w):
 
 
 CHIP = False   # nastavuje --chip
+GQ = 0         # --gq: bitu gradientu ve zpetnem pruchodu (0 = float)
+
+
+class GradQuant(torch.autograd.Function):
+    """Dopredu identita; zpet gradient na GQ bitu, mocnina dvou absmax po tenzoru, stochasticke zaokrouhleni
+    (tak by pocital zpetny pruchod v cipu: delta int8 s dynamickym posunem)."""
+
+    @staticmethod
+    def forward(ctx, x):
+        return x
+
+    @staticmethod
+    def backward(ctx, g):
+        qmax = 2 ** (GQ - 1) - 1
+        e = torch.ceil(torch.log2(g.abs().amax().clamp_min(1e-30) / qmax))
+        s = torch.exp2(e)
+        return torch.clamp(torch.floor(g / s + torch.rand_like(g)), -qmax - 1, qmax) * s
 
 
 class BitLinear(nn.Linear):
@@ -93,7 +110,8 @@ class BitLinear(nn.Linear):
             w = ste(w, q * self.shift)
         else:
             w = w_ternary(w) if self.mode == "ternary" else w_binary(w)
-        return F.linear(act_quant(x), w)
+        y = F.linear(act_quant(x), w)
+        return GradQuant.apply(y) if GQ else y
 
 
 class ChipOpt:
@@ -241,12 +259,13 @@ def main():
     ap.add_argument("--lr-shift", type=int, default=0, help="krok updatu 2^lr_shift (v LSB stinu, u sgd v jednotkach g/krok)")
     ap.add_argument("--norm", default="tensor", choices=["tensor", "row"])
     ap.add_argument("--chip", action="store_true", help="1-bit vahy s pevnym posunem misto prumeru |w|")
+    ap.add_argument("--gq", type=int, default=0, help="bitu gradientu ve zpetnem pruchodu BitLinear (0 = float)")
     ap.add_argument("--sched", action="store_true", help="u sgd/nsgd/lion pulit krok v 50/75/88 %%")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
 
-    global CHIP
-    CHIP = a.chip
+    global CHIP, GQ
+    CHIP, GQ = a.chip, a.gq
     torch.manual_seed(a.seed)
     torch.set_num_threads(int(os.environ.get("TORCH_THREADS", "4")))
     data = torch.tensor(list(open(a.corpus, "rb").read()), dtype=torch.long) & 31
@@ -267,7 +286,7 @@ def main():
     else:
         opt = ChipOpt(model, a.opt, a.lr_shift, a.norm)
         sched = None
-    print(f"optimalizator {a.opt} lr_shift {a.lr_shift} norm {a.norm} chip {a.chip} sched {a.sched}", flush=True)
+    print(f"optimalizator {a.opt} lr_shift {a.lr_shift} norm {a.norm} chip {a.chip} sched {a.sched} gq {a.gq}", flush=True)
     log, best, t0 = [], None, time.time()
     for step in range(1, a.steps + 1):
         ix = torch.randint(ctx, split - 1, (a.batch,))
@@ -303,7 +322,7 @@ def main():
     g = torch.Generator().manual_seed(7)
     prompt = data[split:split + ctx].tolist()
     sample = generate(model, prompt, 400, ctx, g)
-    res = {"model": a.model, "opt": a.opt, "lr_shift": a.lr_shift, "norm": a.norm, "chip": a.chip,
+    res = {"model": a.model, "opt": a.opt, "lr_shift": a.lr_shift, "norm": a.norm, "chip": a.chip, "gq": a.gq,
            "sched": a.sched, "params": n_params, "bitlm_params": BITLM_PARAMS, "ctx": ctx,
            "steps": a.steps, "batch": a.batch, "best_step": best[1], "val_ce_bits": ce, "val_acc": acc,
            "train_seconds_cpu": round(time.time() - t0, 1), "sample": sample, "log": log}
