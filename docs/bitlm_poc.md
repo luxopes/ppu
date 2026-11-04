@@ -244,7 +244,7 @@ ve stejne pameti) za 0,17 bitu - kandidat na pametove usporny rezim pri skalovan
 
 ## 11. Zjednoduseni pro cip a pevna specifikace (2026-11-04)
 
-Scany `concept_scan.yml` (8000 kroku, d=128-ish concept_lab, cz_mix, Lion int8, `--gq 8`);
+Scany `concept_scan.yml` (concept_lab bitnet1, 8000 kroku, cz_mix, Lion int8, `--gq 8`);
 vysledky v `results/cz_mix/gh/scan_hw`, `scan_hw2`, `scan_bits`, `scan_combo`.
 Sum mezi seedy: vychozi model 2,530 / 2,562 (seed 1) -> rozdily do ~0,03 jsou sum.
 
