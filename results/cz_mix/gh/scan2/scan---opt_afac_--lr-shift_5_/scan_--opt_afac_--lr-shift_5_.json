@@ -1,0 +1,48 @@
+{
+ "model": "bitnet1",
+ "opt": "afac",
+ "lr_shift": 5,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 3.1210207037443336,
+ "val_acc": 0.335545193687231,
+ "train_seconds_cpu": 1476.1,
+ "sample": "ret. shojenehy slavnaske jez stesinvi bedirne. hlarad eztrazeny petr sa druvizy, a hojini potuvazi nad novenoveh. riky, a v se na precec bylosti pohadladsinym, tez jist se mubilil, jimene belikenute mutku ruceli obnehudopy s a aobizeju. nejak dovedl-li, puhlydnili. tockal vyraty pocni krcivniky, bud nitelo tu okutve. do vzpocnikeh s mut. .. zacitit o, rad. inihch se mitati. ali cenovic bys nornoti",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.559057588085638,
+   "val_acc": 0.24964131994261118
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.389593714687848,
+   "val_acc": 0.2618364418938307
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.1914515403155512,
+   "val_acc": 0.31886657101865135
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.128351000106276,
+   "val_acc": 0.3299856527977044
+  }
+ ]
+}

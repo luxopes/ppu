@@ -1,0 +1,48 @@
+{
+ "model": "bitnet1",
+ "opt": "afac",
+ "lr_shift": 6,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 2.827515019004997,
+ "val_acc": 0.398045193687231,
+ "train_seconds_cpu": 1020.0,
+ "sample": "ret. shotu lhy slavekse preklepe vevice disne. na rare zas zachodly lezel prisy, a ceji i prvuci. bral na je vzukeriky, a o se na prlips bylo vzalita madsi sedet. velitesnemu zapravili ohrradcke, acim to malosi uobnesel. ale bylo na jstre shladove a tiskou dverilou, proslouci kazdou. mirt. vzkudivni netrpo tujoku v tvre, ze to jeho vyzavosile ni ryvoti. tre nahce ta vila hnouci celou a byl nesnoti",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.551891329121535,
+   "val_acc": 0.23888091822094693
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.1861841830063713,
+   "val_acc": 0.3199426111908178
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 2.9354797993670205,
+   "val_acc": 0.3705164992826399
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.8194231390505764,
+   "val_acc": 0.3949067431850789
+  }
+ ]
+}

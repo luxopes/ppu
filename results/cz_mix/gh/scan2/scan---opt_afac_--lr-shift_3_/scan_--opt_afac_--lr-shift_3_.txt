@@ -1,0 +1,8 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator afac lr_shift 3 norm tensor chip True sched False gq 0 b1 0.9 b2 0.99 mbits 0
+   500  predikci    2048000  val CE(1/4) 3.6071  acc 0.2443  (331 s)
+  1000  predikci    4096000  val CE(1/4) 3.5614  acc 0.2568  (661 s)
+  1500  predikci    6144000  val CE(1/4) 3.5017  acc 0.2565  (989 s)
+  2000  predikci    8192000  val CE(1/4) 3.4579  acc 0.2651  (1311 s)
+VYSLEDEK bitnet1: CE 3.4736 acc 0.2706 (nejlepsi krok 2000)
+ukazka: prtedyh jdelok slasnase premast avevi bedisna.. ckrarenes? za? nalor sa brovisy, ne, jimidry, vami nabri! ja vsuserdem, nachovinza sli, z prosvivychadmadsi sto, covel. kruzmubimil, jim ohleto nelujsim

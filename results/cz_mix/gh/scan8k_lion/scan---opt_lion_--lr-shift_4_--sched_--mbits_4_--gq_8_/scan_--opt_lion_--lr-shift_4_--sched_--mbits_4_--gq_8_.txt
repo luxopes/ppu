@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 8 b1 0.9 b2 0.99 mbits 4
+  1000  predikci    4096000  val CE(1/4) 3.6006  acc 0.2482  (806 s)
+  2000  predikci    8192000  val CE(1/4) 3.6127  acc 0.2554  (1599 s)
+  3000  predikci   12288000  val CE(1/4) 3.6320  acc 0.2425  (2399 s)
+  4000  predikci   16384000  val CE(1/4) 3.5735  acc 0.2590  (3195 s)
+  5000  predikci   20480000  val CE(1/4) 3.4985  acc 0.2726  (4006 s)
+  6000  predikci   24576000  val CE(1/4) 3.5352  acc 0.2769  (4817 s)
+  7000  predikci   28672000  val CE(1/4) 3.4021  acc 0.2747  (5626 s)
+  8000  predikci   32768000  val CE(1/4) 3.3404  acc 0.2783  (6421 s)
+VYSLEDEK bitnet1: CE 3.3593 acc 0.2878 (nejlepsi krok 8000)
+ukazka: ret. sho daloka nase, je jem ste vevi bedirne.. carar proz za? jakor sa, zavizji ne,-ji idrdvuva. bral nepradvch. rivedila. se na pretrc bydosti se domadsinsto, covel. kruzerina. zajim ohleto nevlacim

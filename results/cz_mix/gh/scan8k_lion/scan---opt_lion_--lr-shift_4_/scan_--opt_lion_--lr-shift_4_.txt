@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched False gq 0 b1 0.9 b2 0.99 mbits 0
+  1000  predikci    4096000  val CE(1/4) 3.2524  acc 0.2981  (606 s)
+  2000  predikci    8192000  val CE(1/4) 2.8988  acc 0.3938  (1215 s)
+  3000  predikci   12288000  val CE(1/4) 2.7248  acc 0.4154  (1831 s)
+  4000  predikci   16384000  val CE(1/4) 2.7072  acc 0.4258  (2452 s)
+  5000  predikci   20480000  val CE(1/4) 2.6060  acc 0.4272  (3068 s)
+  6000  predikci   24576000  val CE(1/4) 2.6683  acc 0.4326  (3690 s)
+  7000  predikci   28672000  val CE(1/4) 2.6010  acc 0.4412  (4312 s)
+  8000  predikci   32768000  val CE(1/4) 2.5682  acc 0.4440  (4932 s)
+VYSLEDEK bitnet1: CE 2.5831 acc 0.4440 (nejlepsi krok 8000)
+ukazka: ret. shladil kareli. shou za stebinu koudisne. hluba general se petr sami? vis, dal, jimi potuvime nad nepromyslej. ostroven bunkrat zaci prosto pohledavajici a co jiste nemuzimi zajimajem, take byli 

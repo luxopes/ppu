@@ -1,0 +1,8 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator sgd lr_shift -4 norm tensor chip True sched False
+   500  predikci    2048000  val CE(1/4) 3.5981  acc 0.2471  (220 s)
+  1000  predikci    4096000  val CE(1/4) 3.5845  acc 0.2507  (444 s)
+  1500  predikci    6144000  val CE(1/4) 3.5770  acc 0.2608  (655 s)
+  2000  predikci    8192000  val CE(1/4) 3.5822  acc 0.2504  (864 s)
+VYSLEDEK bitnet1: CE 3.5717 acc 0.2584 (nejlepsi krok 1500)
+ukazka: prt. sh jemloktil se sec jemakle vevi bedisnelylakrarepetroze? naly ledaby visje ne, ji idrytuva. bral no ja vsu. rdeseratovse nzad pi, z prosvgohladymadvazsto, covel. nsnemubimil, jim ohl, m neluje m

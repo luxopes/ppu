@@ -1,0 +1,8 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator bop lr_shift 4 norm tensor chip True sched False gq 0 b1 0.9 b2 0.99 mbits 0
+   500  predikci    2048000  val CE(1/4) 3.6435  acc 0.2396  (223 s)
+  1000  predikci    4096000  val CE(1/4) 3.5608  acc 0.2486  (445 s)
+  1500  predikci    6144000  val CE(1/4) 3.4483  acc 0.2704  (665 s)
+  2000  predikci    8192000  val CE(1/4) 3.2677  acc 0.3009  (890 s)
+VYSLEDEK bitnet1: CE 3.2716 acc 0.3034 (nejlepsi krok 2000)
+ukazka: art. shoju loka nasnasho jem ste vevi bedisne.. ckrar patr zasty, js sa, zavitji ne, ji idrdudva. brad nepravychlji, se a ovse na pretrs bylosti pohadi. sazsil, covel. kruzmuti priaval ohleto nevuje m

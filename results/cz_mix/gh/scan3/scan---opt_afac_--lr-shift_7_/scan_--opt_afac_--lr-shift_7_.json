@@ -1,0 +1,48 @@
+{
+ "model": "bitnet1",
+ "opt": "afac",
+ "lr_shift": 7,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 2.900207589794579,
+ "val_acc": 0.38351865136298424,
+ "train_seconds_cpu": 1269.4,
+ "sample": "ret. kdyz plokanni nase pred stesinvice disne. nakrat pros zarustejsi a bycejny, an, ja i potuvaho smy nepravosu. riky, a ovsemi a slyssovanosti se domaha. slovovovil. krutiu napred ---- cetli. gubrimeti sala truhaneho. pochali obiceje rekla ve vsechno, ani vytreba, proslovati vojou. mirek nekdo bud netelo tu okam, tvrdovi si boucno mut. kdoza neryvo, rec. a dech te polaho. alisem. vza bych osnoti",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.567389819346447,
+   "val_acc": 0.24354375896700142
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.3184577502350807,
+   "val_acc": 0.3116929698708752
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 2.958571148437164,
+   "val_acc": 0.37697274031563843
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.9086411491866255,
+   "val_acc": 0.38091822094691535
+  }
+ ]
+}

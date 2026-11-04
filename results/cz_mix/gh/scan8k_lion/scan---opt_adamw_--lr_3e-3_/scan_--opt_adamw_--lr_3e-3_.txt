@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator adamw lr_shift 0 norm tensor chip True sched False gq 0 b1 0.9 b2 0.99 mbits 0
+  1000  predikci    4096000  val CE(1/4) 2.8751  acc 0.3770  (524 s)
+  2000  predikci    8192000  val CE(1/4) 2.7677  acc 0.4039  (1059 s)
+  3000  predikci   12288000  val CE(1/4) 2.6513  acc 0.4293  (1588 s)
+  4000  predikci   16384000  val CE(1/4) 2.6124  acc 0.4340  (2111 s)
+  5000  predikci   20480000  val CE(1/4) 2.5631  acc 0.4530  (2642 s)
+  6000  predikci   24576000  val CE(1/4) 2.4931  acc 0.4458  (3170 s)
+  7000  predikci   28672000  val CE(1/4) 2.4857  acc 0.4566  (3697 s)
+  8000  predikci   32768000  val CE(1/4) 2.4444  acc 0.4684  (4232 s)
+VYSLEDEK bitnet1: CE 2.4509 acc 0.4781 (nejlepsi krok 8000)
+ukazka: r. . shallemeier. snasel jej ste veliky direk. helena. ne? zvolali s sati? vis. domin. vidit, vase nabra! gall. helena. a co bude prece z prostihodit? ano, stojici jisty nemuzemi zajimatecnem ke lekom

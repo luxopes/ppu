@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 4,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 3.359301104112825,
+ "val_acc": 0.28784074605451937,
+ "train_seconds_cpu": 6566.2,
+ "sample": "ret. sho daloka nase, je jem ste vevi bedirne.. carar proz za? jakor sa, zavizji ne,-ji idrdvuva. bral nepradvch. rivedila. se na pretrc bydosti se domadsinsto, covel. kruzerina. zajim ohleto nevlacim.. jer veli obnesta. bes asaho.. jstre se ve vsece mne nady nilozit, mal vy nevit trimi covolne, bum netelo tujok tvervi nyz tini. obo mne. ktera neryce, ret. indech ta vilath. alveciny ja bys ne, oni",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.6005592471364274,
+   "val_acc": 0.24820659971305595
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.6126554872395618,
+   "val_acc": 0.25538020086083213
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 3.6320292553807025,
+   "val_acc": 0.242467718794835
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 3.5734887416419463,
+   "val_acc": 0.25896700143472023
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 3.4985332127689377,
+   "val_acc": 0.27259684361549497
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 3.535211548546882,
+   "val_acc": 0.2769010043041607
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 3.4021458958499857,
+   "val_acc": 0.2747489239598278
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 3.3404142052851924,
+   "val_acc": 0.2783357245337159
+  }
+ ]
+}

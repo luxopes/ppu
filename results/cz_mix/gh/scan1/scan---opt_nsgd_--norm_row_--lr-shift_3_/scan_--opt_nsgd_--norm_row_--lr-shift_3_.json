@@ -1,0 +1,44 @@
+{
+ "model": "bitnet1",
+ "opt": "nsgd",
+ "lr_shift": 3,
+ "norm": "row",
+ "chip": true,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 1500,
+ "val_ce_bits": 3.588723279704531,
+ "val_acc": 0.25735294117647056,
+ "train_seconds_cpu": 1444.5,
+ "sample": "net. sh ja loka nase sec jemaste vevi bedisnekylakrarwene? ze? nalyl si, zavizjedne, ji idrytuva. bral no ja vsu.jidesera ovse nzaprli, z pnosvga dtadladsizsedotel ji. kruzmubimil,ajim ohl, m neluje muta qruve pqobneselop? stavahli. jstrne hl dovsel-li, pnady niloveteroslk grakyviceci kro. nenebobni nitelo tujokdovetvi nyz zinikuc s m! vd. ve ni ry o, set. i dech po pgrahoko hvecmnovza b--ce. zota",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.7107533095529113,
+   "val_acc": 0.24892395982783358
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.635059861110592,
+   "val_acc": 0.24713055954088953
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.589602385926585,
+   "val_acc": 0.2586083213773314
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.595409412456823,
+   "val_acc": 0.2600430416068867
+  }
+ ]
+}

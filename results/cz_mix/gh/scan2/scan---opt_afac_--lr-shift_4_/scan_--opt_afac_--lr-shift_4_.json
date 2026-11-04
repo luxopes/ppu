@@ -1,0 +1,48 @@
+{
+ "model": "bitnet1",
+ "opt": "afac",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 3.2997637088535225,
+ "val_acc": 0.29555236728837875,
+ "train_seconds_cpu": 1450.2,
+ "sample": "ret. sho dplokani se se pretante veviky disne.. ckrarene. nezdysleho sa, arvizy, an, jimidry, vazni myri! je vsuseci se nachovina pretrci prostivecha, ad jestoutek. vstysnemumimil, jam ohleto neguzetilych ruvelimovnehodupym cestou. fatirne hode vsec-li, pridy nichast, zalkym a vyporni krouvneny, bum netrloutitiku vetvle, z zinou obo mut. kile ni se o, se goljdech se pilatiky hvecinym a bysenos. ta",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.5898732154209703,
+   "val_acc": 0.2467718794835007
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.5101633418891973,
+   "val_acc": 0.26291248206599716
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.4084707989072727,
+   "val_acc": 0.26578192252510763
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.3014423305890768,
+   "val_acc": 0.2833572453371593
+  }
+ ]
+}

@@ -1,0 +1,48 @@
+{
+ "model": "bitnet1",
+ "opt": "bop",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 3.2316671935427075,
+ "val_acc": 0.3203909612625538,
+ "train_seconds_cpu": 1430.2,
+ "sample": "art. shoud lozi nasnase pretane ovevi bedisne. nakra gena? za? nastr sa bravisy, a ceji i potuvazi nabrice noveu. rdome nacereli a slyka bytosti praddivnsi sed, co jist snemuzimis, jame hledl nevuje mustavala trukanestane? stanaho. fatirne hlad vrak-li, pridy nicha, proslky raky potrimi cevolny, bum netelo tupokato tvre, z tinouze s m! vd. vedni ry o, rek. i dech ta vila hodehveciny ja bych? snoti",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.6204789696379134,
+   "val_acc": 0.2464131994261119
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.575185002826201,
+   "val_acc": 0.24784791965566713
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.4762253584238363,
+   "val_acc": 0.27223816355810615
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.2309686903243002,
+   "val_acc": 0.3152797704447633
+  }
+ ]
+}

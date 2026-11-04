@@ -1,0 +1,8 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator sgd lr_shift 0 norm tensor chip True sched False
+   500  predikci    2048000  val CE(1/4) 3.7536  acc 0.2486  (210 s)
+  1000  predikci    4096000  val CE(1/4) 3.6499  acc 0.2461  (425 s)
+  1500  predikci    6144000  val CE(1/4) 3.6207  acc 0.2478  (646 s)
+  2000  predikci    8192000  val CE(1/4) 3.6000  acc 0.2511  (866 s)
+VYSLEDEK bitnet1: CE 3.5984 acc 0.2496 (nejlepsi krok 2000)
+ukazka: net. sho d lok sl snasec jemakl avevi bedisnelylikrarepetr ze? nalyl si, zavizjedne, ji idrytuva. b my no je veu. rdeseratovserizapretrco pi stgohladymadsiz sl, covel. kruzmubymil, jim ohl, t nelujeby

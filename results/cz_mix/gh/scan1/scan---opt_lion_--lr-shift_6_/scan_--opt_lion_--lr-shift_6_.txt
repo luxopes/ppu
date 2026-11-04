@@ -1,0 +1,8 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 6 norm tensor chip True sched False
+   500  predikci    2048000  val CE(1/4) 3.5519  acc 0.2439  (214 s)
+  1000  predikci    4096000  val CE(1/4) 3.3955  acc 0.2812  (421 s)
+  1500  predikci    6144000  val CE(1/4) 3.0905  acc 0.3303  (642 s)
+  2000  predikci    8192000  val CE(1/4) 2.9274  acc 0.3885  (850 s)
+VYSLEDEK bitnet1: CE 2.9096 acc 0.3854 (nejlepsi krok 2000)
+ukazka: ret. shrdu lhysi si nse prezaste vevice dirne. na rad pros zarozumysle. byle syve to ji idnytu. an nad neprochlu. rdene na vserni pred s bytosti se domada, sedrtel jist se muzi predcime hledovatila by

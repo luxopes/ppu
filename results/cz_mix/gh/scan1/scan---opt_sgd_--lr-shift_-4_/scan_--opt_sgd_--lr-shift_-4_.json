@@ -1,0 +1,44 @@
+{
+ "model": "bitnet1",
+ "opt": "sgd",
+ "lr_shift": -4,
+ "norm": "tensor",
+ "chip": true,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 1500,
+ "val_ce_bits": 3.571709447135156,
+ "val_acc": 0.258428981348637,
+ "train_seconds_cpu": 968.2,
+ "sample": "prt. sh jemloktil se sec jemakle vevi bedisnelylakrarepetroze? naly ledaby visje ne, ji idrytuva. bral no ja vsu. rdeseratovse nzad pi, z prosvgohladymadvazsto, covel. nsnemubimil, jim ohl, m neluje mutohoruve pu bneselopo stavali. fitirne hl dovsta-li, pnady nilovetedoslk grakyvicecl kro. nenebobni nitelo tujokdovetvi ny. zini. o s m! vd. ve ni ry o, ste. i dech po vilatokdahvecmnovza bysenosnota",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.598108263899945,
+   "val_acc": 0.24713055954088953
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.584517266073102,
+   "val_acc": 0.25071736011477763
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.5770158733754793,
+   "val_acc": 0.26076040172166426
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.5822311808879537,
+   "val_acc": 0.2503586800573888
+  }
+ ]
+}

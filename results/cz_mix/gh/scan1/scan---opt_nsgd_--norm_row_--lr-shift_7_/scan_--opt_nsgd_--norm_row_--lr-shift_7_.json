@@ -1,0 +1,44 @@
+{
+ "model": "bitnet1",
+ "opt": "nsgd",
+ "lr_shift": 7,
+ "norm": "row",
+ "chip": true,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 1500,
+ "val_ce_bits": 3.1284231054981926,
+ "val_acc": 0.335993543758967,
+ "train_seconds_cpu": 1134.6,
+ "sample": "ret. shradalhy slsi nse pretante vevi bedisnedy, krar petrozvranily ledala v sjem totji idrivu. mne my nepravychledneserati se na pretrc bylosti se a madsi sednoskvehot snemu napredi mezel, minevuje mustalala jsmobneho. prestavali. fastrne hode vsec-li, pridy nichalt, zalk gratyz vecl krotvne jeobni netelo tu okdoveti, nyz zinikdo s m! vsechne nerych, rek. i dech po vitathajicilamnovek byl nesnoti",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.6139783985167453,
+   "val_acc": 0.2532281205164993
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.368518916236661,
+   "val_acc": 0.2769010043041607
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.1163187326143227,
+   "val_acc": 0.3317790530846485
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.1598812225116064,
+   "val_acc": 0.3464849354375897
+  }
+ ]
+}

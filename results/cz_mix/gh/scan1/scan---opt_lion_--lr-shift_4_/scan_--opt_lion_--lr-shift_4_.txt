@@ -1,0 +1,8 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched False
+   500  predikci    2048000  val CE(1/4) 3.5705  acc 0.2543  (307 s)
+  1000  predikci    4096000  val CE(1/4) 3.2509  acc 0.3016  (615 s)
+  1500  predikci    6144000  val CE(1/4) 2.9532  acc 0.3551  (927 s)
+  2000  predikci    8192000  val CE(1/4) 2.8644  acc 0.3845  (1241 s)
+VYSLEDEK bitnet1: CE 2.8708 acc 0.3901 (nejlepsi krok 2000)
+ukazka: ret. shoduploznel se shou za stesil v bedirneho, krat prosizeny pro lezabare sjedno, ji idly, vasny my na je vzusednem, a o se na pred s beznachativa, adsi sednou vsictninemu zapred od ohledl nevuje m

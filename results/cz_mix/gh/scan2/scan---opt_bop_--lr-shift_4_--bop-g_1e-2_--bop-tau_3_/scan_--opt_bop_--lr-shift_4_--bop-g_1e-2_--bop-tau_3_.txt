@@ -1,0 +1,8 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator bop lr_shift 4 norm tensor chip True sched False gq 0 b1 0.9 b2 0.99 mbits 0
+   500  predikci    2048000  val CE(1/4) 3.6205  acc 0.2464  (318 s)
+  1000  predikci    4096000  val CE(1/4) 3.5752  acc 0.2478  (632 s)
+  1500  predikci    6144000  val CE(1/4) 3.4762  acc 0.2722  (953 s)
+  2000  predikci    8192000  val CE(1/4) 3.2310  acc 0.3153  (1277 s)
+VYSLEDEK bitnet1: CE 3.2317 acc 0.3204 (nejlepsi krok 2000)
+ukazka: art. shoud lozi nasnase pretane ovevi bedisne. nakra gena? za? nastr sa bravisy, a ceji i potuvazi nabrice noveu. rdome nacereli a slyka bytosti praddivnsi sed, co jist snemuzimis, jame hledl nevuje m

@@ -1,0 +1,48 @@
+{
+ "model": "bitnet1",
+ "opt": "afac",
+ "lr_shift": 8,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 3.587085306080846,
+ "val_acc": 0.25313845050215206,
+ "train_seconds_cpu": 1456.5,
+ "sample": "prt. sho daloka nasnasec jemaste vevi bedisnelylakrarepetr ze? nalyl si, zavisy, ne, ji idrytuva. bral no ja vemyjidesera ovse nzapretrc bydosvgo dodymadsizsedytel ji. kruzmubyliseni m ohl, tikeluje muto mala truobneselopo stavahlive stone hove vsel-li, pnidydnilovet, milk grakyvicecl kro. nen bobni nitelo tujokdovetvl nyz tinikec s m! vd. ve ni ry o, set. i dech te vila hojehvecin vza bysenosnoti",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.6304371253734726,
+   "val_acc": 0.24426111908177905
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.6015534993210654,
+   "val_acc": 0.24784791965566713
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.593501793724296,
+   "val_acc": 0.25573888091822095
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.585861117286703,
+   "val_acc": 0.24748923959827834
+  }
+ ]
+}

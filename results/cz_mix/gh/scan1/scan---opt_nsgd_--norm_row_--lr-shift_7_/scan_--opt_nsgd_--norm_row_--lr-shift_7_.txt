@@ -1,0 +1,8 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator nsgd lr_shift 7 norm row chip True sched False
+   500  predikci    2048000  val CE(1/4) 3.6140  acc 0.2532  (256 s)
+  1000  predikci    4096000  val CE(1/4) 3.3685  acc 0.2769  (509 s)
+  1500  predikci    6144000  val CE(1/4) 3.1163  acc 0.3318  (757 s)
+  2000  predikci    8192000  val CE(1/4) 3.1599  acc 0.3465  (1012 s)
+VYSLEDEK bitnet1: CE 3.1284 acc 0.3360 (nejlepsi krok 1500)
+ukazka: ret. shradalhy slsi nse pretante vevi bedisnedy, krar petrozvranily ledala v sjem totji idrivu. mne my nepravychledneserati se na pretrc bylosti se a madsi sednoskvehot snemu napredi mezel, minevuje m

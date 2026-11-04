@@ -1,0 +1,44 @@
+{
+ "model": "bitnet1",
+ "opt": "sgd",
+ "lr_shift": 0,
+ "norm": "tensor",
+ "chip": true,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 3.598448040424797,
+ "val_acc": 0.24964131994261118,
+ "train_seconds_cpu": 978.5,
+ "sample": "net. sho d lok sl snasec jemakl avevi bedisnelylikrarepetr ze? nalyl si, zavizjedne, ji idrytuva. b my no je veu. rdeseratovserizapretrco pi stgohladymadsiz sl, covel. kruzmubymil, jim ohl, t nelujebylytriruve poovnestahprestavaovi. jstrne hove vsta-li, pnidy nilovit, milk grakyviceci kro. nenebobni nitelo ti okdovetvi nyz tinikec s m! vd. ve ni ry o, ste. i dech te vilathko hvecinovza bysenosnoti",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.7536214021016727,
+   "val_acc": 0.24856527977044476
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.649929711072384,
+   "val_acc": 0.2460545193687231
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.6207121514638083,
+   "val_acc": 0.24784791965566713
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.5999625379075724,
+   "val_acc": 0.25107604017216645
+  }
+ ]
+}

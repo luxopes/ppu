@@ -1,0 +1,48 @@
+{
+ "model": "bitnet1",
+ "opt": "bop",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 3.0308581382410718,
+ "val_acc": 0.35796269727403157,
+ "train_seconds_cpu": 938.2,
+ "sample": "ret. shoudel k slavnaste jeji pedvevi bedisne. tak, reknu? zave prosled, zavizy, a ceji i potuvi. brad nepravovu. rdostrati se na pred s bylo vzdycha madangum, tak jintesne ubizil, jak ohybal kelly byly roruveli obnehodopym cestovi. jston se ve vsech mne nady nicha, proslovi nevitovni krouvneny, bud netelo tu okdovedvi nyz zividen s mam. kdora nebylo, ret. andech po jiza hrdalila na ja brecno, oti",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.5862435316911374,
+   "val_acc": 0.2546628407460545
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.4919940148872293,
+   "val_acc": 0.2697274031563845
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.3024036726474,
+   "val_acc": 0.3030846484935438
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.0203391917422535,
+   "val_acc": 0.3568866571018651
+  }
+ ]
+}

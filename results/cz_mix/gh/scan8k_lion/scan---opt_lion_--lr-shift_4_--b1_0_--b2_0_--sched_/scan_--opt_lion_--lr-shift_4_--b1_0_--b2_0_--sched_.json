@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.0,
+ "b2": 0.0,
+ "mbits": 0,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.759519413342527,
+ "val_acc": 0.4029770444763271,
+ "train_seconds_cpu": 4914.7,
+ "sample": "ret. shradal k se snase v zajet o pvisel zraci. ---- gento zarovaly lezel petry, a ceji i potuva. buhe nepro vsudecnosti. ovsemizel lids bylo vzarita madsinym otcoval. krusmum sil, jak ohledl ke uz byly jirovne uobytila. ? sebilo na jste houfad vsech mnosti velici. tak slove nevo cerl krokvo, jendom netrlo tu okamzit svoji za bozova mam. .. za ne, ve, rek. a jech te milo heje vec! jiz tu se? snad ",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.564108250215695,
+   "val_acc": 0.24426111908177905
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.419695552335353,
+   "val_acc": 0.27187948350071733
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 3.1738451280749174,
+   "val_acc": 0.3159971305595409
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.9682083830657318,
+   "val_acc": 0.353299856527977
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.9355986643002128,
+   "val_acc": 0.37589670014347204
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.909949026663304,
+   "val_acc": 0.3744619799139168
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.8154082615582325,
+   "val_acc": 0.3898852223816356
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.7602853633697104,
+   "val_acc": 0.39598278335724535
+  }
+ ]
+}

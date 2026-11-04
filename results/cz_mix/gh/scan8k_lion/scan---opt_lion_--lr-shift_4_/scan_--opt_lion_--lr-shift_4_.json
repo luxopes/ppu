@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.583137267625828,
+ "val_acc": 0.4439562410329986,
+ "train_seconds_cpu": 5086.6,
+ "sample": "ret. shladil kareli. shou za stebinu koudisne. hluba general se petr sami? vis, dal, jimi potuvime nad nepromyslej. ostroven bunkrat zaci prosto pohledavajici a co jiste nemuzimi zajimajem, take byli utoky jako uobjeho. postavilo ivana rozehlava. po-totomu dverilo. to malo bratropovna krouvou domu, timto vetuji dovedel nyni nebo obsou! vsechno nery o, rekl i dech po litostejnivech. vzkom se? snad ",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.252390545323482,
+   "val_acc": 0.2980631276901004
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.898799015858952,
+   "val_acc": 0.3938307030129125
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.72475536043977,
+   "val_acc": 0.415351506456241
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.707237871865777,
+   "val_acc": 0.4257532281205165
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.606040528375687,
+   "val_acc": 0.42718794835007173
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.668294896176934,
+   "val_acc": 0.43256814921090386
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.6009939879073225,
+   "val_acc": 0.4411764705882353
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.5682172234046834,
+   "val_acc": 0.44404591104734575
+  }
+ ]
+}

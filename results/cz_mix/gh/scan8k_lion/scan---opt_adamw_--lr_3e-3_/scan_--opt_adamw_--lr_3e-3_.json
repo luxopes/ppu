@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "adamw",
+ "lr_shift": 0,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.4508844587277525,
+ "val_acc": 0.47812051649928267,
+ "train_seconds_cpu": 4372.1,
+ "sample": "r. . shallemeier. snasel jej ste veliky direk. helena. ne? zvolali s sati? vis. domin. vidit, vase nabra! gall. helena. a co bude prece z prostihodit? ano, stojici jisty nemuzemi zajimatecnem ke lekomu. helena. ukazel dopadecky. bil jsem ho zvedet a tise nady nic, strizil jsem vzpomnel. co neni objisi, bloutilo mou tvrdovi zivoteho vece. kilemni se ochran. a jech to vite hned vecer vzal ho nesnal ",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 2.875065982492898,
+   "val_acc": 0.37697274031563843
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.7677339324720727,
+   "val_acc": 0.40387374461979914
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.6513466706707907,
+   "val_acc": 0.4293400286944046
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.612435783934285,
+   "val_acc": 0.4340028694404591
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.5631340143598784,
+   "val_acc": 0.453012912482066
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.4931438244823396,
+   "val_acc": 0.44583931133428983
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.485672625720184,
+   "val_acc": 0.4565997130559541
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.4444360163623267,
+   "val_acc": 0.4684361549497848
+  }
+ ]
+}

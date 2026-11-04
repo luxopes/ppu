@@ -1,0 +1,48 @@
+{
+ "model": "bitnet1",
+ "opt": "bop",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 1500,
+ "val_ce_bits": 3.5695977508775005,
+ "val_acc": 0.25609756097560976,
+ "train_seconds_cpu": 977.7,
+ "sample": "art. sh je lhy sl se sec jemaste vevi bedisnekylakra gene? ze? nalyl si, zavizje ne, ji idrytuva. brabri! je veu. rdesera ovse nzad pi, z prosvi pradymada zsedotel ji. kruzmuby preajim ohl, pra. bysimuto mala ji o neseloprestastovive strne hl dovsel-li, pnady nilovet, milk grakyvi t. mi t. nenebobum nitelo tujokdovetvi nyz zinikec s m! vd. ve ni ry o, set. i dech po pila hojehvecinovza bysenosnoli",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.6732647908956673,
+   "val_acc": 0.24928263988522237
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.583866011941996,
+   "val_acc": 0.2503586800573888
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.574483183328271,
+   "val_acc": 0.2532281205164993
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.5889823048229954,
+   "val_acc": 0.2456958393113343
+  }
+ ]
+}

@@ -1,0 +1,8 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator afac lr_shift 7 norm tensor chip True sched False gq 0 b1 0.9 b2 0.99 mbits 0
+   500  predikci    2048000  val CE(1/4) 3.5674  acc 0.2435  (281 s)
+  1000  predikci    4096000  val CE(1/4) 3.3185  acc 0.3117  (570 s)
+  1500  predikci    6144000  val CE(1/4) 2.9586  acc 0.3770  (858 s)
+  2000  predikci    8192000  val CE(1/4) 2.9086  acc 0.3809  (1144 s)
+VYSLEDEK bitnet1: CE 2.9002 acc 0.3835 (nejlepsi krok 2000)
+ukazka: ret. kdyz plokanni nase pred stesinvice disne. nakrat pros zarustejsi a bycejny, an, ja i potuvaho smy nepravosu. riky, a ovsemi a slyssovanosti se domaha. slovovovil. krutiu napred ---- cetli. gubrim

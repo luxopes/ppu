@@ -1,0 +1,44 @@
+{
+ "model": "bitnet1",
+ "opt": "nsgd",
+ "lr_shift": 5,
+ "norm": "row",
+ "chip": true,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 3.5408597805592894,
+ "val_acc": 0.26479555236728836,
+ "train_seconds_cpu": 1201.0,
+ "sample": "net. sho deloktinisnase prema je vevi bedisne.. ckrarepra? ze? nalor si, zavizjedat, ji idrdujva. bral nou novsu.jidem, na. se nzaprzika bydosti pohadi dsizsto, covel. kruzmubylil, jim ohl, tiktilarimu. jeruve poovnesta.povsti, ovive strne hove vsta-li, pnidydnilovit, m jk grakdoucecl kro. nenebovni nitelo tujskdove. s nyz tinikuc s m! vd. vza nery o, set. i dech ta pila hakalvecmnovza byseno, ol ",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.589493454040155,
+   "val_acc": 0.2503586800573888
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.6094748277571553,
+   "val_acc": 0.2392395982783357
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.542596997795655,
+   "val_acc": 0.25896700143472023
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.5394065789763665,
+   "val_acc": 0.26040172166427544
+  }
+ ]
+}

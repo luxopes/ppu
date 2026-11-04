@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 0 b1 0.9 b2 0.99 mbits 8
+  1000  predikci    4096000  val CE(1/4) 3.2466  acc 0.2916  (454 s)
+  2000  predikci    8192000  val CE(1/4) 2.8206  acc 0.3938  (914 s)
+  3000  predikci   12288000  val CE(1/4) 2.7517  acc 0.4186  (1375 s)
+  4000  predikci   16384000  val CE(1/4) 2.7240  acc 0.4240  (1834 s)
+  5000  predikci   20480000  val CE(1/4) 2.6352  acc 0.4494  (2296 s)
+  6000  predikci   24576000  val CE(1/4) 2.6178  acc 0.4372  (2756 s)
+  7000  predikci   28672000  val CE(1/4) 2.5538  acc 0.4433  (3216 s)
+  8000  predikci   32768000  val CE(1/4) 2.5313  acc 0.4609  (3677 s)
+VYSLEDEK bitnet1: CE 2.5390 acc 0.4647 (nejlepsi krok 8000)
+ukazka: r. . ghall lokral se shoval. slediev se dire konci, reknu, ze? nalez si by vis vede, ja idet, vam bude nepromocuje. vydrzel se na pred sobe osveho hadrava. stojicko, ja se mu napred -- ohledl nevladim

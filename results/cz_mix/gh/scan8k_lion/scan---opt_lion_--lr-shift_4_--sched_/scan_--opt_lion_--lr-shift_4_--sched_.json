@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.5382012773968263,
+ "val_acc": 0.45247489239598276,
+ "train_seconds_cpu": 3540.3,
+ "sample": "r. . shybu lhytu si nejak za ne ovevi bedirne. nekrat prosil do petroha, ze byl dosud svicen, vime slyriba novymi riky, ale prinese priciny. stoji tady dva seditelni styska, byla zajima hlasova. bylo tyto rukou zobneselopati a to nas strnesti dovola-li, pridavalo se proslo v nevince. mire. ve dvou mne telo tu okamzitku nez tim jen s tabor. vzaci se o, rekl i dech oporgistu. ali cenym polesenim. ta",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.282878682160006,
+   "val_acc": 0.2998565279770445
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.858257909276123,
+   "val_acc": 0.398493543758967
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.7223259488119953,
+   "val_acc": 0.41571018651362984
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.644267092936698,
+   "val_acc": 0.4253945480631277
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.6079615227689565,
+   "val_acc": 0.44583931133428983
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.6299631108041965,
+   "val_acc": 0.437948350071736
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.572010936636451,
+   "val_acc": 0.44727403156384504
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.495606209403659,
+   "val_acc": 0.4580344332855093
+  }
+ ]
+}

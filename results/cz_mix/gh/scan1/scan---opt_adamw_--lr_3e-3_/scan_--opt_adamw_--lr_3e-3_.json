@@ -1,0 +1,44 @@
+{
+ "model": "bitnet1",
+ "opt": "adamw",
+ "lr_shift": 0,
+ "norm": "tensor",
+ "chip": true,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 2.6701670149267565,
+ "val_acc": 0.42790530846484937,
+ "train_seconds_cpu": 1386.3,
+ "sample": "ret. shladal k nasi neho jejich ovevice divne. na radejete zarmy, ja sam zavisy, a ceji i potuvali nad nepravodu. rekli na vsechny slyse bylo vzdychazi dvazsilym ovsem kruzenim pred omloucenost. byli staricha, pooznesel pres bilosi. jako meho dove je mnohu dve zemi, proslo by kaznou. mam tvrhnu, bud netrpveti oknovati, nyz tim se na mne. .. za nebylo, rek. a jechtel jito hrdinvic! zvlast se osnoti",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.267144293918351,
+   "val_acc": 0.296987087517934
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 2.903233608004462,
+   "val_acc": 0.38414634146341464
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 2.7577498781726186,
+   "val_acc": 0.4017216642754663
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.6676069260939643,
+   "val_acc": 0.4253945480631277
+  }
+ ]
+}

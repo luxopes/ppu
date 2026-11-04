@@ -1,0 +1,48 @@
+{
+ "model": "bitnet1",
+ "opt": "bop",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 3.1799937313960345,
+ "val_acc": 0.3175215208034433,
+ "train_seconds_cpu": 1493.1,
+ "sample": "ret. shy daloka nas neho jejake a pvi bedisna. na rad potr zavonaly lez by visti ne, ji i potuva. byly nepry vzuseddeli. ale bovzal zita bylosti pohazili a sed, covel. kruzeli dis, jame hledo nevla byly jiruve pokrnesta. bys avali. fatirne hradovi je mno nady nicha, proslove nevot tel kalidnen bodni netelo tu okdove. dvovi zivodej sem! vdesle ni rych, se gellahce po vitati. alvecinym a by ch. zali",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.577744096775136,
+   "val_acc": 0.24856527977044476
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.5499570854019793,
+   "val_acc": 0.26398852223816355
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.2791527631567736,
+   "val_acc": 0.29591104734576756
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.1774032117506668,
+   "val_acc": 0.31420373027259685
+  }
+ ]
+}

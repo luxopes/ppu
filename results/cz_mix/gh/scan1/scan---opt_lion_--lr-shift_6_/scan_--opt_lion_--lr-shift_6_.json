@@ -1,0 +1,44 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 6,
+ "norm": "tensor",
+ "chip": true,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 2.909577879713345,
+ "val_acc": 0.38540172166427544,
+ "train_seconds_cpu": 954.5,
+ "sample": "ret. shrdu lhysi si nse prezaste vevice dirne. na rad pros zarozumysle. byle syve to ji idnytu. an nad neprochlu. rdene na vserni pred s bytosti se domada, sedrtel jist se muzi predcime hledovatila bylysi ruke poodnesel pres a aobizejsi neprove vsech mohlni vydruha, proslovi nevitce. mirotvnik bodni netriveti okrove. dony pozniku na mam. . vzani se o, rek. andech ta vilastni hveceny ja byseno, otk",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.5519126164777113,
+   "val_acc": 0.24390243902439024
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.3955056304018596,
+   "val_acc": 0.2812051649928264
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.090461164251317,
+   "val_acc": 0.33034433285509324
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.9274366529297824,
+   "val_acc": 0.3884505021520803
+  }
+ ]
+}

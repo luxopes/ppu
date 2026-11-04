@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.5389730309131755,
+ "val_acc": 0.4646700143472023,
+ "train_seconds_cpu": 3790.1,
+ "sample": "r. . ghall lokral se shoval. slediev se dire konci, reknu, ze? nalez si by vis vede, ja idet, vam bude nepromocuje. vydrzel se na pred sobe osveho hadrava. stojicko, ja se mu napred -- ohledl nevladim. treba porucineho. postavilo i fantantasi zavraz-li, pridy nicmi, prosim by ty pocal kroky jeden ni netrpejte! kdo? to vidite? budou ne! vsechno nevyvedes, galla, stop mira hroznila novy trhnut. zati",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.24655117717199,
+   "val_acc": 0.2916068866571019
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.8206435141232675,
+   "val_acc": 0.3938307030129125
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.751741079721111,
+   "val_acc": 0.4185796269727403
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.723966986046287,
+   "val_acc": 0.42395982783357244
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.6351966262704343,
+   "val_acc": 0.4494261119081779
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.6178287019029325,
+   "val_acc": 0.4372309899569584
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.553785911930303,
+   "val_acc": 0.4433285509325681
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.5312784649333326,
+   "val_acc": 0.4609038737446198
+  }
+ ]
+}

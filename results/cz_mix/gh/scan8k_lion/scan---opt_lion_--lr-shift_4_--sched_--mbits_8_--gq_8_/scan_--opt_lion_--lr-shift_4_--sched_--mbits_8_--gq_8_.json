@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 8,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 8,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.5303834958408933,
+ "val_acc": 0.45812410329985653,
+ "train_seconds_cpu": 6075.9,
+ "sample": "revedlo se lhkala s nim nezahnu a pvice divne. nakrat petr zarmutek. sahl petruska hoji idry, vasi nabru! ja vsude dostojev se na predstoupil. gabry, madares dotka jisty, ze by prede mnohy, pritomne mustangu pozorojeni. pochopiloviv jste hohove vsechno, ani vydrzovat, ze k bratru veci kromenlnymi nikteremi tu oknovali, nyz si boze s matho. vzali se o, rekl i dechu! mlirek koncil mnoho dle cely. ta",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.281874481136798,
+   "val_acc": 0.2937589670014347
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.8725776990076843,
+   "val_acc": 0.3798421807747489
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.7035901065166392,
+   "val_acc": 0.4049497847919656
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.667723059044502,
+   "val_acc": 0.4253945480631277
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.5732240790614207,
+   "val_acc": 0.4350789096126255
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.562865537844773,
+   "val_acc": 0.4347202295552367
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.559023975437029,
+   "val_acc": 0.4383070301291248
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.5131489174938344,
+   "val_acc": 0.45265423242467717
+  }
+ ]
+}

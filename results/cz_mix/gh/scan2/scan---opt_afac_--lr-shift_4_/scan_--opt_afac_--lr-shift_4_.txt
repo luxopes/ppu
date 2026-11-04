@@ -1,0 +1,8 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator afac lr_shift 4 norm tensor chip True sched False gq 0 b1 0.9 b2 0.99 mbits 0
+   500  predikci    2048000  val CE(1/4) 3.5899  acc 0.2468  (319 s)
+  1000  predikci    4096000  val CE(1/4) 3.5102  acc 0.2629  (643 s)
+  1500  predikci    6144000  val CE(1/4) 3.4085  acc 0.2658  (964 s)
+  2000  predikci    8192000  val CE(1/4) 3.3014  acc 0.2834  (1286 s)
+VYSLEDEK bitnet1: CE 3.2998 acc 0.2956 (nejlepsi krok 2000)
+ukazka: ret. sho dplokani se se pretante veviky disne.. ckrarene. nezdysleho sa, arvizy, an, jimidry, vazni myri! je vsuseci se nachovina pretrci prostivecha, ad jestoutek. vstysnemumimil, jam ohleto neguzeti

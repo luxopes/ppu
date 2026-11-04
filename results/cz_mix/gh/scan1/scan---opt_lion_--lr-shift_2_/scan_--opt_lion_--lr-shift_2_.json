@@ -1,0 +1,44 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 2,
+ "norm": "tensor",
+ "chip": true,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 3.169375193864776,
+ "val_acc": 0.3257711621233859,
+ "train_seconds_cpu": 1402.1,
+ "sample": "ret. shotu lhytin se se pretaste vevi bedisne.. ckrar proz zvrusteti sa byle sjedno, ji i potuvazi nad nepro vsu. rdese na vsecni pret, z prosvi se domadsi sedotel jist snemubili za omloucnem nevuje mutohoruve poobnehodop? staval ive stre se ve vsece mnohnidy nichast, zajc grakyz vecl krouvnik bobni netric tu okdovetvi nyz zinim obo mne desle ni ryve, se go nahch se pila hrozhvecinym a bys nesnouj",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.5993277072560086,
+   "val_acc": 0.2503586800573888
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.549142322898577,
+   "val_acc": 0.24928263988522237
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.3405506149162427,
+   "val_acc": 0.27259684361549497
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.178155786117107,
+   "val_acc": 0.32209469153515063
+  }
+ ]
+}

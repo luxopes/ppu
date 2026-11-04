@@ -1,0 +1,48 @@
+{
+ "model": "bitnet1",
+ "opt": "bop",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 3.34983259704885,
+ "val_acc": 0.29734576757532283,
+ "train_seconds_cpu": 1064.1,
+ "sample": "ret. kna dalhy slasnaste jem ste vevil jdisne. to rane nas zvruj, js sa brovitj, a ceji idrytu. mne my ne ja vsuljidene na vsernza sliko bylo vidy tazindsi sedrovovel. kruze bodil, ja johy, tonecu sim to mruve poodnehed poceci, obil jsto hozave vsec-li, pandy na mastli slkovi kdo vecnekrl. vznebodni netrlk tujoka v tolnovi tinikehy v za dlivekni se o, ret. andech te vita hodalilciny ja byl nesnoti",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.593639119280167,
+   "val_acc": 0.25430416068866574
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.5592092841861085,
+   "val_acc": 0.2611190817790531
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.4679063606975054,
+   "val_acc": 0.2632711621233859
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.3700973705388106,
+   "val_acc": 0.29053084648493543
+  }
+ ]
+}

@@ -1,0 +1,48 @@
+{
+ "model": "bitnet1",
+ "opt": "bop",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 3.271551763634904,
+ "val_acc": 0.30335365853658536,
+ "train_seconds_cpu": 999.6,
+ "sample": "art. shoju loka nasnasho jem ste vevi bedisne.. ckrar patr zasty, js sa, zavitji ne, ji idrdudva. brad nepravychlji, se a ovse na pretrs bylosti pohadi. sazsil, covel. kruzmuti priaval ohleto nevuje muti mruve poodnesta. bes anaho.. jsto neho dovich-li, pridy nicha, proslovi a vyporni krouvniny, bum netelo tujoku vetvi nyz tinomen s mut. kile ni rych, ret. i decht! metra hadalilci. vza byl nesnoti",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.643521869443405,
+   "val_acc": 0.23959827833572453
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.560807541414553,
+   "val_acc": 0.24856527977044476
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.44830509578108,
+   "val_acc": 0.2704447632711621
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 3.267744493136609,
+   "val_acc": 0.3009325681492109
+  }
+ ]
+}

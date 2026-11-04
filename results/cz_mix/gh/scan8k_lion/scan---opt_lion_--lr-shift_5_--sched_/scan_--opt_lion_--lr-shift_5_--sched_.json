@@ -1,0 +1,72 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 5,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": true,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 8000,
+ "batch": 32,
+ "best_step": 8000,
+ "val_ce_bits": 2.530454598453049,
+ "val_acc": 0.45588235294117646,
+ "train_seconds_cpu": 2875.2,
+ "sample": "r. . gall. loka nas neho jejich ovevrovedis. kdyz rad prosim vysledole. bylo to, ano. boze to vam buje neprochazeji, serite se na pred sobe. slovem a mada zaslechl jistysnemu zapleciti ohrati nepujdeme. a rozplakovala jsem se vahu. faston se ve vsech minulostich mast, zahy bratrouceni kromene a obji netrpelive, ze ve svobodecniku ne mu v kilechinu ve, rekl i dech po litoch. ale co jiz tahne? snad ",
+ "log": [
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.2499150532021437,
+   "val_acc": 0.3149210903873745
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.864761670342356,
+   "val_acc": 0.3780487804878049
+  },
+  {
+   "step": 3000,
+   "predictions": 12288000,
+   "val_ce_bits": 2.731933573801964,
+   "val_acc": 0.41284074605451937
+  },
+  {
+   "step": 4000,
+   "predictions": 16384000,
+   "val_ce_bits": 2.6575664634590033,
+   "val_acc": 0.42898134863701576
+  },
+  {
+   "step": 5000,
+   "predictions": 20480000,
+   "val_ce_bits": 2.678815256042501,
+   "val_acc": 0.44225251076040173
+  },
+  {
+   "step": 6000,
+   "predictions": 24576000,
+   "val_ce_bits": 2.6417746877897916,
+   "val_acc": 0.43543758967001434
+  },
+  {
+   "step": 7000,
+   "predictions": 28672000,
+   "val_ce_bits": 2.5883528988703515,
+   "val_acc": 0.44225251076040173
+  },
+  {
+   "step": 8000,
+   "predictions": 32768000,
+   "val_ce_bits": 2.5214106383352592,
+   "val_acc": 0.45946915351506457
+  }
+ ]
+}

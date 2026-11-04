@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 5 norm tensor chip True sched True gq 0 b1 0.9 b2 0.99 mbits 0
+  1000  predikci    4096000  val CE(1/4) 3.2499  acc 0.3149  (343 s)
+  2000  predikci    8192000  val CE(1/4) 2.8648  acc 0.3780  (690 s)
+  3000  predikci   12288000  val CE(1/4) 2.7319  acc 0.4128  (1036 s)
+  4000  predikci   16384000  val CE(1/4) 2.6576  acc 0.4290  (1381 s)
+  5000  predikci   20480000  val CE(1/4) 2.6788  acc 0.4423  (1731 s)
+  6000  predikci   24576000  val CE(1/4) 2.6418  acc 0.4354  (2080 s)
+  7000  predikci   28672000  val CE(1/4) 2.5884  acc 0.4423  (2425 s)
+  8000  predikci   32768000  val CE(1/4) 2.5214  acc 0.4595  (2771 s)
+VYSLEDEK bitnet1: CE 2.5305 acc 0.4559 (nejlepsi krok 8000)
+ukazka: r. . gall. loka nas neho jejich ovevrovedis. kdyz rad prosim vysledole. bylo to, ano. boze to vam buje neprochazeji, serite se na pred sobe. slovem a mada zaslechl jistysnemu zapleciti ohrati nepujdem

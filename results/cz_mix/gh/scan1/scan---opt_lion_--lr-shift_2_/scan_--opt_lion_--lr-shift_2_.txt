@@ -1,0 +1,8 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 2 norm tensor chip True sched False
+   500  predikci    2048000  val CE(1/4) 3.5993  acc 0.2504  (313 s)
+  1000  predikci    4096000  val CE(1/4) 3.5491  acc 0.2493  (626 s)
+  1500  predikci    6144000  val CE(1/4) 3.3406  acc 0.2726  (938 s)
+  2000  predikci    8192000  val CE(1/4) 3.1782  acc 0.3221  (1250 s)
+VYSLEDEK bitnet1: CE 3.1694 acc 0.3258 (nejlepsi krok 2000)
+ukazka: ret. shotu lhytin se se pretaste vevi bedisne.. ckrar proz zvrusteti sa byle sjedno, ji i potuvazi nad nepro vsu. rdese na vsecni pret, z prosvi se domadsi sedotel jist snemubili za omloucnem nevuje m

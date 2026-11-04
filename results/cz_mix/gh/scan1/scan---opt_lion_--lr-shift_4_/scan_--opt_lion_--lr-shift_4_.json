@@ -1,0 +1,44 @@
+{
+ "model": "bitnet1",
+ "opt": "lion",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 2.870843521694215,
+ "val_acc": 0.39006456241033,
+ "train_seconds_cpu": 1402.7,
+ "sample": "ret. shoduploznel se shou za stesil v bedirneho, krat prosizeny pro lezabare sjedno, ji idly, vasny my na je vzusednem, a o se na pred s beznachativa, adsi sednou vsictninemu zapred od ohledl nevuje musili jako ukaneho..pan cestou.. jako houd dove -- mnoho dvedlemi, prostky matku vecnosti. neni, bum netric tujneho, tvarny. tim jen s tam. .. za ne, ve, rek. i dech te vitah kolcilcenim a bysce. zati",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.5705161865955177,
+   "val_acc": 0.25430416068866574
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.250932014005611,
+   "val_acc": 0.3016499282639885
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 2.9532158623452003,
+   "val_acc": 0.3550932568149211
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.864440733443557,
+   "val_acc": 0.38450502152080346
+  }
+ ]
+}

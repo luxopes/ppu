@@ -1,0 +1,12 @@
+bitnet1: 1180416 parametru (BitLM 1180160, +0.02 %)
+optimalizator lion lr_shift 4 norm tensor chip True sched True gq 0 b1 0.0 b2 0.0 mbits 0
+  1000  predikci    4096000  val CE(1/4) 3.5641  acc 0.2443  (595 s)
+  2000  predikci    8192000  val CE(1/4) 3.4197  acc 0.2719  (1191 s)
+  3000  predikci   12288000  val CE(1/4) 3.1738  acc 0.3160  (1784 s)
+  4000  predikci   16384000  val CE(1/4) 2.9682  acc 0.3533  (2379 s)
+  5000  predikci   20480000  val CE(1/4) 2.9356  acc 0.3759  (2975 s)
+  6000  predikci   24576000  val CE(1/4) 2.9099  acc 0.3745  (3569 s)
+  7000  predikci   28672000  val CE(1/4) 2.8154  acc 0.3899  (4165 s)
+  8000  predikci   32768000  val CE(1/4) 2.7603  acc 0.3960  (4760 s)
+VYSLEDEK bitnet1: CE 2.7595 acc 0.4030 (nejlepsi krok 8000)
+ukazka: ret. shradal k se snase v zajet o pvisel zraci. ---- gento zarovaly lezel petry, a ceji i potuva. buhe nepro vsudecnosti. ovsemizel lids bylo vzarita madsinym otcoval. krusmum sil, jak ohledl ke uz by

@@ -1,0 +1,48 @@
+{
+ "model": "bitnet1",
+ "opt": "bop",
+ "lr_shift": 4,
+ "norm": "tensor",
+ "chip": true,
+ "gq": 0,
+ "b1": 0.9,
+ "b2": 0.99,
+ "mbits": 0,
+ "sched": false,
+ "params": 1180416,
+ "bitlm_params": 1180160,
+ "ctx": 128,
+ "steps": 2000,
+ "batch": 32,
+ "best_step": 2000,
+ "val_ce_bits": 2.9906997224193037,
+ "val_acc": 0.36648134863701576,
+ "train_seconds_cpu": 1422.6,
+ "sample": "ale. shladal k slavnasech ze speadevi bediny kdy krar petr zarmy, ja sandrovisje ne, ja i potuva. brad nepromych jeden, ale se na pretroziti sveho tad ani zsel, co jistesnemu zdal, jak ohlato ktyuce mustala a trusineho. prestanahlivajito hohl dovrat-li, pridy na mamtery jk byl vitocne kroudovny, bud netroveti okdovedol nyz zivotec s mam. ktera nebylo, rek. ale chtel jste hned vecenovice hoci. zatk",
+ "log": [
+  {
+   "step": 500,
+   "predictions": 2048000,
+   "val_ce_bits": 3.583911208094353,
+   "val_acc": 0.2503586800573888
+  },
+  {
+   "step": 1000,
+   "predictions": 4096000,
+   "val_ce_bits": 3.4293702135471094,
+   "val_acc": 0.2686513629842181
+  },
+  {
+   "step": 1500,
+   "predictions": 6144000,
+   "val_ce_bits": 3.183438240394021,
+   "val_acc": 0.32209469153515063
+  },
+  {
+   "step": 2000,
+   "predictions": 8192000,
+   "val_ce_bits": 2.9686577863165327,
+   "val_acc": 0.36908177905308465
+  }
+ ]
+}
