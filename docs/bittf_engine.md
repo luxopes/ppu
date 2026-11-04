@@ -184,3 +184,17 @@ pro kremik ma smysl ho doladit (dnes 2,70 vs 2,53 u Lionu).
   gradientu mezi cipy). V RTL: genericky port pro link ve stejnem stylu jako pametovy port.
 - IHP Free/Open MPW dodava typicky 10-40 netestovanych holych cipu (podle behu) -> nekolik desek
   po 2-4 cipech + rezerva; pouzdreni (QFN/COB) se plati zvlast.
+
+### 6.6 Cilova deska (zamer uzivatele 2026-11-04, k dopracovani po dobehnuti treninku)
+
+- **4 cipy BitTF na jedne desce**, deska = **PCIe karta do PC**; pokud by PCIe narazilo na licence,
+  pak **externi USB modul**. Veskere vypocty (trenink i generovani) bezi na karte, PC jen nahraje
+  korpus/program a cte vysledky.
+- Pamet: **HyperRAM** u kazdeho cipu (rychla) + bezna DDR (GB) pro celou kartu.
+- Licence rozhrani (DDR PHY, PCIe PHY) vyresit **ridicim FPGA na desce** misto vlastnich PHY na cipu:
+  napr. Xilinx Artix-7 (PCIe Gen2 hard blok a DDR3 radic MIG jsou ve volnem Vivadu bez licence),
+  nebo Lattice ECP5 + otevrene LiteDRAM/LitePCIe. FPGA = PCIe/USB endpoint + radic DDR + rozvod dat
+  ke 4 cipum. Cipy BitTF maji jen jednoduche digitalni rozhrani (HyperRAM, link k FPGA/sousedum)
+  -> zadna licencovana IP na kremiku.
+- Otevrene body: PCI vendor ID (pro prototyp ID vyrobce FPGA, pro produkt clenstvi v PCI-SIG),
+  USB varianta (USB 3 pres FPGA nebo most FT601), topologie linku mezi 4 cipy (kruh / hvezda pres FPGA).
