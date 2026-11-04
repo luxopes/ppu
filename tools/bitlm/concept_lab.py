@@ -21,6 +21,8 @@ dvou se stochastickym zaokrouhlenim (jako BitLM v RTL), bez Adamu:
   sgd   q -= SR(g * 2^lr_shift / krok)                (pevny posun pro vsechny tenzory)
   nsgd  q -= SR(g / 2^ceil(log2 max|g|) * 2^lr_shift)  (max po tenzoru nebo radku, --norm)
   lion  q -= sign(b1*m + (1-b1)*g) * 2^lr_shift; m = b2*m + (1-b2)*g   (+1 B/vahu na moment)
+  bop   1-bit vahy bez stinu: m = (1-g)m + g*grad, preklopit bit kdyz m/rms(m) * w > tau (ostatni lion)
+  afac  lion s faktorizovanou adaptivitou: krok = clip(m / sqrt(v_r v_c / mean v_r)) (radky+sloupce, ne vahy)
 --chip: 1-bit vahy dopredu jako sign(w) * 2^-round(log2 sqrt(fan_in)) (posun misto
 prumeru |w|, bez centrovani) - presne to, co umi cip; ternarni prah 0,5*mean|w|.
 LR plan (--sched): posun +1 (polovicni krok) v 50 %, 75 % a 88 % treninku.
@@ -120,6 +122,7 @@ class ChipOpt:
     def __init__(self, model, kind, lr_shift, norm="tensor", b1=0.9, b2=0.99, mbits=0):
         self.kind, self.lr_shift, self.norm, self.b1, self.b2 = kind, lr_shift, norm, b1, b2
         self.mbits = mbits
+        self.bop_g, self.bop_tau = 1e-2, 3.0
         self.groups = []
         for mod in model.modules():
             for name, p in mod.named_parameters(recurse=False):
@@ -128,8 +131,16 @@ class ChipOpt:
                 q = torch.clamp(torch.round(p.data / step), -32767, 32767)
                 p.data.copy_(q * step)
                 st = {"p": p, "q": q, "step": step}
-                if kind == "lion":
+                st["bit"] = isinstance(mod, BitLinear)
+                if kind in ("lion", "bop", "afac"):
                     st["m"] = torch.zeros_like(p.data)
+                if kind == "afac" and p.dim() == 2:
+                    st["vr"] = torch.zeros(p.shape[0], 1)
+                    st["vc"] = torch.zeros(1, p.shape[1])
+                if kind == "bop" and st["bit"]:
+                    # bez stinu: vaha je jen znamenko (+-1 krok)
+                    q.copy_(torch.where(q >= 0, 1.0, -1.0))
+                    p.data.copy_(q * step)
                 self.groups.append(st)
 
     def zero_grad(self, set_to_none=True):
@@ -153,7 +164,26 @@ class ChipOpt:
                     m = gr.abs().amax()
                 e = torch.ceil(torch.log2(m.clamp_min(1e-30)))
                 u = gr * torch.exp2(-e) * k
-            else:  # lion
+            elif self.kind == "bop" and g["bit"]:
+                # Bop: moment gradientu, preklopeni bitu, kdyz normovany moment tlaci proti znamenku vahy
+                mom = g["m"]
+                mom.mul_(1 - self.bop_g).add_(gr, alpha=self.bop_g)
+                mn = mom / mom.pow(2).mean().sqrt().clamp_min(1e-30)
+                flip = (mn * q) > self.bop_tau
+                q.copy_(torch.where(flip, -q, q))
+                mom.masked_fill_(flip, 0.0)
+                p.data.copy_(q * step)
+                continue
+            elif self.kind == "afac" and "vr" in g:
+                # Lion + faktorizovana adaptivita (Adafactor): krok ~ moment / sqrt(v_radek * v_sloupec / mean)
+                mom, vr, vc = g["m"], g["vr"], g["vc"]
+                g2 = gr * gr
+                vr.mul_(0.99).add_(g2.mean(dim=1, keepdim=True), alpha=0.01)
+                vc.mul_(0.99).add_(g2.mean(dim=0, keepdim=True), alpha=0.01)
+                mom.mul_(self.b2).add_(gr, alpha=1 - self.b2)
+                den = torch.sqrt(vr * vc / vr.mean().clamp_min(1e-30)).clamp_min(1e-30)
+                u = torch.clamp((self.b1 * mom + (1 - self.b1) * gr) / den, -1, 1) * k
+            else:  # lion (u bop/afac pro embedding a LayerNorm)
                 mom = g["m"]
                 u = torch.sign(self.b1 * mom + (1 - self.b1) * gr) * k
                 mom.mul_(self.b2).add_(gr, alpha=1 - self.b2)
@@ -261,13 +291,15 @@ def main():
     ap.add_argument("--val-len", type=int, default=11152)
     ap.add_argument("--eval-every", type=int, default=500)
     ap.add_argument("--seed", type=int, default=12345)
-    ap.add_argument("--opt", default="adamw", choices=["adamw", "sgd", "nsgd", "lion"])
+    ap.add_argument("--opt", default="adamw", choices=["adamw", "sgd", "nsgd", "lion", "bop", "afac"])
     ap.add_argument("--lr-shift", type=int, default=0, help="krok updatu 2^lr_shift (v LSB stinu, u sgd v jednotkach g/krok)")
     ap.add_argument("--norm", default="tensor", choices=["tensor", "row"])
     ap.add_argument("--chip", action="store_true", help="1-bit vahy s pevnym posunem misto prumeru |w|")
     ap.add_argument("--b1", type=float, default=0.9, help="lion: vaha momentu pro znamenko (0 = signSGD)")
     ap.add_argument("--b2", type=float, default=0.99, help="lion: zapominani momentu")
     ap.add_argument("--mbits", type=int, default=0, help="lion: bitu ulozeneho momentu (0 = float)")
+    ap.add_argument("--bop-g", type=float, default=1e-2, help="bop: rychlost momentu")
+    ap.add_argument("--bop-tau", type=float, default=3.0, help="bop: prah preklopeni (v RMS momentu)")
     ap.add_argument("--gq", type=int, default=0, help="bitu gradientu ve zpetnem pruchodu BitLinear (0 = float)")
     ap.add_argument("--sched", action="store_true", help="u sgd/nsgd/lion pulit krok v 50/75/88 %%")
     ap.add_argument("--out", required=True)
@@ -294,6 +326,7 @@ def main():
         sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=a.lr, total_steps=a.steps, pct_start=0.05)
     else:
         opt = ChipOpt(model, a.opt, a.lr_shift, a.norm, a.b1, a.b2, a.mbits)
+        opt.bop_g, opt.bop_tau = a.bop_g, a.bop_tau
         sched = None
     print(f"optimalizator {a.opt} lr_shift {a.lr_shift} norm {a.norm} chip {a.chip} sched {a.sched} gq {a.gq} b1 {a.b1} b2 {a.b2} mbits {a.mbits}", flush=True)
     log, best, t0 = [], None, time.time()
