@@ -15,7 +15,8 @@
 extern "C" {
 #endif
 
-#define BT_V 32
+#define BT_V 32          /* puvodni slovnik (znaky bez velikosti pismen) */
+#define BT_VMAX 256      /* nejvetsi slovnik (token = 1 bajt) */
 
 typedef struct {
     uint32_t seed, ctr;
@@ -35,7 +36,7 @@ typedef struct {
 } bt_bfp;           /* mantisy + jeden exponent (po tenzoru) */
 
 typedef struct {
-    int d, L, H, ff, T, dh, ks, sqd;
+    int V, d, L, H, ff, T, dh, ks, sqd;
     int k_qkv, k_proj, k_fc1, k_fc2;
     int np;
     bt_param *p;    /* tok, pos, [ln1 qkv proj ln2 fc1 fc2] x L, lnf */
@@ -51,6 +52,8 @@ uint32_t bt_fmix32(uint32_t h);
 uint32_t bt_chk(const int64_t *v, int64_t n);
 
 void bt_model_init(bt_model *m, int d, int L, int H, int ff, int T, int lr_shift, bt_rng *r);
+/* totez se slovnikem V (2..BT_VMAX) */
+void bt_model_init_v(bt_model *m, int V, int d, int L, int H, int ff, int T, int lr_shift, bt_rng *r);
 void bt_model_free(bt_model *m);
 uint32_t bt_state_hash(const bt_model *m, const bt_rng *r);
 

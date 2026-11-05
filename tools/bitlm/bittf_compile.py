@@ -676,8 +676,11 @@ def main():
     ap.add_argument("--batch", type=int, default=32)
     ap.add_argument("--corpus-len", type=int, required=True)
     ap.add_argument("--val-len", type=int, default=11152)
+    ap.add_argument("--vocab", type=int, default=32, help="velikost slovniku (2..256, token = 1 bajt)")
     ap.add_argument("-o", "--out", required=True)
     a = ap.parse_args()
+    global V
+    V = a.vocab
     c = Compiler(a)
     code = c.build()
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
@@ -688,6 +691,7 @@ def main():
         f.write(f"isa {I.ISA_VERSION}\n")
         f.write(f"config d {a.d} layers {a.layers} heads {a.heads} ff {a.ff} ctx {a.ctx} batch {a.batch} "
                 f"corpus_len {a.corpus_len} val_len {a.val_len}\n")
+        f.write(f"vocab {V}\n")
         f.write(f"prog {c.prog_addr} {len(code) // (I.IWORDS * 4)}\n")
         f.write(f"memsize {(total + 4095) // 4096 * 4096}\n")
         f.write(f"params {len(c.params)}\n")

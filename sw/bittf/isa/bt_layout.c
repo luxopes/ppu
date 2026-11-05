@@ -17,12 +17,15 @@ int bt_layout_load(bt_layout *l, const char *prefix)
         return -1;
     }
     l->t = calloc(8192, sizeof *l->t);
+    l->V = BT_V;
     while (fgets(line, sizeof line, f)) {
         if (sscanf(line, "%31s", key) != 1)
             continue;
         if (!strcmp(key, "config"))
             sscanf(line, "config d %d layers %d heads %d ff %d ctx %d batch %d corpus_len %ld val_len %ld", &l->d,
                    &l->L, &l->H, &l->ff, &l->T, &l->B, &l->corpus_len, &l->val_len);
+        else if (!strcmp(key, "vocab"))
+            sscanf(line, "vocab %d", &l->V);
         else if (!strcmp(key, "prog"))
             sscanf(line, "prog %lu %d", &l->prog_addr, &l->prog_n);
         else if (!strcmp(key, "memsize"))
@@ -108,11 +111,17 @@ uint8_t *bt_dev_init(bt_cpu *c, const bt_layout *l, const char *prefix, const ch
     if (fread(data, 1, (size_t)len, f) != (size_t)len)
         exit(1);
     fclose(f);
+    if (l->V == BT_V)
+        for (long i = 0; i < len; i++)
+            data[i] &= 31;
     for (long i = 0; i < len; i++)
-        data[i] &= 31;
+        if (data[i] >= l->V) {
+            fprintf(stderr, "token %d na pozici %ld mimo slovnik %d\n", data[i], i, l->V);
+            exit(1);
+        }
     memcpy(c->mem + bt_t(l, "corpus")->addr, data, (size_t)len);
     bt_rng_init(rng, seed);
-    bt_model_init(m, l->d, l->L, l->H, l->ff, l->T, lr_shift, rng);
+    bt_model_init_v(m, l->V, l->d, l->L, l->H, l->ff, l->T, lr_shift, rng);
     char nm[48];
     for (int i = 0; i < m->np; i++) {
         snprintf(nm, sizeof nm, "q.%s", m->p[i].name);

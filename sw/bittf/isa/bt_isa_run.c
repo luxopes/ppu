@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     bt_work *w = bt_work_new(&m, B);
     uint8_t *x = malloc((size_t)N), *y = malloc((size_t)N);
     uint32_t *r = malloc(sizeof(uint32_t) * (size_t)B);
-    int64_t maxn = (int64_t)N * BT_V;
+    int64_t maxn = (int64_t)N * L.V;
     for (int i = 0; i < L.nt; i++)
         if (L.t[i].n > maxn && strncmp(L.t[i].name, "corpus", 6))
             maxn = L.t[i].n;
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
                     break;
                 }
             bt_rd_tensor(&c, bt_t(&L, "logits"), buf);
-            uint32_t hd = bt_chk(buf, (int64_t)N * BT_V), hg = bt_chk(lg, (int64_t)N * BT_V);
+            uint32_t hd = bt_chk(buf, (int64_t)N * L.V), hg = bt_chk(lg, (int64_t)N * L.V);
             bt_rd_tensor(&c, bt_t(&L, "el"), buf);
             int64_t *elv = malloc(sizeof(int64_t) * (size_t)N);
             for (int n = 0; n < N; n++)

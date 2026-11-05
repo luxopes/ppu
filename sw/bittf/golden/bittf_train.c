@@ -42,14 +42,14 @@ static void evaluate(const bt_model *m, const uint8_t *data, long len, long spli
         bt_forward(m, w, idx, 0, &lg, &el);
         for (int b = 0; b < nb; b++) {
             long n = (long)b * T + T - 1;
-            double v[BT_V], mx = -1e300, z = 0;
+            double v[BT_VMAX], mx = -1e300, z = 0;
             int best = 0;
-            for (int k = 0; k < BT_V; k++) {
-                v[k] = ldexp((double)lg[n * BT_V + k], el[n]);
+            for (int k = 0; k < m->V; k++) {
+                v[k] = ldexp((double)lg[n * m->V + k], el[n]);
                 if (v[k] > mx)
                     mx = v[k], best = k;
             }
-            for (int k = 0; k < BT_V; k++)
+            for (int k = 0; k < m->V; k++)
                 z += exp(v[k] - mx);
             int tgt = data[pos[b]];
             s += (mx + log(z) - v[tgt]) / log(2.0);
@@ -65,7 +65,7 @@ static void evaluate(const bt_model *m, const uint8_t *data, long len, long spli
 
 int main(int argc, char **argv)
 {
-    int d = 128, L = 5, H = 4, ff = 648, T = 128, B = 32, steps = 8000, lr = 4, eval_every = 1000;
+    int d = 128, L = 5, H = 4, ff = 648, T = 128, B = 32, steps = 8000, lr = 4, eval_every = 1000, V = BT_V;
     int hash_every = 0, trace = 0;
     long val_len = 11152;
     unsigned seed = 12345;
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
             path = argv[i];
         OPT("--d", d) OPT("--layers", L) OPT("--heads", H) OPT("--ff", ff) OPT("--ctx", T)
         OPT("--batch", B) OPT("--steps", steps) OPT("--lr-shift", lr) OPT("--eval-every", eval_every)
-        OPT("--hash-every", hash_every) OPT("--trace", trace)
+        OPT("--hash-every", hash_every) OPT("--trace", trace) OPT("--vocab", V)
         else if (!strcmp(argv[i], "--seed") && i + 1 < argc) seed = (unsigned)strtoul(argv[++i], NULL, 10);
         else if (!strcmp(argv[i], "--val-len") && i + 1 < argc) val_len = atol(argv[++i]);
         else {
@@ -100,14 +100,15 @@ int main(int argc, char **argv)
     if (fread(data, 1, (size_t)len, f) != (size_t)len)
         return 1;
     fclose(f);
-    for (long i = 0; i < len; i++)
-        data[i] &= 31;
+    if (V == BT_V)
+        for (long i = 0; i < len; i++)
+            data[i] &= 31;
     long split = len - val_len;
 
     bt_rng rng;
     bt_rng_init(&rng, seed);
     bt_model m;
-    bt_model_init(&m, d, L, H, ff, T, lr, &rng);
+    bt_model_init_v(&m, V, d, L, H, ff, T, lr, &rng);
     long np = 0;
     for (int i = 0; i < m.np; i++)
         np += m.p[i].n;

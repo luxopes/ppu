@@ -19,7 +19,7 @@ typedef struct {
 } bt_tens;
 
 typedef struct {
-    int d, L, H, ff, T, B;
+    int V, d, L, H, ff, T, B;
     long corpus_len, val_len;
     uint64_t prog_addr, memsize;
     int prog_n, mark_fwd, mark_bwd, mark_lion;
@@ -31,7 +31,7 @@ int bt_layout_load(bt_layout *l, const char *prefix);
 const bt_tens *bt_t(const bt_layout *l, const char *name);
 void bt_rd_tensor(const bt_cpu *c, const bt_tens *t, int64_t *out);
 void bt_wr_tensor(bt_cpu *c, const bt_tens *t, const int64_t *v);
-/* pamet zarizeni: program + korpus (&31) + golden inicializace parametru; vraci korpus (malloc) */
+/* pamet zarizeni: program + korpus (&31 jen u slovniku 32) + golden inicializace parametru; vraci korpus (malloc) */
 uint8_t *bt_dev_init(bt_cpu *c, const bt_layout *l, const char *prefix, const char *corpus, bt_model *m,
                      bt_rng *rng, unsigned seed, int lr_shift);
 uint32_t bt_dev_hash(const bt_cpu *c, const bt_layout *l, const bt_model *m);

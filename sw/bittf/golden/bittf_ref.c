@@ -224,8 +224,18 @@ static void init_gain(bt_param *p)
 
 void bt_model_init(bt_model *m, int d, int L, int H, int ff, int T, int lr_shift, bt_rng *r)
 {
+    bt_model_init_v(m, BT_V, d, L, H, ff, T, lr_shift, r);
+}
+
+void bt_model_init_v(bt_model *m, int V, int d, int L, int H, int ff, int T, int lr_shift, bt_rng *r)
+{
     char nm[16];
     memset(m, 0, sizeof *m);
+    if (V < 2 || V > BT_VMAX) {
+        fprintf(stderr, "bittf: slovnik %d mimo 2..%d\n", V, BT_VMAX);
+        exit(1);
+    }
+    m->V = V;
     m->d = d, m->L = L, m->H = H, m->ff = ff, m->T = T, m->dh = d / H;
     m->ks = (bitlen(m->dh) - 1) / 2;
     m->sqd = (int)floor(sqrt((double)d) * 4096 + 0.5);
@@ -233,7 +243,7 @@ void bt_model_init(bt_model *m, int d, int L, int H, int ff, int T, int lr_shift
     m->k_fc2 = kshift(ff);
     m->lr_shift = lr_shift;
     m->p = (bt_param *)xmalloc(sizeof(bt_param) * (size_t)(3 + 6 * L));
-    init_gauss(addp(m, "tok", BT_V, d), r);
+    init_gauss(addp(m, "tok", m->V, d), r);
     init_gauss(addp(m, "pos", T, d), r);
     for (int l = 0; l < L; l++) {
         snprintf(nm, sizeof nm, "%d.ln1", l), init_gain(addp(m, nm, 1, d));
@@ -301,7 +311,7 @@ bt_work *bt_work_new(const bt_model *m, int B)
     w->yh = ALLOC64((int64_t)N * d);
     w->yatt = ALLOC64((int64_t)N * d);
     w->po = ALLOC64(wide);
-    w->logits = ALLOC64((int64_t)N * BT_V);
+    w->logits = ALLOC64((int64_t)N * m->V);
     w->n8 = ALLOC64((int64_t)N * d);
     w->xhf = ALLOC64((int64_t)N * d);
     w->rrf = ALLOC64(N);
@@ -319,7 +329,7 @@ bt_work *bt_work_new(const bt_model *m, int B)
         c->ek = ALLOCI((int64_t)B * H), c->ev = ALLOCI((int64_t)B * H), c->ea2 = ALLOCI(N);
         c->sh2 = ALLOCI(N), c->ea3 = ALLOCI(N), c->ea4 = ALLOCI(N);
     }
-    w->D = ALLOC64((int64_t)N * BT_V);
+    w->D = ALLOC64((int64_t)N * m->V);
     w->dX = ALLOC64((int64_t)N * d), w->dXn = ALLOC64((int64_t)N * d);
     w->g1 = ALLOC64(wide), w->g2 = ALLOC64(wide), w->gx = ALLOC64(wide), w->gw = ALLOC64(wide);
     w->aa = ALLOC64(wide);
@@ -612,11 +622,11 @@ void bt_forward(const bt_model *m, bt_work *w, const uint8_t *idx, int train, in
     for (int n = 0; n < N; n++) {
         w->en[n] -= 24;
         w->el[n] = w->en[n] - 16;
-        for (int v = 0; v < BT_V; v++) {
+        for (int v = 0; v < m->V; v++) {
             int64_t s = 0;
             for (int k = 0; k < d; k++)
                 s += w->n8[(int64_t)n * d + k] * P_TOK(m)->q[v * d + k];
-            w->logits[(int64_t)n * BT_V + v] = s;
+            w->logits[(int64_t)n * m->V + v] = s;
         }
     }
     *logits = w->logits;
@@ -813,20 +823,20 @@ void bt_backward(bt_model *m, bt_work *w, const uint8_t *y, bt_rng *rng, int tra
     int log2n = bitlen(N) - 1;
     /* softmax + CE */
     for (int64_t n = 0; n < N; n++) {
-        int64_t lfx[BT_V], e16[BT_V], mx = NEG_INF_SC * 1024, ssum = 0;
-        for (int v = 0; v < BT_V; v++) {
-            lfx[v] = rsr(w->logits[n * BT_V + v], -w->el[n] - 8);
+        int64_t lfx[BT_VMAX], e16[BT_VMAX], mx = NEG_INF_SC * 1024, ssum = 0;
+        for (int v = 0; v < m->V; v++) {
+            lfx[v] = rsr(w->logits[n * m->V + v], -w->el[n] - 8);
             if (lfx[v] > mx)
                 mx = lfx[v];
         }
-        for (int v = 0; v < BT_V; v++) {
+        for (int v = 0; v < m->V; v++) {
             int64_t dd = (mx - lfx[v] + 4) >> 3;
             e16[v] = dd < 512 ? BT_EXP16[dd] : 0;
             ssum += e16[v];
         }
         int64_t rcp = floordiv((1LL << 31) + (ssum >> 1), ssum);
-        for (int v = 0; v < BT_V; v++)
-            w->D[n * BT_V + v] = ((e16[v] * rcp + (1LL << 15)) >> 16) - (v == y[n] ? (1LL << 15) : 0);
+        for (int v = 0; v < m->V; v++)
+            w->D[n * m->V + v] = ((e16[v] * rcp + (1LL << 15)) >> 16) - (v == y[n] ? (1LL << 15) : 0);
     }
     int eD = -15 - log2n;
     /* hlava svazana s embeddingem */
@@ -837,14 +847,14 @@ void bt_backward(bt_model *m, bt_work *w, const uint8_t *y, bt_rng *rng, int tra
     for (int64_t n = 0; n < N; n++)
         for (int k = 0; k < d; k++)
             w->aa[n * d + k] = rsr(w->n8[n * d + k], base - w->en[n]);
-    mm_tn(w->D, w->aa, N, BT_V, d, w->grad[0]);
+    mm_tn(w->D, w->aa, N, m->V, d, w->grad[0]);
     w->gexp[0] = eD + base;
     int64_t *dn = w->g1;
     for (int64_t n = 0; n < N; n++)
         for (int k = 0; k < d; k++) {
             int64_t s = 0;
-            for (int v = 0; v < BT_V; v++)
-                s += w->D[n * BT_V + v] * P_TOK(m)->q[v * d + k];
+            for (int v = 0; v < m->V; v++)
+                s += w->D[n * m->V + v] * P_TOK(m)->q[v * d + k];
             dn[n * d + k] = s;
         }
     int eX, pl = 2 + 6 * m->L;
@@ -877,11 +887,11 @@ void bt_backward(bt_model *m, bt_work *w, const uint8_t *y, bt_rng *rng, int tra
         add_bfp(w->dX, &eX, w->dXn, eXn, N * d);
     }
     /* embedding: token a pozice */
-    memset(w->dXn, 0, sizeof(int64_t) * (size_t)(BT_V * d));
+    memset(w->dXn, 0, sizeof(int64_t) * (size_t)(m->V * d));
     for (int64_t n = 0; n < N; n++)
         for (int k = 0; k < d; k++)
             w->dXn[w->idx[n] * d + k] += w->dX[n * d + k];
-    add_bfp(w->grad[0], &w->gexp[0], w->dXn, eX, (int64_t)BT_V * d);
+    add_bfp(w->grad[0], &w->gexp[0], w->dXn, eX, (int64_t)m->V * d);
     memset(w->grad[1], 0, sizeof(int64_t) * (size_t)(T * d));
     for (int64_t n = 0; n < N; n++)
         for (int k = 0; k < d; k++)
@@ -892,7 +902,7 @@ void bt_backward(bt_model *m, bt_work *w, const uint8_t *y, bt_rng *rng, int tra
         int64_t *elv = ALLOC64(N);
         for (int64_t n = 0; n < N; n++)
             elv[n] = w->el[n];
-        printf("trace %d logits %08x el %08x\n", step, bt_chk(w->logits, N * BT_V), bt_chk(elv, N));
+        printf("trace %d logits %08x el %08x\n", step, bt_chk(w->logits, N * m->V), bt_chk(elv, N));
         free(elv);
         for (int pi = 0; pi < m->np; pi++)
             printf("trace %d grad %s %08x %d\n", step, m->p[pi].name, bt_chk(w->grad[pi], m->p[pi].n), w->gexp[pi]);
