@@ -794,6 +794,20 @@ static void lion_step(bt_model *m, bt_work *w, bt_rng *rng)
 
 void bt_backward_update(bt_model *m, bt_work *w, const uint8_t *y, bt_rng *rng, int trace, int step)
 {
+    bt_backward(m, w, y, rng, trace, step);
+    bt_lion(m, w, rng);
+}
+
+void bt_lion(bt_model *m, bt_work *w, bt_rng *rng) { lion_step(m, w, rng); }
+
+const int64_t *bt_work_grad(const bt_work *w, int pi, int *exp)
+{
+    *exp = w->gexp[pi];
+    return w->grad[pi];
+}
+
+void bt_backward(bt_model *m, bt_work *w, const uint8_t *y, bt_rng *rng, int trace, int step)
+{
     int B = w->B, T = m->T, d = m->d, ff = m->ff;
     int64_t N = w->N;
     int log2n = bitlen(N) - 1;
@@ -883,5 +897,4 @@ void bt_backward_update(bt_model *m, bt_work *w, const uint8_t *y, bt_rng *rng, 
         for (int pi = 0; pi < m->np; pi++)
             printf("trace %d grad %s %08x %d\n", step, m->p[pi].name, bt_chk(w->grad[pi], m->p[pi].n), w->gexp[pi]);
     }
-    lion_step(m, w, rng);
 }

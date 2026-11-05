@@ -62,6 +62,10 @@ void bt_forward(const bt_model *m, bt_work *w, const uint8_t *idx, int train,
                 int64_t **logits, int **el);
 /* zpetny pruchod + Lion; y[B*T] = cilove tokeny; trace != 0 vypise kontrolni soucty */
 void bt_backward_update(bt_model *m, bt_work *w, const uint8_t *y, bt_rng *r, int trace, int step);
+/* totez rozdelene na dve casti (porovnani gradientu pred Lionem) */
+void bt_backward(bt_model *m, bt_work *w, const uint8_t *y, bt_rng *r, int trace, int step);
+void bt_lion(bt_model *m, bt_work *w, bt_rng *r);
+const int64_t *bt_work_grad(const bt_work *w, int pi, int *exp);
 
 #ifdef __cplusplus
 }
