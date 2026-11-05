@@ -58,6 +58,8 @@
 #define BT_E_MULADDI 24
 #define BT_E_RNG 25
 #define BT_E_MODU 26
+#define BT_E_SHRF 27
+#define BT_E_LOBITS 28
 #define BT_R_SUM 0
 #define BT_R_MAX 1
 #define BT_R_AMAX 2
@@ -89,7 +91,7 @@
 #define BT_W_IMM 37
 #define BT_W_IMM2 38
 #define BT_W_IMM3 39
-#define BT_EFN_NEED_A 0x05ffefffu
+#define BT_EFN_NEED_A 0x1dffefffu
 #define BT_EFN_NEED_B 0x01c6c1eeu
 #define BT_EFN_NEED_C 0x00800100u
 #define BT_EFN_RNGMASK 0x02000600u

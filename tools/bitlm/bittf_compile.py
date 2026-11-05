@@ -233,6 +233,7 @@ class Compiler:
         self.G = A("G", N * 3 * d, 8)
         self.dH, self.dA = A("dH", wide, 8), A("dA", wide, 8)
         self.oh = A("oh", N * V, 1)
+        self.ex = [A(f"ex{i}", V * d, 8) for i in range(3)]
         self.gc, self.mc = A("gc", self.maxparam(), 8), A("mc", self.maxparam(), 8)
         self.prog_addr = M.top
 
@@ -633,10 +634,18 @@ class Compiler:
             self.lin_bwd(self.G, eG, c["a1"], c["ea1"], pl[1], self.k_d, self.dA, eA)
             self.norm_bwd(self.dA, eA, c["xh1"], c["rr1"], c["sh1"], pl[0], self.dXn, eXn)
             self.add_bfp(self.dX, eX, self.dXn, eXn, N * d)
-        # embedding: dXn[v][k] = sum_n [idx[n] == v] dX[n][k]  (int64 -> RED, ne MM)
+        # embedding: dXn[v][k] = sum_n [idx[n] == v] dX[n][k]. |dX| <= 2^41 -> tri 17bitove casti na MM
+        # (soucty do 2^29), pak presne slozeni: dXn = s0 + s1 * 2^17 + s2 * 2^34.
         P.ew("ONEHOT", (V, N), D=rows(self.oh, N, V), A=rowv(self.X))
-        P.red("SUM", (N, d, V), A=Opnd(self.oh, (V, 0, 1)), B=Opnd(self.dX, (d, 1, 0)),
-              D=Opnd(self.dXn, (0, 1, d)), pre="AB")
+        parts = (self.dq, self.dk, self.dv)
+        P.ew("LOBITS", (N * d,), D=flat(parts[0]), A=flat(self.dX), imm=17)
+        P.ew("SHRF", (N * d,), D=flat(parts[1]), A=flat(self.dX), imm=17)
+        P.ew("SHRF", (N * d,), D=flat(parts[2]), A=flat(self.dX), imm=34)
+        P.ew("LOBITS", (N * d,), D=flat(parts[1]), A=flat(parts[1]), imm=17)
+        for i in range(3):
+            P.mm((d, V, 1, N), D=Opnd(self.ex[i], (1, d)), A=Opnd(self.oh, (0, 1, 0, V)), B=Opnd(parts[i], (1, 0, 0, d)))
+        P.ew("ADDRSR", (V * d,), D=flat(self.ex[1]), A=flat(self.ex[1]), B=flat(self.ex[2]), imm=-17)
+        P.ew("ADDRSR", (V * d,), D=flat(self.dXn), A=flat(self.ex[0]), B=flat(self.ex[1]), imm=-17)
         P.s("LD", base, D=Opnd(self.GEXP, off=self.p_tok))
         self.add_bfp(g0, base, self.dXn, eX, V * d)
         self.st_gexp(self.p_tok, base)

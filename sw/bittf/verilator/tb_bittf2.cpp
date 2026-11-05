@@ -27,6 +27,7 @@ static std::deque<rsp_t> rq[NP];
 static int lat = 2, stall = 0;
 static uint32_t lfsr = 12345;
 static uint64_t nreq[NP];
+static uint64_t opcyc[8], opcnt[8], last_done_cyc;
 
 static uint32_t rnd32() { lfsr ^= lfsr << 13; lfsr ^= lfsr >> 17; lfsr ^= lfsr << 5; return lfsr; }
 
@@ -185,6 +186,7 @@ int main(int argc, char **argv)
         bt_backward_update(&m, w, y, &rng, 0, step);
         // RTL krok
         uint64_t c0 = cycles;
+        last_done_cyc = cycles;
         c.pc = 0;
         top->prog_base = (uint32_t)L.prog_addr;
         top->start = 1;
@@ -199,6 +201,13 @@ int main(int argc, char **argv)
             }
             if (top->dbg_instr_done) {
                 uint32_t pc = top->dbg_pc;
+                {
+                    const uint32_t *iw = (const uint32_t *)(rmem + L.prog_addr + (uint64_t)pc * BT_IWORDS * 4);
+                    int o = iw[0] & 7;
+                    opcyc[o] += cycles - last_done_cyc;
+                    opcnt[o]++;
+                    last_done_cyc = cycles;
+                }
                 ninstr++;
                 if (lockstep) {
                     if (pc != c.pc) {
@@ -250,6 +259,13 @@ int main(int argc, char **argv)
         if (h1 != h2) bad = 1;
         fflush(stdout);
     }
+    const char *on[8] = {"NOP", "HALT", "SCALAR", "BRANCH", "EW", "RED", "MM", "?"};
+    uint64_t tot = 0;
+    for (int o = 0; o < 8; o++) tot += opcyc[o];
+    for (int o = 0; o < 8; o++)
+        if (opcnt[o])
+            printf("  %-6s %8lu instr %12lu taktu (%4.1f %%)\n", on[o], (unsigned long)opcnt[o], (unsigned long)opcyc[o],
+                   100.0 * opcyc[o] / (tot ? tot : 1));
     printf(bad ? "VYSLEDEK: NESHODA\n" : "VYSLEDEK: SHODA\n");
     delete top;
     return bad;

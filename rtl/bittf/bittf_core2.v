@@ -312,9 +312,10 @@ module bittf_core2 #(
 
     // pripravenost operandu taktu
     wire ops_ok = (!need_a || ov[1]) && (!need_b || ov[2]) && (!need_c || ov[3]);
-    wire ew_fire = st == S_EW && vec && ops_ok && w_ready && !e_w_valid;
+    wire wslot = !e_w_valid || w_ready;      // takt k zapisu muze nastoupit tento cyklus
+    wire ew_fire = st == S_EW && vec && ops_ok && wslot;
     wire red_row = adv != 0;
-    wire red_fire = st == S_RED && ops_ok && (!red_row || fl[11] || (w_ready && !e_w_valid));
+    wire red_fire = st == S_RED && ops_ok && (!red_row || fl[11] || wslot);
     reg  sc_pop;                       // skalarni EW: vyzvednuti po dokonceni ALU
     wire pop = ew_fire || red_fire || sc_pop;
     assign oready[1] = pop && need_a;
@@ -514,7 +515,7 @@ module bittf_core2 #(
                             loop_adv;
                             if (adv == 4) begin st <= S_DRAIN; w_flush <= 1'b1; end
                         end
-                    end else if (!vec && ops_ok && w_ready && !e_w_valid && !last_done) begin
+                    end else if (!vec && ops_ok && wslot && !sc_pop && !last_done) begin
                         if (fl[5] && idx[0] > idx[1]) begin
                             // maskovany prvek: bez ALU
                             e_w_data <= {{(VL*64-64){1'b0}}, vR2};

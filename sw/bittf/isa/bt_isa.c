@@ -199,6 +199,8 @@ static inline int64_t ew_fn(const bt_cpu *c, const instr *I, int64_t A, int64_t 
     case BT_E_MULADDI: return I->imm * A + B;
     case BT_E_RNG: return rnd;
     case BT_E_MODU: return (int64_t)((uint64_t)A % (uint64_t)(uint32_t)I->imm);
+    case BT_E_SHRF: return A >> (SH < 0 ? 0 : SH > 63 ? 63 : SH);
+    case BT_E_LOBITS: return A & ((1LL << (I->imm & 63)) - 1);
     }
     return 0;
 }

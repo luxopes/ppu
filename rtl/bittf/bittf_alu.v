@@ -90,6 +90,8 @@ module bittf_alu (
             E_LIONQ:      res = sa - lion_u * (64'sd1 <<< r1[5:0]);
             E_MULADDI:    res = simm * sa + sb;
             E_RNG:        res = {32'd0, rnd};
+            E_SHRF:       res = sa >>> (sh[63] ? 6'd0 : (sh > 63) ? 6'd63 : sh[5:0]);
+            E_LOBITS:     res = sa & ((64'sd1 <<< imm[5:0]) - 64'sd1);
             default:      res = 64'sd0;
         endcase
     end
