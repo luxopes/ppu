@@ -1,0 +1,57 @@
+/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+model d=256 vrstev=6 hlav=8 ff=1024: 4766208 parametru; korpus 95174034 tokenu (trenink 95162882); lion lr_shift 4 mbits 8 gq 8
+   2000  tokenu      8.2 M  train 2.710  val CE(1/4) 3.1471  acc 0.3321  lr_shift 4  (0.59 h)
+   4000  tokenu     16.4 M  train 2.443  val CE(1/4) 2.8989  acc 0.3788  lr_shift 4  (1.21 h)
+   6000  tokenu     24.6 M  train 2.389  val CE(1/4) 2.8601  acc 0.3902  lr_shift 4  (1.82 h)
+   8000  tokenu     32.8 M  train 2.374  val CE(1/4) 2.7841  acc 0.3989  lr_shift 4  (2.44 h)
+  10000  tokenu     41.0 M  train 2.332  val CE(1/4) 2.7810  acc 0.3999  lr_shift 4  (3.07 h)
+  12000  tokenu     49.2 M  train 2.341  val CE(1/4) 2.7460  acc 0.4157  lr_shift 4  (3.69 h)
+  14000  tokenu     57.3 M  train 2.270  val CE(1/4) 2.6825  acc 0.4247  lr_shift 4  (4.32 h)
+  16000  tokenu     65.5 M  train 2.226  val CE(1/4) 2.6961  acc 0.4272  lr_shift 4  (4.93 h)
+  18000  tokenu     73.7 M  train 2.249  val CE(1/4) 2.6784  acc 0.4229  lr_shift 4  (5.55 h)
+casovy limit useku, checkpoint v kroku 18000
+/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+model d=256 vrstev=6 hlav=8 ff=1024: 4766208 parametru; korpus 95174034 tokenu (trenink 95162882); lion lr_shift 4 mbits 8 gq 8
+pokracuji od kroku 18001 (dosud 5.55 h, nejlepsi 2.6784042742587464)
+  20000  tokenu     81.9 M  train 2.159  val CE(1/4) 2.6307  acc 0.4290  lr_shift 4  (6.29 h)
+  22000  tokenu     90.1 M  train 2.171  val CE(1/4) 2.6237  acc 0.4268  lr_shift 4  (7.03 h)
+  24000  tokenu     98.3 M  train 2.246  val CE(1/4) 2.5722  acc 0.4448  lr_shift 4  (7.78 h)
+  26000  tokenu    106.5 M  train 2.227  val CE(1/4) 2.6007  acc 0.4362  lr_shift 4  (8.53 h)
+  28000  tokenu    114.7 M  train 2.185  val CE(1/4) 2.6003  acc 0.4319  lr_shift 4  (9.29 h)
+  30000  tokenu    122.9 M  train 2.264  val CE(1/4) 2.5751  acc 0.4365  lr_shift 4  (10.06 h)
+  32000  tokenu    131.1 M  train 2.156  val CE(1/4) 2.5603  acc 0.4394  lr_shift 3  (10.83 h)
+casovy limit useku, checkpoint v kroku 32000
+/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+model d=256 vrstev=6 hlav=8 ff=1024: 4766208 parametru; korpus 95174034 tokenu (trenink 95162882); lion lr_shift 4 mbits 8 gq 8
+pokracuji od kroku 32001 (dosud 10.83 h, nejlepsi 2.5603343322274466)
+  34000  tokenu    139.3 M  train 2.190  val CE(1/4) 2.5063  acc 0.4595  lr_shift 3  (11.76 h)
+  36000  tokenu    147.5 M  train 2.169  val CE(1/4) 2.4711  acc 0.4663  lr_shift 3  (12.70 h)
+  38000  tokenu    155.6 M  train 2.141  val CE(1/4) 2.4631  acc 0.4559  lr_shift 3  (13.63 h)
+  40000  tokenu    163.8 M  train 2.197  val CE(1/4) 2.4539  acc 0.4681  lr_shift 3  (14.55 h)
+  42000  tokenu    172.0 M  train 2.076  val CE(1/4) 2.4711  acc 0.4562  lr_shift 3  (15.46 h)
+  44000  tokenu    180.2 M  train 2.130  val CE(1/4) 2.4547  acc 0.4702  lr_shift 3  (16.38 h)
+casovy limit useku, checkpoint v kroku 44000
+/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+model d=256 vrstev=6 hlav=8 ff=1024: 4766208 parametru; korpus 95174034 tokenu (trenink 95162882); lion lr_shift 4 mbits 8 gq 8
+pokracuji od kroku 44001 (dosud 16.38 h, nejlepsi 2.4539281874494696)
+  46000  tokenu    188.4 M  train 2.189  val CE(1/4) 2.4785  acc 0.4638  lr_shift 3  (17.31 h)
+  48000  tokenu    196.6 M  train 2.157  val CE(1/4) 2.4292  acc 0.4692  lr_shift 2  (18.25 h)
+  50000  tokenu    204.8 M  train 2.110  val CE(1/4) 2.4472  acc 0.4724  lr_shift 2  (19.18 h)
+  52000  tokenu    213.0 M  train 2.023  val CE(1/4) 2.4567  acc 0.4648  lr_shift 2  (20.11 h)
+  54000  tokenu    221.2 M  train 2.104  val CE(1/4) 2.4188  acc 0.4699  lr_shift 2  (21.05 h)
+  56000  tokenu    229.4 M  train 2.034  val CE(1/4) 2.4622  acc 0.4584  lr_shift 1  (21.98 h)
+casovy limit useku, checkpoint v kroku 56000
+/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+model d=256 vrstev=6 hlav=8 ff=1024: 4766208 parametru; korpus 95174034 tokenu (trenink 95162882); lion lr_shift 4 mbits 8 gq 8
+pokracuji od kroku 56001 (dosud 21.98 h, nejlepsi 2.418782193896496)
+  58000  tokenu    237.6 M  train 2.083  val CE(1/4) 2.3929  acc 0.4763  lr_shift 1  (22.59 h)
+  60000  tokenu    245.8 M  train 2.065  val CE(1/4) 2.3656  acc 0.4774  lr_shift 1  (23.22 h)
+  62000  tokenu    254.0 M  train 2.051  val CE(1/4) 2.4159  acc 0.4681  lr_shift 1  (23.85 h)
+  64000  tokenu    262.1 M  train 2.086  val CE(1/4) 2.4036  acc 0.4738  lr_shift 1  (24.46 h)
+VYSLEDEK: CE 2.3681 acc 0.4797 (nejlepsi krok 60000, 4766208 parametru)
+ukazka: r. . shradal kaznice, ho jen stepne v bediskadlech, reknuv zarucil s sandardem v ne, jini potuce. brad nepromyslije, seratoval na predkoz prosti potazmovske slovenske. kruzbu zapadajici seratove byliny trirugel qornestahpalske aosia jeste pro dovrceni stanice na masterskych rekach gel krutych del ni

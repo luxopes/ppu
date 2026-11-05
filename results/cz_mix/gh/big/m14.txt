@@ -1,0 +1,55 @@
+/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+model d=384 vrstev=8 hlav=8 ff=1536: 14230272 parametru; korpus 95174034 tokenu (trenink 95162882); lion lr_shift 4 mbits 8 gq 8
+   1000  tokenu      4.1 M  train 2.968  val CE(1/4) 3.4456  acc 0.2880  lr_shift 4  (0.74 h)
+   2000  tokenu      8.2 M  train 2.643  val CE(1/4) 3.0321  acc 0.3612  lr_shift 4  (1.52 h)
+   3000  tokenu     12.3 M  train 2.517  val CE(1/4) 2.8995  acc 0.3856  lr_shift 4  (2.34 h)
+   4000  tokenu     16.4 M  train 2.353  val CE(1/4) 2.8150  acc 0.3956  lr_shift 4  (3.14 h)
+   5000  tokenu     20.5 M  train 2.305  val CE(1/4) 2.7427  acc 0.4064  lr_shift 4  (3.93 h)
+   6000  tokenu     24.6 M  train 2.335  val CE(1/4) 2.7142  acc 0.4315  lr_shift 4  (4.71 h)
+   7000  tokenu     28.7 M  train 2.232  val CE(1/4) 2.6793  acc 0.4229  lr_shift 4  (5.51 h)
+casovy limit useku, checkpoint v kroku 7000
+/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+model d=384 vrstev=8 hlav=8 ff=1536: 14230272 parametru; korpus 95174034 tokenu (trenink 95162882); lion lr_shift 4 mbits 8 gq 8
+pokracuji od kroku 7001 (dosud 5.51 h, nejlepsi 2.679273565872593)
+   8000  tokenu     32.8 M  train 2.239  val CE(1/4) 2.6340  acc 0.4268  lr_shift 4  (6.59 h)
+   9000  tokenu     36.9 M  train 2.144  val CE(1/4) 2.6668  acc 0.4254  lr_shift 4  (7.71 h)
+  10000  tokenu     41.0 M  train 2.283  val CE(1/4) 2.6227  acc 0.4254  lr_shift 4  (8.83 h)
+  11000  tokenu     45.1 M  train 2.188  val CE(1/4) 2.6429  acc 0.4250  lr_shift 4  (9.95 h)
+  12000  tokenu     49.2 M  train 2.229  val CE(1/4) 2.5747  acc 0.4326  lr_shift 4  (11.07 h)
+casovy limit useku, checkpoint v kroku 12000
+/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+model d=384 vrstev=8 hlav=8 ff=1536: 14230272 parametru; korpus 95174034 tokenu (trenink 95162882); lion lr_shift 4 mbits 8 gq 8
+pokracuji od kroku 12001 (dosud 11.07 h, nejlepsi 2.5746985758964245)
+  13000  tokenu     53.2 M  train 2.282  val CE(1/4) 2.6142  acc 0.4293  lr_shift 4  (12.17 h)
+  14000  tokenu     57.3 M  train 2.166  val CE(1/4) 2.5474  acc 0.4354  lr_shift 4  (13.31 h)
+  15000  tokenu     61.4 M  train 2.119  val CE(1/4) 2.5937  acc 0.4376  lr_shift 3  (14.46 h)
+  16000  tokenu     65.5 M  train 2.244  val CE(1/4) 2.4876  acc 0.4555  lr_shift 3  (15.58 h)
+  17000  tokenu     69.6 M  train 2.095  val CE(1/4) 2.5009  acc 0.4559  lr_shift 3  (16.71 h)
+casovy limit useku, checkpoint v kroku 17000
+/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+model d=384 vrstev=8 hlav=8 ff=1536: 14230272 parametru; korpus 95174034 tokenu (trenink 95162882); lion lr_shift 4 mbits 8 gq 8
+pokracuji od kroku 17001 (dosud 16.71 h, nejlepsi 2.4876171972816827)
+  18000  tokenu     73.7 M  train 2.133  val CE(1/4) 2.4909  acc 0.4491  lr_shift 3  (17.22 h)
+  19000  tokenu     77.8 M  train 2.201  val CE(1/4) 2.4989  acc 0.4598  lr_shift 3  (17.75 h)
+  20000  tokenu     81.9 M  train 2.057  val CE(1/4) 2.4704  acc 0.4523  lr_shift 3  (18.29 h)
+  21000  tokenu     86.0 M  train 2.091  val CE(1/4) 2.4850  acc 0.4530  lr_shift 3  (18.82 h)
+  22000  tokenu     90.1 M  train 2.135  val CE(1/4) 2.4767  acc 0.4634  lr_shift 3  (19.35 h)
+  23000  tokenu     94.2 M  train 2.046  val CE(1/4) 2.4268  acc 0.4631  lr_shift 2  (19.89 h)
+  24000  tokenu     98.3 M  train 2.103  val CE(1/4) 2.4400  acc 0.4727  lr_shift 2  (20.42 h)
+  25000  tokenu    102.4 M  train 2.107  val CE(1/4) 2.4579  acc 0.4648  lr_shift 2  (20.95 h)
+  26000  tokenu    106.5 M  train 2.136  val CE(1/4) 2.4046  acc 0.4756  lr_shift 2  (21.49 h)
+  27000  tokenu    110.6 M  train 2.099  val CE(1/4) 2.4082  acc 0.4738  lr_shift 1  (22.02 h)
+casovy limit useku, checkpoint v kroku 27000
+/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+model d=384 vrstev=8 hlav=8 ff=1536: 14230272 parametru; korpus 95174034 tokenu (trenink 95162882); lion lr_shift 4 mbits 8 gq 8
+pokracuji od kroku 27001 (dosud 22.02 h, nejlepsi 2.404600535102975)
+  28000  tokenu    114.7 M  train 1.960  val CE(1/4) 2.3794  acc 0.4677  lr_shift 1  (22.99 h)
+  29000  tokenu    118.8 M  train 2.053  val CE(1/4) 2.3651  acc 0.4731  lr_shift 1  (23.99 h)
+  30000  tokenu    122.9 M  train 1.980  val CE(1/4) 2.3664  acc 0.4824  lr_shift 1  (24.98 h)
+VYSLEDEK: CE 2.3630 acc 0.4883 (nejlepsi krok 29000, 14230272 parametru)
+ukazka: r. gall. dalsi slavnasko je jej ovevil jako guyllard wenthalt? jako letadlovy jedno, jimi potuci. brab nepravdepojedeme! a vsechny slysel prostory hadmanske slovensko. kruteho divadla bohyne patruje mezi malou rukojeti. pres bitovia jsou horove vrcholy, pridavajici, prostory a vojce. mirove je podom

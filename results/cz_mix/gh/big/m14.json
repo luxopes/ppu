@@ -1,0 +1,262 @@
+{
+ "model": "bitnet1-chip-lion",
+ "params": 14230272,
+ "d": 384,
+ "layers": 8,
+ "heads": 8,
+ "ff": 1536,
+ "ctx": 128,
+ "steps": 30000,
+ "batch": 32,
+ "corpus_tokens": 95174034,
+ "lr_shift": 4,
+ "mbits": 8,
+ "gq": 8,
+ "best_step": 29000,
+ "val_ce_bits": 2.36302257003954,
+ "val_acc": 0.4882532281205165,
+ "train_hours": 24.980075103176965,
+ "sample": "r. gall. dalsi slavnasko je jej ovevil jako guyllard wenthalt? jako letadlovy jedno, jimi potuci. brab nepravdepojedeme! a vsechny slysel prostory hadmanske slovensko. kruteho divadla bohyne patruje mezi malou rukojeti. pres bitovia jsou horove vrcholy, pridavajici, prostory a vojce. mirove je podom netrivetu okrouhly, nybrz nejen s matkou vzduchu vetri, geologie a megastromecvectnymi triscencnostmi, kratsi a basnikovou kulovou zadostnici a pravni, ktera v doline povazovala. stadion ma tvoje na praci slovinskeho tvoru dost stavel stary ocean hub lad, omezuj rozdeleni mezi starsi oresin. david ",
+ "log": [
+  {
+   "step": 1000,
+   "tokens": 4096000,
+   "train_loss_bits": 2.9682771203612575,
+   "val_ce_bits": 3.4456266473529285,
+   "val_acc": 0.2880200860832138,
+   "hours": 0.7361672572294871
+  },
+  {
+   "step": 2000,
+   "tokens": 8192000,
+   "train_loss_bits": 2.643290792088955,
+   "val_ce_bits": 3.0321047987769347,
+   "val_acc": 0.36119081779053086,
+   "hours": 1.5244526411427393
+  },
+  {
+   "step": 3000,
+   "tokens": 12288000,
+   "train_loss_bits": 2.5171640474083476,
+   "val_ce_bits": 2.8994535073105454,
+   "val_acc": 0.38558106169296985,
+   "hours": 2.340749521255493
+  },
+  {
+   "step": 4000,
+   "tokens": 16384000,
+   "train_loss_bits": 2.3527264474215412,
+   "val_ce_bits": 2.814966264665033,
+   "val_acc": 0.39562410329985653,
+   "hours": 3.142317902909385
+  },
+  {
+   "step": 5000,
+   "tokens": 20480000,
+   "train_loss_bits": 2.305075214346983,
+   "val_ce_bits": 2.7426866733228237,
+   "val_acc": 0.4063845050215208,
+   "hours": 3.925897076394823
+  },
+  {
+   "step": 6000,
+   "tokens": 24576000,
+   "train_loss_bits": 2.334694066478576,
+   "val_ce_bits": 2.7141547308179366,
+   "val_acc": 0.43149210903873747,
+   "hours": 4.712157952454355
+  },
+  {
+   "step": 7000,
+   "tokens": 28672000,
+   "train_loss_bits": 2.232416671941067,
+   "val_ce_bits": 2.679273565872593,
+   "val_acc": 0.42288378766140605,
+   "hours": 5.513977781600422
+  },
+  {
+   "step": 8000,
+   "tokens": 32768000,
+   "train_loss_bits": 2.238879264012539,
+   "val_ce_bits": 2.6339607752266354,
+   "val_acc": 0.4268292682926829,
+   "hours": 6.593350412845612
+  },
+  {
+   "step": 9000,
+   "tokens": 36864000,
+   "train_loss_bits": 2.1442191530643946,
+   "val_ce_bits": 2.66675446854665,
+   "val_acc": 0.4253945480631277,
+   "hours": 7.7130795670217935
+  },
+  {
+   "step": 10000,
+   "tokens": 40960000,
+   "train_loss_bits": 2.283209340116285,
+   "val_ce_bits": 2.6227331792732502,
+   "val_acc": 0.4253945480631277,
+   "hours": 8.83493772831228
+  },
+  {
+   "step": 11000,
+   "tokens": 45056000,
+   "train_loss_bits": 2.1884584223284858,
+   "val_ce_bits": 2.6429219625867093,
+   "val_acc": 0.4250358680057389,
+   "hours": 9.953803687095641
+  },
+  {
+   "step": 12000,
+   "tokens": 49152000,
+   "train_loss_bits": 2.2287725315519347,
+   "val_ce_bits": 2.5746985758964245,
+   "val_acc": 0.43256814921090386,
+   "hours": 11.069990257090993
+  },
+  {
+   "step": 13000,
+   "tokens": 53248000,
+   "train_loss_bits": 2.28218965497932,
+   "val_ce_bits": 2.614177620274272,
+   "val_acc": 0.4293400286944046,
+   "hours": 12.17183393213484
+  },
+  {
+   "step": 14000,
+   "tokens": 57344000,
+   "train_loss_bits": 2.1663211594747267,
+   "val_ce_bits": 2.5473760173663806,
+   "val_acc": 0.43543758967001434,
+   "hours": 13.311707511014408
+  },
+  {
+   "step": 15000,
+   "tokens": 61440000,
+   "train_loss_bits": 2.119273241539395,
+   "val_ce_bits": 2.5937327254307863,
+   "val_acc": 0.4375896700143472,
+   "hours": 14.460268114606539
+  },
+  {
+   "step": 16000,
+   "tokens": 65536000,
+   "train_loss_bits": 2.2439983276154702,
+   "val_ce_bits": 2.4876171972816827,
+   "val_acc": 0.45552367288378764,
+   "hours": 15.583021053406927
+  },
+  {
+   "step": 17000,
+   "tokens": 69632000,
+   "train_loss_bits": 2.094912930940583,
+   "val_ce_bits": 2.500916725722061,
+   "val_acc": 0.45588235294117646,
+   "hours": 16.706144232021437
+  },
+  {
+   "step": 18000,
+   "tokens": 73728000,
+   "train_loss_bits": 2.1330373570532473,
+   "val_ce_bits": 2.4908508066938078,
+   "val_acc": 0.4490674318507891,
+   "hours": 17.220400083263716
+  },
+  {
+   "step": 19000,
+   "tokens": 77824000,
+   "train_loss_bits": 2.201344738392334,
+   "val_ce_bits": 2.498870849717035,
+   "val_acc": 0.4598278335724534,
+   "hours": 17.753526341848904
+  },
+  {
+   "step": 20000,
+   "tokens": 81920000,
+   "train_loss_bits": 2.057206078704214,
+   "val_ce_bits": 2.4703785130647384,
+   "val_acc": 0.45229555236728836,
+   "hours": 18.28728356891208
+  },
+  {
+   "step": 21000,
+   "tokens": 86016000,
+   "train_loss_bits": 2.091018211829144,
+   "val_ce_bits": 2.4849675057345384,
+   "val_acc": 0.453012912482066,
+   "hours": 18.81907120618555
+  },
+  {
+   "step": 22000,
+   "tokens": 90112000,
+   "train_loss_bits": 2.13502324072276,
+   "val_ce_bits": 2.476694320041048,
+   "val_acc": 0.4634146341463415,
+   "hours": 19.352178632683223
+  },
+  {
+   "step": 23000,
+   "tokens": 94208000,
+   "train_loss_bits": 2.0457501423475914,
+   "val_ce_bits": 2.426770684888832,
+   "val_acc": 0.46305595408895267,
+   "hours": 19.888009584082496
+  },
+  {
+   "step": 24000,
+   "tokens": 98304000,
+   "train_loss_bits": 2.1025515403786548,
+   "val_ce_bits": 2.440029123046738,
+   "val_acc": 0.4727403156384505,
+   "hours": 20.42282553335031
+  },
+  {
+   "step": 25000,
+   "tokens": 102400000,
+   "train_loss_bits": 2.1073818451107877,
+   "val_ce_bits": 2.457909791603932,
+   "val_acc": 0.4648493543758967,
+   "hours": 20.954959464603
+  },
+  {
+   "step": 26000,
+   "tokens": 106496000,
+   "train_loss_bits": 2.135667659715543,
+   "val_ce_bits": 2.404600535102975,
+   "val_acc": 0.47560975609756095,
+   "hours": 21.48532171825568
+  },
+  {
+   "step": 27000,
+   "tokens": 110592000,
+   "train_loss_bits": 2.098712715628746,
+   "val_ce_bits": 2.408220191035203,
+   "val_acc": 0.47381635581061693,
+   "hours": 22.019240525099967
+  },
+  {
+   "step": 28000,
+   "tokens": 114688000,
+   "train_loss_bits": 1.9600474038043352,
+   "val_ce_bits": 2.3793964159322836,
+   "val_acc": 0.46771879483500717,
+   "hours": 22.986694011158413
+  },
+  {
+   "step": 29000,
+   "tokens": 118784000,
+   "train_loss_bits": 2.0534222884025817,
+   "val_ce_bits": 2.3651299867174296,
+   "val_acc": 0.4730989956958393,
+   "hours": 23.985630833175446
+  },
+  {
+   "step": 30000,
+   "tokens": 122880000,
+   "train_loss_bits": 1.9798207651219848,
+   "val_ce_bits": 2.366391104652833,
+   "val_acc": 0.48242467718794835,
+   "hours": 24.980075103176965
+  }
+ ]
+}
