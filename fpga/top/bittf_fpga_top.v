@@ -8,6 +8,7 @@
 //   0x10..0x1C      CSR jadra: SEED, CTR, ERR, CYCLES (zapis jen kdyz jadro stoji)
 //   0x20/0x24       MEM_BASE lo/hi: adresa AXI, kde zacina pamet jadra
 //   0x28 ID         0x42544632 ("BTF2")
+//   0x2C EXT        stav okoli (napr. bit0 = DDR pripravena), jen cteni
 module bittf_fpga_top #(
     parameter LB = 64,
     parameter TM = 32,
@@ -56,7 +57,8 @@ module bittf_fpga_top #(
     input  wire          m_axi_wready,
     input  wire          m_axi_bvalid,
     output wire          m_axi_bready,
-    output wire          busy
+    output wire          busy,
+    input  wire [31:0]   ext_status
 );
     reg rst;
     always @(posedge clk) rst <= !rst_n;
@@ -113,6 +115,7 @@ module bittf_fpga_top #(
                     8'h20: mmio_rdata <= mem_base[31:0];
                     8'h24: mmio_rdata <= mem_base[63:32];
                     8'h28: mmio_rdata <= 32'h42544632;
+                    8'h2C: mmio_rdata <= ext_status;
                     default: mmio_rdata <= 32'd0;
                 endcase
             end
