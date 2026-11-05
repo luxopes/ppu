@@ -165,6 +165,9 @@ int main(int argc, char **argv)
             bad = 1;
         fflush(stdout);
     }
+    printf("EW: %.1f M prvku, %.1f MB; RED: %.1f M prvku, %.1f MB; MM %.2f G MAC (na %d kroku)\n",
+           c.op_elem[BT_OP_EW] / 1e6, c.op_bytes[BT_OP_EW] / 1e6, c.op_elem[BT_OP_RED] / 1e6,
+           c.op_bytes[BT_OP_RED] / 1e6, c.nmac / 1e9, steps);
     printf(bad ? "VYSLEDEK: NESHODA\n" : "VYSLEDEK: SHODA\n");
     return bad;
 }

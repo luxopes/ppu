@@ -70,8 +70,9 @@ static inline int64_t pow2q1(int64_t m, int lo_e, uint32_t r)
 const char *bt_err_name(int e)
 {
     static const char *n[] = {"OK", "hodnota se nevejde do sirky ulozeni", "preteceni akumulatoru MM",
-                              "neznama instrukce", "pristup mimo pamet", "limit instrukci"};
-    return e >= 0 && e <= 5 ? n[e] : "?";
+                              "neznama instrukce", "pristup mimo pamet", "limit instrukci",
+                              "cil prekryva operand na jinych prvcich", "operand MM mimo 18 bitu"};
+    return e >= 0 && e <= 7 ? n[e] : "?";
 }
 
 int64_t bt_load(const bt_cpu *c, uint64_t addr, int lw, int uns)
@@ -202,11 +203,50 @@ static inline int64_t ew_fn(const bt_cpu *c, const instr *I, int64_t A, int64_t 
     return 0;
 }
 
+/* rozsah bajtu operandu pres smycky (bez gatheru: gather = cela pamet) */
+static void orange(const instr *I, const opnd *o, const int64_t *n, int skip0, int64_t *lo, int64_t *hi)
+{
+    int64_t l = 0, h = 0;
+    for (int k = 0; k < 4; k++) {
+        if (k == 0 && skip0) continue;
+        int64_t s = o->s[k] * (n[k] - 1);
+        if (s < 0) l += s; else h += s;
+    }
+    *lo = (int64_t)o->base + (l << o->lw);
+    *hi = (int64_t)o->base + (h << o->lw) + (1 << o->lw);
+    if (o->gath) { *lo = 0; *hi = 0; }   /* gather cte tabulky (korpus, embedding), ktere instrukce nepise */
+    (void)I;
+}
+
+/* v2 cte operandy proudove: cil smi prekryvat operand jen na stejnem prvku (stejny pohled) */
+static int alias_ok(const instr *I, int need_a, int need_b, int need_c, int red)
+{
+    const opnd *D = &I->o[0];
+    int64_t dl, dh;
+    orange(I, D, I->n, red, &dl, &dh);
+    int need[4] = {0, need_a, need_b, need_c};
+    for (int x = 1; x < 4; x++) {
+        if (!need[x]) continue;
+        const opnd *o = &I->o[x];
+        int64_t ol, oh;
+        orange(I, o, I->n, 0, &ol, &oh);
+        if (oh <= dl || ol >= dh) continue;
+        if (red || o->base != D->base || o->lw != D->lw || o->gath || D->gath ||
+            memcmp(o->s, D->s, sizeof o->s))
+            return 0;
+    }
+    return 1;
+}
+
 static int exec_ew(bt_cpu *c, const instr *I)
 {
     uint32_t key = 0;
     int need_a = (BT_EFN_NEED_A >> I->fn) & 1, need_b = (BT_EFN_NEED_B >> I->fn) & 1;
     int need_c = ((BT_EFN_NEED_C >> I->fn) & 1) || (I->flags & BT_F_TC_MASK);
+    if (!alias_ok(I, need_a, need_b, need_c, 0)) {
+        fprintf(stderr, "bt_isa: pc %u EW cil prekryva operand\n", c->pc);
+        return BT_ERR_ALIAS;
+    }
     if ((BT_EFN_RNGMASK >> I->fn) & 1) {
         key = fmix32(c->csr[BT_CSR_SEED] ^ fmix32(c->csr[BT_CSR_CTR]));
         c->csr[BT_CSR_CTR]++;
@@ -260,6 +300,13 @@ static int exec_ew(bt_cpu *c, const instr *I)
                     bt_store(c, (uint64_t)ad, D->lw, v);
                 }
     c->nelem += f;
+    {
+        uint64_t b = (uint64_t)f * (((uint64_t)need_a << A->lw) + ((uint64_t)need_b << B->lw) + ((uint64_t)need_c << C->lw) + (1u << D->lw));
+        c->bytes_rd += (uint64_t)f * (((uint64_t)need_a << A->lw) + ((uint64_t)need_b << B->lw) + ((uint64_t)need_c << C->lw));
+        c->bytes_wr += (uint64_t)f << D->lw;
+        c->op_elem[BT_OP_EW] += f;
+        c->op_bytes[BT_OP_EW] += b;
+    }
     return BT_OK;
 }
 
@@ -270,6 +317,10 @@ static int exec_red(bt_cpu *c, const instr *I)
     const opnd *D = &I->o[0], *A = &I->o[1], *B = &I->o[2], *C = &I->o[3];
     int need_a = pre != BT_RP_SH, need_b = pre == BT_RP_AB || pre == BT_RP_ABC;
     int need_c = pre == BT_RP_ABC || (pre == BT_RP_SH && tc);
+    if (!(I->flags & BT_F_TOREG) && !alias_ok(I, need_a, need_b, need_c, 1)) {
+        fprintf(stderr, "bt_isa: pc %u RED cil prekryva operand\n", c->pc);
+        return BT_ERR_ALIAS;
+    }
     int64_t i[4];
     for (i[3] = 0; i[3] < I->n[3]; i[3]++)
         for (i[2] = 0; i[2] < I->n[2]; i[2]++)
@@ -307,6 +358,9 @@ static int exec_red(bt_cpu *c, const instr *I)
                         acc = iabs(v) > acc ? iabs(v) : acc;
                 }
                 c->nelem += I->n[0];
+                c->bytes_rd += (uint64_t)I->n[0] * (((uint64_t)need_a << A->lw) + ((uint64_t)need_b << B->lw) + ((uint64_t)need_c << C->lw));
+                c->op_elem[BT_OP_RED] += I->n[0];
+                c->op_bytes[BT_OP_RED] += (uint64_t)I->n[0] * (((uint64_t)need_a << A->lw) + ((uint64_t)need_b << B->lw) + ((uint64_t)need_c << C->lw));
                 if (I->flags & BT_F_TOREG) {
                     if (I->rd)
                         c->R[I->rd] = acc;
@@ -358,6 +412,8 @@ static int exec_mm(bt_cpu *c, const instr *I)
                     int64_t b = bt_load(c, (uint64_t)(bbase + ((B->s[3] * k) << B->lw)), B->lw, B->uns);
                     if (B->mode == BT_M_SIGN)
                         b = b >= 0 ? 1 : -1;
+                    if (a < -(1 << 17) || a >= (1 << 17) || b < -(1 << 17) || b >= (1 << 17))
+                        err = 3;
                     acc += a * b;
                 }
                 if (acc >= (1LL << 47) || acc < -(1LL << 47))
@@ -371,7 +427,7 @@ static int exec_mm(bt_cpu *c, const instr *I)
     c->nmac += (uint64_t)(n0 * n1 * n2 * K);
     if (err)
         fprintf(stderr, "bt_isa: pc %u MM %s\n", c->pc, err == 1 ? "preteceni 48 bitu" : "vysledek se nevejde");
-    return err == 1 ? BT_ERR_MMOVF : err == 2 ? BT_ERR_FIT : BT_OK;
+    return err == 1 ? BT_ERR_MMOVF : err == 2 ? BT_ERR_FIT : err == 3 ? BT_ERR_MMRANGE : BT_OK;
 }
 
 /* ------------------------------------------------------------------ skalarni a rizeni */

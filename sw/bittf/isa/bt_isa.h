@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-enum { BT_OK = 0, BT_ERR_FIT = 1, BT_ERR_MMOVF = 2, BT_ERR_OP = 3, BT_ERR_MEM = 4, BT_ERR_LIMIT = 5 };
+enum { BT_OK = 0, BT_ERR_FIT = 1, BT_ERR_MMOVF = 2, BT_ERR_OP = 3, BT_ERR_MEM = 4, BT_ERR_LIMIT = 5, BT_ERR_ALIAS = 6, BT_ERR_MMRANGE = 7 };
 
 typedef struct {
     uint8_t *mem;
@@ -23,6 +23,8 @@ typedef struct {
     uint32_t pc;            /* index instrukce od zacatku programu */
     uint64_t ninstr;        /* statistiky */
     uint64_t nelem, nmac;
+    uint64_t bytes_rd, bytes_wr;   /* EW/RED (MM zvlast: zavisi na dlazdicich) */
+    uint64_t op_elem[8], op_bytes[8];
     uint32_t err_pc;
     int threads;            /* 0 = jak urci OpenMP */
 } bt_cpu;
