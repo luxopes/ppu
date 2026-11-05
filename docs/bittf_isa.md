@@ -106,3 +106,17 @@ gradienty a exponenty vsech parametru, po kroku hash stavu (stejny jako golden `
 | d32 L1 H2 ff64 T16 B2 | 300 | shoda |
 | d64 L2 H2 ff128 T128 B4 | 5 | shoda |
 | m1: d128 L5 H4 ff648 T128 B32 | 4 | shoda (16,3 G MAC + 0,52 G prvku na krok) |
+
+## 6. RTL a stav (2026-11-05)
+
+| jadro | popis | krok m1 (d128 L5 B32) |
+|---|---|---|
+| v1 `bittf_core.v` | sekvencni reference, 1 pristup do pameti naraz | (jen male konfigurace) |
+| v2 `bittf_core2.v` | 5 radkovych portu (64 B), EW/RED 8 drah, MM pole 32x32 (DSP), dvojite buffery | **109 M taktu, bitove shodne s golden** |
+
+Profil v2 na m1 (latence pameti 20 taktu): EW 47 %, RED 26 %, MM 27 %; 139 M radku = 8,9 GB na krok.
+Pri 250 MHz ~0,44 s/krok (golden C na 4 vlaknech 2,8-3,9 s). Na F2 s jednim kanalem DDR4 (~16 GB/s)
+omezi pasmo na ~0,6 s/krok; HBM (32 kanalu) a uzsi mezivysledky jsou dalsi krok.
+
+FPGA obal `fpga/top/bittf_fpga_top.v` (AXI4-Lite registry + most na AXI4) je overen testbenchem
+`sw/bittf/verilator/tb_fpga.cpp` s AXI modelem pameti (nahodna latence a ready).
