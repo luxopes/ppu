@@ -42,8 +42,9 @@ module bittf_mm #(
     localparam AW = 18;
 
     // ------------------------------------------------------------ nacitani bloku
-    reg [AW-1:0] abuf [0:1][0:TM-1][0:KC-1];
-    reg [AW-1:0] bbuf [0:1][0:TN-1][0:KC-1];
+    // Buffery A (TM radku x KC) a B (TN sloupcu x KC), dve sady. Kvuli syntéze na FPGA jsou to
+    // samostatne registry v generate (bez zapisu s promennym indexem): takt proudu se jednim sdilenym
+    // rotatorem posune na pozice (podel k nebo podel radku) a kazdy prvek ma vlastni povoleni zapisu.
     reg [1:0] full;                      // sada pripravena k vypoctu
     reg ld_set, cp_set;
     // iterace nacitani
@@ -96,8 +97,8 @@ module bittf_mm #(
     reg q_last [0:1];
     reg signed [63:0] q_doff [0:1];
 
-    // vystupni buffer
-    reg signed [47:0] obuf [0:TM-1][0:TN-1];
+    // vystupni buffer (registry v generate, cteni: vyber radku a pak sloupcu)
+    wire [TM*TN*48-1:0] ob_flat;
     reg o_full;
     reg [31:0] o_r, o_c, o_rn, o_cn;
     reg signed [63:0] o_doff;
@@ -200,11 +201,6 @@ module bittf_mm #(
                 end
                 if (l_active && !st_start) begin
                     if (a_take) begin
-                        for (l = 0; l < LVL; l = l + 1)
-                            if (l < a_on) begin
-                                if (a_alongk) abuf[ld_set][a_p1][a_p0 + l] <= a_od[64 * l +: AW];
-                                else abuf[ld_set][a_p0 + l][a_p1] <= a_od[64 * l +: AW];
-                            end
                         if (a_p0 + a_on >= a_c0) begin
                             a_p0 <= 0;
                             a_p1 <= a_p1 + 1;
@@ -213,11 +209,6 @@ module bittf_mm #(
                             a_p0 <= a_p0 + a_on;
                     end
                     if (b_take) begin
-                        for (l = 0; l < LVL; l = l + 1)
-                            if (l < b_on) begin
-                                if (b_alongk) bbuf[ld_set][b_p1][b_p0 + l] <= bval(b_od[64 * l +: 64]);
-                                else bbuf[ld_set][b_p0 + l][b_p1] <= bval(b_od[64 * l +: 64]);
-                            end
                         if (b_p0 + b_on >= b_c0) begin
                             b_p0 <= 0;
                             b_p1 <= b_p1 + 1;
@@ -242,23 +233,23 @@ module bittf_mm #(
                     c_cn <= q_cn[cp_set];
                     c_doff <= q_doff[cp_set];
                 end
+                // akumulace (3. stupen pipeline: vyber operandu -> soucin -> soucet)
+                if (p_v2)
+                    for (r = 0; r < TM; r = r + 1)
+                        for (cc = 0; cc < TN; cc = cc + 1)
+                            acc[r][cc] <= acc[r][cc] + prod[r][cc];
                 if (c_run) begin
                     if (c_k < c_kn) begin
-                        for (r = 0; r < TM; r = r + 1)
-                            for (cc = 0; cc < TN; cc = cc + 1)
-                                acc[r][cc] <= acc[r][cc] + $signed(abuf[cp_set][r][c_k]) * $signed(bbuf[cp_set][cc][c_k]);
                         c_k <= c_k + 1;
-                    end else if (!c_last || !o_full) begin
+                    end else if ((!c_last || !o_full) && !p_v1 && !p_v2) begin
                         // blok hotov
                         full[cp_set] <= 1'b0;
                         cp_set <= ~cp_set;
                         c_run <= 1'b0;
                         if (c_last) begin
                             for (r = 0; r < TM; r = r + 1)
-                                for (cc = 0; cc < TN; cc = cc + 1) begin
-                                    obuf[r][cc] <= acc[r][cc];
+                                for (cc = 0; cc < TN; cc = cc + 1)
                                     acc[r][cc] <= 48'sd0;
-                                end
                             o_full <= 1'b1;
                             o_started <= 1'b0;
                             o_rn <= c_rn;
@@ -280,9 +271,9 @@ module bittf_mm #(
                     o_started <= 1'b1;
                 end else if (o_full && o_started && !w_start && (!w_valid || w_ready)) begin
                     for (l = 0; l < VL; l = l + 1)
-                        w_data[64 * l +: 64] <= {{16{obuf[o_r][o_c + l][47]}}, obuf[o_r][o_c + l]};
+                        w_data[64 * l +: 64] <= {{16{o_lane[l][47]}}, o_lane[l]};
                     for (l = 0; l < VL; l = l + 1)
-                        if (o_c + l < o_cn && !fits(obuf[o_r][o_c + l])) err_fit <= 1'b1;
+                        if (o_c + l < o_cn && !fits(o_lane[l])) err_fit <= 1'b1;
                     w_valid <= 1'b1;
                     if (o_c + (ds0 == 1 ? VL : 1) >= o_cn) begin
                         o_c <= 0;
@@ -297,6 +288,129 @@ module bittf_mm #(
             end
         end
     end
+
+
+    // ------------------------------------------------------------ buffery A/B (generate)
+    wire ld_ok = l_active && !st_start;
+    wire [LVL*AW-1:0] a_lanes, b_lanes;
+    genvar gl, gs, gr, gk;
+    generate
+        for (gl = 0; gl < LVL; gl = gl + 1) begin : LANES
+            assign a_lanes[gl * AW +: AW] = (gl < a_on) ? a_od[64 * gl +: AW] : {AW{1'b0}};
+            assign b_lanes[gl * AW +: AW] = (gl < b_on) ? bval(b_od[64 * gl +: 64]) : {AW{1'b0}};
+        end
+    endgenerate
+    // posun taktu na pozice: podel k (KC pozic) nebo podel radku/sloupcu (TM/TN pozic)
+    wire [(KC+LVL)*AW-1:0] a_wk2 = {{(KC*AW){1'b0}}, a_lanes} << (a_p0[5:0] * AW);
+    wire [(KC+LVL)*AW-1:0] b_wk2 = {{(KC*AW){1'b0}}, b_lanes} << (b_p0[5:0] * AW);
+    wire [(TM+LVL)*AW-1:0] a_wr2 = {{(TM*AW){1'b0}}, a_lanes} << (a_p0[5:0] * AW);
+    wire [(TN+LVL)*AW-1:0] b_wr2 = {{(TN*AW){1'b0}}, b_lanes} << (b_p0[5:0] * AW);
+    wire [KC*AW-1:0] a_wk = a_wk2[KC*AW-1:0], b_wk = b_wk2[KC*AW-1:0];
+    wire [TM*AW-1:0] a_wr = a_wr2[TM*AW-1:0];
+    wire [TN*AW-1:0] b_wr = b_wr2[TN*AW-1:0];
+    wire [31:0] a_end = a_p0 + {25'd0, a_on}, b_end = b_p0 + {25'd0, b_on};
+    // povoleni: podel k -> radek a_p1, k v [a_p0, a_end); jinak k = a_p1, radek v [a_p0, a_end)
+    wire [TM-1:0] a_rsel, a_rmask;
+    wire [TN-1:0] b_rsel, b_rmask;
+    wire [KC-1:0] a_ksel, a_kmask, b_ksel, b_kmask;
+    generate
+        for (gr = 0; gr < TM; gr = gr + 1) begin : AROW
+            assign a_rsel[gr] = a_p1 == gr;
+            assign a_rmask[gr] = gr >= a_p0 && gr < a_end;
+        end
+        for (gr = 0; gr < TN; gr = gr + 1) begin : BROW
+            assign b_rsel[gr] = b_p1 == gr;
+            assign b_rmask[gr] = gr >= b_p0 && gr < b_end;
+        end
+        for (gk = 0; gk < KC; gk = gk + 1) begin : KSEL
+            assign a_ksel[gk] = a_p1 == gk;
+            assign a_kmask[gk] = gk >= a_p0 && gk < a_end;
+            assign b_ksel[gk] = b_p1 == gk;
+            assign b_kmask[gk] = gk >= b_p0 && gk < b_end;
+        end
+    endgenerate
+    wire [1:0] a_we = {2{ld_ok && a_take}} & {ld_set, !ld_set};
+    wire [1:0] b_we = {2{ld_ok && b_take}} & {ld_set, !ld_set};
+
+    // operandy vypoctu: radek/sloupec pro aktualni k (vybrana sada cp_set)
+    wire [AW-1:0] a_sel [0:TM-1];
+    wire [AW-1:0] b_sel [0:TN-1];
+    generate
+        for (gs = 0; gs < 2; gs = gs + 1) begin : AS
+            for (gr = 0; gr < TM; gr = gr + 1) begin : R
+                wire [KC*AW-1:0] row;
+                for (gk = 0; gk < KC; gk = gk + 1) begin : K
+                    reg [AW-1:0] q;
+                    always @(posedge clk)
+                        if (a_we[gs] && (a_alongk ? (a_rsel[gr] && a_kmask[gk]) : (a_ksel[gk] && a_rmask[gr])))
+                            q <= a_alongk ? a_wk[gk * AW +: AW] : a_wr[gr * AW +: AW];
+                    assign row[gk * AW +: AW] = q;
+                end
+            end
+        end
+        for (gs = 0; gs < 2; gs = gs + 1) begin : BS
+            for (gr = 0; gr < TN; gr = gr + 1) begin : R
+                wire [KC*AW-1:0] row;
+                for (gk = 0; gk < KC; gk = gk + 1) begin : K
+                    reg [AW-1:0] q;
+                    always @(posedge clk)
+                        if (b_we[gs] && (b_alongk ? (b_rsel[gr] && b_kmask[gk]) : (b_ksel[gk] && b_rmask[gr])))
+                            q <= b_alongk ? b_wk[gk * AW +: AW] : b_wr[gr * AW +: AW];
+                    assign row[gk * AW +: AW] = q;
+                end
+            end
+        end
+        for (gr = 0; gr < TM; gr = gr + 1) begin : ASEL
+            assign a_sel[gr] = cp_set ? AS[1].R[gr].row[c_k[5:0] * AW +: AW] : AS[0].R[gr].row[c_k[5:0] * AW +: AW];
+        end
+        for (gr = 0; gr < TN; gr = gr + 1) begin : BSEL
+            assign b_sel[gr] = cp_set ? BS[1].R[gr].row[c_k[5:0] * AW +: AW] : BS[0].R[gr].row[c_k[5:0] * AW +: AW];
+        end
+    endgenerate
+
+    // pipeline: 1. registr operandu, 2. soucin (DSP), 3. akumulace (v hlavnim bloku)
+    wire p_issue = c_run && c_k < c_kn && !start;
+    reg p_v1, p_v2;
+    reg signed [AW-1:0] a_op [0:TM-1];
+    reg signed [AW-1:0] b_op [0:TN-1];
+    reg signed [2*AW-1:0] prod [0:TM-1][0:TN-1];
+    integer pr, pc;
+    always @(posedge clk) begin
+        if (rst || start) begin
+            p_v1 <= 1'b0;
+            p_v2 <= 1'b0;
+        end else begin
+            p_v1 <= p_issue;
+            p_v2 <= p_v1;
+        end
+        if (p_issue) begin
+            for (pr = 0; pr < TM; pr = pr + 1) a_op[pr] <= a_sel[pr];
+            for (pc = 0; pc < TN; pc = pc + 1) b_op[pc] <= b_sel[pc];
+        end
+        if (p_v1)
+            for (pr = 0; pr < TM; pr = pr + 1)
+                for (pc = 0; pc < TN; pc = pc + 1)
+                    prod[pr][pc] <= a_op[pr] * b_op[pc];
+    end
+
+    // vystupni buffer: kopie akumulatoru pri dokonceni dlazdice
+    wire o_copy = c_run && !(c_k < c_kn) && (!c_last || !o_full) && !p_v1 && !p_v2 && c_last && !start;
+    generate
+        for (gr = 0; gr < TM; gr = gr + 1) begin : OR
+            for (gk = 0; gk < TN; gk = gk + 1) begin : OC
+                reg [47:0] q;
+                always @(posedge clk) if (o_copy) q <= acc[gr][gk];
+                assign ob_flat[(gr * TN + gk) * 48 +: 48] = q;
+            end
+        end
+    endgenerate
+    wire [(TN+VL)*48-1:0] o_row = {{(VL*48){1'b0}}, ob_flat[o_r[4:0] * (TN * 48) +: TN * 48]};
+    wire signed [47:0] o_lane [0:VL-1];
+    generate
+        for (gl = 0; gl < VL; gl = gl + 1) begin : OL
+            assign o_lane[gl] = o_row[(o_c[5:0] + gl) * 48 +: 48];
+        end
+    endgenerate
 
     reg started_any;
     always @(posedge clk) begin
