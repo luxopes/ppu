@@ -22,4 +22,9 @@
   // Put module name of the CL design here. This is used to instantiate in top.sv
   `define CL_NAME cl_bittf
 
+  // hodiny jadra BitTF = 1000 MHz / BT_CORE_DIV (2..128, i necelociselne po 0.125)
+  `ifndef BT_CORE_DIV
+  `define BT_CORE_DIV 40.0
+  `endif
+
 `endif

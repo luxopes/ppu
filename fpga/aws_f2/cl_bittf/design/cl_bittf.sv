@@ -142,13 +142,172 @@ module cl_bittf
     end
 
 //=============================================================================
+// BitTF: hodiny jadra (MMCM z clk_main_a0) a reset v jejich domene
+//=============================================================================
+
+  // Jadro bezi na vlastnich hodinach clk_core = 1000 MHz / CORE_DIV (VCO 1 GHz z 250 MHz).
+  // Registry (OCL) a pamet (AXI4 do prepinace na clk_main_a0) prechazi pres asynchronni prevodniky.
+  localparam real CORE_DIV = `BT_CORE_DIV;
+
+  wire clk_core_mmcm, clk_core, mmcm_fb, mmcm_fb_buf, mmcm_locked;
+  MMCME4_BASE #(
+    .CLKIN1_PERIOD    (4.000),
+    .CLKFBOUT_MULT_F  (4.000),
+    .DIVCLK_DIVIDE    (1),
+    .CLKOUT0_DIVIDE_F (CORE_DIV)
+  ) CORE_MMCM (
+    .CLKIN1   (clk_main_a0),
+    .CLKFBIN  (mmcm_fb_buf),
+    .CLKFBOUT (mmcm_fb),
+    .CLKOUT0  (clk_core_mmcm),
+    .LOCKED   (mmcm_locked),
+    .RST      (!bt_rst_n),
+    .PWRDWN   (1'b0),
+    .CLKFBOUTB(), .CLKOUT0B(), .CLKOUT1(), .CLKOUT1B(), .CLKOUT2(), .CLKOUT2B(),
+    .CLKOUT3(), .CLKOUT3B(), .CLKOUT4(), .CLKOUT5(), .CLKOUT6()
+  );
+  BUFG FB_BUF   (.I(mmcm_fb),       .O(mmcm_fb_buf));
+  BUFG CORE_BUF (.I(clk_core_mmcm), .O(clk_core));
+
+  (* ASYNC_REG = "TRUE" *) logic crst_q1, crst_q2;
+  always_ff @(posedge clk_core or negedge mmcm_locked)
+    if (!mmcm_locked) begin
+      crst_q1 <= 1'b0;
+      crst_q2 <= 1'b0;
+    end else begin
+      crst_q1 <= bt_rst_n;
+      crst_q2 <= crst_q1;
+    end
+  wire core_rst_n = crst_q2;
+
+  // stav pro hosta / prepinac: synchronizace mezi domenami (pomale urovnove signaly)
+  wire          bt_busy;                 // clk_core
+  wire          own_core;                // clk_main_a0
+  logic         ddr_ready;               // clk_main_a0
+  (* ASYNC_REG = "TRUE" *) logic busy_m1, busy_m2;          // -> clk_main_a0
+  (* ASYNC_REG = "TRUE" *) logic [1:0] st_c1, st_c2;        // -> clk_core
+  always_ff @(posedge clk_main_a0) begin
+    busy_m1 <= bt_busy;
+    busy_m2 <= busy_m1;
+  end
+  always_ff @(posedge clk_core) begin
+    st_c1 <= {own_core, ddr_ready};
+    st_c2 <= st_c1;
+  end
+
+//=============================================================================
 // BitTF: jadro (registry pres OCL, pamet pres AXI4) a prepinac pameti host/jadro
 //=============================================================================
 
-  logic         ddr_ready;
-  wire          bt_busy;
-  wire          own_core;
+  // OCL (clk_main_a0) -> registry jadra (clk_core)
+  wire [31:0]   r_awaddr, r_wdata, r_araddr, r_rdata;
+  wire [3:0]    r_wstrb;
+  wire [1:0]    r_bresp, r_rresp;
+  wire          r_awvalid, r_awready, r_wvalid, r_wready, r_bvalid, r_bready;
+  wire          r_arvalid, r_arready, r_rvalid, r_rready;
 
+  cl_axi_clock_converter_light OCL_CDC (
+    .s_axi_aclk    (clk_main_a0),
+    .s_axi_aresetn (bt_rst_n),
+    .s_axi_awaddr  (ocl_cl_awaddr),
+    .s_axi_awprot  (3'b0),
+    .s_axi_awvalid (ocl_cl_awvalid),
+    .s_axi_awready (cl_ocl_awready),
+    .s_axi_wdata   (ocl_cl_wdata),
+    .s_axi_wstrb   (ocl_cl_wstrb),
+    .s_axi_wvalid  (ocl_cl_wvalid),
+    .s_axi_wready  (cl_ocl_wready),
+    .s_axi_bresp   (cl_ocl_bresp),
+    .s_axi_bvalid  (cl_ocl_bvalid),
+    .s_axi_bready  (ocl_cl_bready),
+    .s_axi_araddr  (ocl_cl_araddr),
+    .s_axi_arprot  (3'b0),
+    .s_axi_arvalid (ocl_cl_arvalid),
+    .s_axi_arready (cl_ocl_arready),
+    .s_axi_rdata   (cl_ocl_rdata),
+    .s_axi_rresp   (cl_ocl_rresp),
+    .s_axi_rvalid  (cl_ocl_rvalid),
+    .s_axi_rready  (ocl_cl_rready),
+    .m_axi_aclk    (clk_core),
+    .m_axi_aresetn (core_rst_n),
+    .m_axi_awaddr  (r_awaddr),
+    .m_axi_awprot  (),
+    .m_axi_awvalid (r_awvalid),
+    .m_axi_awready (r_awready),
+    .m_axi_wdata   (r_wdata),
+    .m_axi_wstrb   (r_wstrb),
+    .m_axi_wvalid  (r_wvalid),
+    .m_axi_wready  (r_wready),
+    .m_axi_bresp   (r_bresp),
+    .m_axi_bvalid  (r_bvalid),
+    .m_axi_bready  (r_bready),
+    .m_axi_araddr  (r_araddr),
+    .m_axi_arprot  (),
+    .m_axi_arvalid (r_arvalid),
+    .m_axi_arready (r_arready),
+    .m_axi_rdata   (r_rdata),
+    .m_axi_rresp   (r_rresp),
+    .m_axi_rvalid  (r_rvalid),
+    .m_axi_rready  (r_rready)
+  );
+
+  // AXI4 jadra v domene clk_core (jednobeatove, ID 0)
+  wire [63:0]   k_araddr, k_awaddr;
+  wire [7:0]    k_arlen, k_awlen;
+  wire [2:0]    k_arsize, k_awsize;
+  wire [1:0]    k_arburst, k_awburst;
+  wire          k_arvalid, k_arready, k_rvalid, k_rready;
+  wire          k_awvalid, k_awready, k_wvalid, k_wready, k_wlast, k_bvalid, k_bready;
+  wire [511:0]  k_rdata, k_wdata;
+  wire [63:0]   k_wstrb;
+
+  bittf_fpga_top #(.LB(64), .TM(32), .TN(32)) BITTF (
+    .clk            (clk_core),
+    .rst_n          (core_rst_n),
+    .s_axi_awaddr   (r_awaddr),
+    .s_axi_awvalid  (r_awvalid),
+    .s_axi_awready  (r_awready),
+    .s_axi_wdata    (r_wdata),
+    .s_axi_wstrb    (r_wstrb),
+    .s_axi_wvalid   (r_wvalid),
+    .s_axi_wready   (r_wready),
+    .s_axi_bresp    (r_bresp),
+    .s_axi_bvalid   (r_bvalid),
+    .s_axi_bready   (r_bready),
+    .s_axi_araddr   (r_araddr),
+    .s_axi_arvalid  (r_arvalid),
+    .s_axi_arready  (r_arready),
+    .s_axi_rdata    (r_rdata),
+    .s_axi_rresp    (r_rresp),
+    .s_axi_rvalid   (r_rvalid),
+    .s_axi_rready   (r_rready),
+    .m_axi_araddr   (k_araddr),
+    .m_axi_arlen    (k_arlen),
+    .m_axi_arsize   (k_arsize),
+    .m_axi_arburst  (k_arburst),
+    .m_axi_arvalid  (k_arvalid),
+    .m_axi_arready  (k_arready),
+    .m_axi_rdata    (k_rdata),
+    .m_axi_rvalid   (k_rvalid),
+    .m_axi_rready   (k_rready),
+    .m_axi_awaddr   (k_awaddr),
+    .m_axi_awlen    (k_awlen),
+    .m_axi_awsize   (k_awsize),
+    .m_axi_awburst  (k_awburst),
+    .m_axi_awvalid  (k_awvalid),
+    .m_axi_awready  (k_awready),
+    .m_axi_wdata    (k_wdata),
+    .m_axi_wstrb    (k_wstrb),
+    .m_axi_wlast    (k_wlast),
+    .m_axi_wvalid   (k_wvalid),
+    .m_axi_wready   (k_wready),
+    .m_axi_bvalid   (k_bvalid),
+    .m_axi_bready   (k_bready),
+    .busy           (bt_busy),
+    .ext_status     ({30'd0, st_c2})
+  );
+
+  // pamet jadra (clk_core) -> prepinac (clk_main_a0)
   wire [63:0]   c_araddr, c_awaddr;
   wire [7:0]    c_arlen, c_awlen;
   wire [2:0]    c_arsize, c_awsize;
@@ -158,39 +317,63 @@ module cl_bittf
   wire [511:0]  c_rdata, c_wdata;
   wire [63:0]   c_wstrb;
 
-  bittf_fpga_top #(.LB(64), .TM(32), .TN(32)) BITTF (
-    .clk            (clk_main_a0),
-    .rst_n          (bt_rst_n),
-    .s_axi_awaddr   (ocl_cl_awaddr),
-    .s_axi_awvalid  (ocl_cl_awvalid),
-    .s_axi_awready  (cl_ocl_awready),
-    .s_axi_wdata    (ocl_cl_wdata),
-    .s_axi_wstrb    (ocl_cl_wstrb),
-    .s_axi_wvalid   (ocl_cl_wvalid),
-    .s_axi_wready   (cl_ocl_wready),
-    .s_axi_bresp    (cl_ocl_bresp),
-    .s_axi_bvalid   (cl_ocl_bvalid),
-    .s_axi_bready   (ocl_cl_bready),
-    .s_axi_araddr   (ocl_cl_araddr),
-    .s_axi_arvalid  (ocl_cl_arvalid),
-    .s_axi_arready  (cl_ocl_arready),
-    .s_axi_rdata    (cl_ocl_rdata),
-    .s_axi_rresp    (cl_ocl_rresp),
-    .s_axi_rvalid   (cl_ocl_rvalid),
-    .s_axi_rready   (ocl_cl_rready),
-    .m_axi_araddr   (c_araddr),
-    .m_axi_arlen    (c_arlen),
-    .m_axi_arsize   (c_arsize),
-    .m_axi_arburst  (c_arburst),
-    .m_axi_arvalid  (c_arvalid),
-    .m_axi_arready  (c_arready),
-    .m_axi_rdata    (c_rdata),
-    .m_axi_rvalid   (c_rvalid),
-    .m_axi_rready   (c_rready),
+  cl_axi_clock_converter MEM_CDC (
+    .s_axi_aclk     (clk_core),
+    .s_axi_aresetn  (core_rst_n),
+    .s_axi_awid     (16'd0),
+    .s_axi_awaddr   (k_awaddr),
+    .s_axi_awlen    (k_awlen),
+    .s_axi_awsize   (k_awsize),
+    .s_axi_awburst  (k_awburst),
+    .s_axi_awlock   (1'b0),
+    .s_axi_awcache  (4'b0011),
+    .s_axi_awprot   (3'b0),
+    .s_axi_awregion (4'b0),
+    .s_axi_awqos    (4'b0),
+    .s_axi_awuser   (19'd0),
+    .s_axi_awvalid  (k_awvalid),
+    .s_axi_awready  (k_awready),
+    .s_axi_wdata    (k_wdata),
+    .s_axi_wstrb    (k_wstrb),
+    .s_axi_wlast    (k_wlast),
+    .s_axi_wvalid   (k_wvalid),
+    .s_axi_wready   (k_wready),
+    .s_axi_bid      (),
+    .s_axi_bresp    (),
+    .s_axi_bvalid   (k_bvalid),
+    .s_axi_bready   (k_bready),
+    .s_axi_arid     (16'd0),
+    .s_axi_araddr   (k_araddr),
+    .s_axi_arlen    (k_arlen),
+    .s_axi_arsize   (k_arsize),
+    .s_axi_arburst  (k_arburst),
+    .s_axi_arlock   (1'b0),
+    .s_axi_arcache  (4'b0011),
+    .s_axi_arprot   (3'b0),
+    .s_axi_arregion (4'b0),
+    .s_axi_arqos    (4'b0),
+    .s_axi_aruser   (19'd0),
+    .s_axi_arvalid  (k_arvalid),
+    .s_axi_arready  (k_arready),
+    .s_axi_rid      (),
+    .s_axi_rdata    (k_rdata),
+    .s_axi_rresp    (),
+    .s_axi_rlast    (),
+    .s_axi_rvalid   (k_rvalid),
+    .s_axi_rready   (k_rready),
+    .m_axi_aclk     (clk_main_a0),
+    .m_axi_aresetn  (bt_rst_n),
+    .m_axi_awid     (),
     .m_axi_awaddr   (c_awaddr),
     .m_axi_awlen    (c_awlen),
     .m_axi_awsize   (c_awsize),
     .m_axi_awburst  (c_awburst),
+    .m_axi_awlock   (),
+    .m_axi_awcache  (),
+    .m_axi_awprot   (),
+    .m_axi_awregion (),
+    .m_axi_awqos    (),
+    .m_axi_awuser   (),
     .m_axi_awvalid  (c_awvalid),
     .m_axi_awready  (c_awready),
     .m_axi_wdata    (c_wdata),
@@ -198,10 +381,29 @@ module cl_bittf
     .m_axi_wlast    (c_wlast),
     .m_axi_wvalid   (c_wvalid),
     .m_axi_wready   (c_wready),
+    .m_axi_bid      (16'd0),
+    .m_axi_bresp    (2'b00),
     .m_axi_bvalid   (c_bvalid),
     .m_axi_bready   (c_bready),
-    .busy           (bt_busy),
-    .ext_status     ({30'd0, own_core, ddr_ready})
+    .m_axi_arid     (),
+    .m_axi_araddr   (c_araddr),
+    .m_axi_arlen    (c_arlen),
+    .m_axi_arsize   (c_arsize),
+    .m_axi_arburst  (c_arburst),
+    .m_axi_arlock   (),
+    .m_axi_arcache  (),
+    .m_axi_arprot   (),
+    .m_axi_arregion (),
+    .m_axi_arqos    (),
+    .m_axi_aruser   (),
+    .m_axi_arvalid  (c_arvalid),
+    .m_axi_arready  (c_arready),
+    .m_axi_rid      (16'd0),
+    .m_axi_rdata    (c_rdata),
+    .m_axi_rresp    (2'b00),
+    .m_axi_rlast    (1'b1),
+    .m_axi_rvalid   (c_rvalid),
+    .m_axi_rready   (c_rready)
   );
 
   // pamet DDR (AXI4 512b) sdilena hostem (PCIS, BAR4 od adresy 0) a jadrem
@@ -218,7 +420,7 @@ module cl_bittf
   axi_own_mux #(.DW(512), .IW(16)) DDR_MUX (
     .clk        (clk_main_a0),
     .rst_n      (bt_rst_n),
-    .core_req   (bt_busy),
+    .core_req   (busy_m2),
     .own_core   (own_core),
     .h_awid     (sh_cl_dma_pcis_awid),
     .h_awaddr   (sh_cl_dma_pcis_awaddr),

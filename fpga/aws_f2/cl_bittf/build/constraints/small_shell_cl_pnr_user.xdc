@@ -17,3 +17,6 @@
 
 
 # Add Small_Shell P&R constraints here
+# BitTF: hodiny jadra (MMCM v CL) jsou asynchronni ke clk_main_a0; prechody resi
+# cl_axi_clock_converter(_light) a dvoustupnove synchronizatory (ASYNC_REG) urovnovych signalu.
+set_clock_groups -asynchronous -group [get_clocks -of_objects [get_pins -hier -filter {NAME =~ */CORE_MMCM/CLKOUT0}]]
