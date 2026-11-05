@@ -24,7 +24,8 @@ import torch.nn.functional as F
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import concept_lab as cl  # noqa: E402
-from transformer_baseline import V, evaluate, generate  # noqa: E402
+import transformer_baseline as tb  # noqa: E402
+from transformer_baseline import evaluate, generate  # noqa: E402
 
 CTX = 128
 
@@ -58,7 +59,7 @@ def main():
     ap.add_argument("--lr-shift", type=int, default=4)
     ap.add_argument("--mbits", type=int, default=8)
     ap.add_argument("--gq", type=int, default=8)
-    ap.add_argument("--val-len", type=int, default=11152)
+    ap.add_argument("--val-len", type=int, default=0, help="0 = z <korpus>.vocab.json (val_tokens), jinak 11152")
     ap.add_argument("--eval-every", type=int, default=2000)
     ap.add_argument("--seed", type=int, default=12345)
     ap.add_argument("--ckpt", required=True)
@@ -69,9 +70,13 @@ def main():
     cl.CHIP, cl.GQ = True, a.gq
     torch.manual_seed(a.seed)
     torch.set_num_threads(int(os.environ.get("TORCH_THREADS", "4")))
-    raw = open(a.corpus, "rb").read()
-    data = (torch.frombuffer(bytearray(raw), dtype=torch.uint8) & 31).long()
+    data = tb.load_tokens(a.corpus)
+    if not a.val_len:
+        vj = a.corpus[:-4] + ".vocab.json"
+        a.val_len = json.load(open(vj))["val_tokens"] if os.path.exists(vj) else 11152
     split = len(data) - a.val_len
+    val = data[split:].tolist()
+    cpt = sum(len(tb.VOCAB[t]) for t in val) / len(val)   # znaku na token (CE na znak = CE / cpt)
     model = cl.BitGPT(CTX, a.d, a.layers, a.heads, a.ff, "binary")
     n_params = sum(p.numel() for p in model.parameters())
     opt = cl.ChipOpt(model, "lion", a.lr_shift, mbits=a.mbits)
@@ -103,7 +108,7 @@ def main():
         ix = torch.randint(CTX, split - 1, (a.batch,)).tolist()
         x = torch.stack([data[i - CTX:i] for i in ix])
         y = torch.stack([data[i - CTX + 1:i + 1] for i in ix])
-        loss = F.cross_entropy(model(x).reshape(-1, V), y.reshape(-1))
+        loss = F.cross_entropy(model(x).reshape(-1, tb.V), y.reshape(-1))
         opt.zero_grad()
         loss.backward()
         opt.step()
@@ -118,7 +123,7 @@ def main():
             if best is None or ce < best[0]:
                 best = (ce, step, copy.deepcopy(model.state_dict()))
             print(f"{step:7d}  tokenu {tok / 1e6:8.1f} M  train {loss.item() / math.log(2):.3f}  "
-                  f"val CE(1/4) {ce:.4f}  acc {acc:.4f}  lr_shift {opt.lr_shift}  ({train_s / 3600:.2f} h)",
+                  f"val CE(1/4) {ce:.4f} ({ce / cpt:.3f} b/zn)  acc {acc:.4f}  lr_shift {opt.lr_shift}  ({train_s / 3600:.2f} h)",
                   flush=True)
             save(step)
             if time.time() - t0 > a.time_limit and step < a.steps:
@@ -130,15 +135,17 @@ def main():
     model.load_state_dict(best[2])
     ce, acc = evaluate(model, data, split, CTX, bs=256)
     g = torch.Generator().manual_seed(7)
-    prompt = data[split:split + CTX].tolist()
+    # prompt: konec treninkove casti (u TinyStories konci povidkou), model zacne novou povidku
+    prompt = data[split - CTX:split].tolist()
     sample = generate(model, prompt, 600, CTX, g)
     torch.save(best[2], os.path.splitext(a.out)[0] + "_model.pt")
     res = {"model": "bitnet1-chip-lion", "params": n_params, "d": a.d, "layers": a.layers, "heads": a.heads,
            "ff": a.ff, "ctx": CTX, "steps": a.steps, "batch": a.batch, "corpus_tokens": len(data),
            "lr_shift": a.lr_shift, "mbits": a.mbits, "gq": a.gq, "best_step": best[1],
-           "val_ce_bits": ce, "val_acc": acc, "train_hours": train_s / 3600, "sample": sample, "log": log}
+           "val_ce_bits": ce, "val_bpc": ce / cpt, "chars_per_token": cpt, "vocab": tb.V, "val_acc": acc, "train_hours": train_s / 3600, "sample": sample, "log": log}
     json.dump(res, open(a.out, "w"), indent=1, ensure_ascii=False)
-    print(f"VYSLEDEK: CE {ce:.4f} acc {acc:.4f} (nejlepsi krok {best[1]}, {n_params} parametru)")
+    print(f"VYSLEDEK: CE {ce:.4f} bitu/token = {ce / cpt:.4f} bitu/znak, acc {acc:.4f} "
+          f"(nejlepsi krok {best[1]}, {n_params} parametru, V={tb.V})")
     print("ukazka:", sample[:300])
 
 

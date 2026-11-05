@@ -1,0 +1,367 @@
+# Dlouhy trenink 1-bit transformeru v rezimu cipu na anglickych TinyStories (velka i mala pismena, V=256),
+# rozdeleny na useky po <6 h (checkpoint se predava artefaktem). Korpus se pripravi jednou a cachuje.
+# Vygenerovano: pocet useku = 8.
+name: TinyStories train
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "nazev behu (artefakty)"
+        default: "ts14"
+      args:
+        description: "argumenty train_big.py"
+        default: "--d 384 --layers 8 --heads 8 --ff 1536 --steps 30000 --eval-every 1000"
+      max_chars:
+        default: "600000000"
+
+env:
+  TL: "18400"
+
+jobs:
+  s1:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Zavislosti
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - name: Stav
+        id: st
+        run: |
+          mkdir -p out
+          if [ -f out/${{ inputs.name }}.json ]; then echo "done=1" >> "$GITHUB_OUTPUT"; else echo "done=0" >> "$GITHUB_OUTPUT"; fi
+      - name: Cache korpusu
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: data/ts
+          key: ts-${{ inputs.max_chars }}-${{ hashFiles('tools/bitlm/prepare_tinystories.py') }}
+      - name: Korpus TinyStories
+        if: steps.st.outputs.done == '0' && steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p data/ts
+          curl -sL --retry 5 -o /tmp/train.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-train.txt
+          curl -sL --retry 5 -o /tmp/valid.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-valid.txt
+          python3 tools/bitlm/prepare_tinystories.py /tmp/train.txt /tmp/valid.txt -o data/ts/ts --max-chars ${{ inputs.max_chars }}
+          rm -f /tmp/train.txt
+      - name: Trenink (usek 1)
+        if: steps.st.outputs.done == '0'
+        run: |
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/train_big.py data/ts/ts.tok ${{ inputs.args }} \
+              --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s1
+          path: out/
+          retention-days: 30
+  s2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    needs: s1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Zavislosti
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s1
+          path: out/
+      - name: Stav
+        id: st
+        run: |
+          mkdir -p out
+          if [ -f out/${{ inputs.name }}.json ]; then echo "done=1" >> "$GITHUB_OUTPUT"; else echo "done=0" >> "$GITHUB_OUTPUT"; fi
+      - name: Cache korpusu
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: data/ts
+          key: ts-${{ inputs.max_chars }}-${{ hashFiles('tools/bitlm/prepare_tinystories.py') }}
+      - name: Korpus TinyStories
+        if: steps.st.outputs.done == '0' && steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p data/ts
+          curl -sL --retry 5 -o /tmp/train.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-train.txt
+          curl -sL --retry 5 -o /tmp/valid.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-valid.txt
+          python3 tools/bitlm/prepare_tinystories.py /tmp/train.txt /tmp/valid.txt -o data/ts/ts --max-chars ${{ inputs.max_chars }}
+          rm -f /tmp/train.txt
+      - name: Trenink (usek 2)
+        if: steps.st.outputs.done == '0'
+        run: |
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/train_big.py data/ts/ts.tok ${{ inputs.args }} \
+              --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s2
+          path: out/
+          retention-days: 30
+  s3:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    needs: s2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Zavislosti
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s2
+          path: out/
+      - name: Stav
+        id: st
+        run: |
+          mkdir -p out
+          if [ -f out/${{ inputs.name }}.json ]; then echo "done=1" >> "$GITHUB_OUTPUT"; else echo "done=0" >> "$GITHUB_OUTPUT"; fi
+      - name: Cache korpusu
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: data/ts
+          key: ts-${{ inputs.max_chars }}-${{ hashFiles('tools/bitlm/prepare_tinystories.py') }}
+      - name: Korpus TinyStories
+        if: steps.st.outputs.done == '0' && steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p data/ts
+          curl -sL --retry 5 -o /tmp/train.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-train.txt
+          curl -sL --retry 5 -o /tmp/valid.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-valid.txt
+          python3 tools/bitlm/prepare_tinystories.py /tmp/train.txt /tmp/valid.txt -o data/ts/ts --max-chars ${{ inputs.max_chars }}
+          rm -f /tmp/train.txt
+      - name: Trenink (usek 3)
+        if: steps.st.outputs.done == '0'
+        run: |
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/train_big.py data/ts/ts.tok ${{ inputs.args }} \
+              --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s3
+          path: out/
+          retention-days: 30
+  s4:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    needs: s3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Zavislosti
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s3
+          path: out/
+      - name: Stav
+        id: st
+        run: |
+          mkdir -p out
+          if [ -f out/${{ inputs.name }}.json ]; then echo "done=1" >> "$GITHUB_OUTPUT"; else echo "done=0" >> "$GITHUB_OUTPUT"; fi
+      - name: Cache korpusu
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: data/ts
+          key: ts-${{ inputs.max_chars }}-${{ hashFiles('tools/bitlm/prepare_tinystories.py') }}
+      - name: Korpus TinyStories
+        if: steps.st.outputs.done == '0' && steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p data/ts
+          curl -sL --retry 5 -o /tmp/train.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-train.txt
+          curl -sL --retry 5 -o /tmp/valid.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-valid.txt
+          python3 tools/bitlm/prepare_tinystories.py /tmp/train.txt /tmp/valid.txt -o data/ts/ts --max-chars ${{ inputs.max_chars }}
+          rm -f /tmp/train.txt
+      - name: Trenink (usek 4)
+        if: steps.st.outputs.done == '0'
+        run: |
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/train_big.py data/ts/ts.tok ${{ inputs.args }} \
+              --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s4
+          path: out/
+          retention-days: 30
+  s5:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    needs: s4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Zavislosti
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s4
+          path: out/
+      - name: Stav
+        id: st
+        run: |
+          mkdir -p out
+          if [ -f out/${{ inputs.name }}.json ]; then echo "done=1" >> "$GITHUB_OUTPUT"; else echo "done=0" >> "$GITHUB_OUTPUT"; fi
+      - name: Cache korpusu
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: data/ts
+          key: ts-${{ inputs.max_chars }}-${{ hashFiles('tools/bitlm/prepare_tinystories.py') }}
+      - name: Korpus TinyStories
+        if: steps.st.outputs.done == '0' && steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p data/ts
+          curl -sL --retry 5 -o /tmp/train.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-train.txt
+          curl -sL --retry 5 -o /tmp/valid.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-valid.txt
+          python3 tools/bitlm/prepare_tinystories.py /tmp/train.txt /tmp/valid.txt -o data/ts/ts --max-chars ${{ inputs.max_chars }}
+          rm -f /tmp/train.txt
+      - name: Trenink (usek 5)
+        if: steps.st.outputs.done == '0'
+        run: |
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/train_big.py data/ts/ts.tok ${{ inputs.args }} \
+              --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s5
+          path: out/
+          retention-days: 30
+  s6:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    needs: s5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Zavislosti
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s5
+          path: out/
+      - name: Stav
+        id: st
+        run: |
+          mkdir -p out
+          if [ -f out/${{ inputs.name }}.json ]; then echo "done=1" >> "$GITHUB_OUTPUT"; else echo "done=0" >> "$GITHUB_OUTPUT"; fi
+      - name: Cache korpusu
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: data/ts
+          key: ts-${{ inputs.max_chars }}-${{ hashFiles('tools/bitlm/prepare_tinystories.py') }}
+      - name: Korpus TinyStories
+        if: steps.st.outputs.done == '0' && steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p data/ts
+          curl -sL --retry 5 -o /tmp/train.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-train.txt
+          curl -sL --retry 5 -o /tmp/valid.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-valid.txt
+          python3 tools/bitlm/prepare_tinystories.py /tmp/train.txt /tmp/valid.txt -o data/ts/ts --max-chars ${{ inputs.max_chars }}
+          rm -f /tmp/train.txt
+      - name: Trenink (usek 6)
+        if: steps.st.outputs.done == '0'
+        run: |
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/train_big.py data/ts/ts.tok ${{ inputs.args }} \
+              --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s6
+          path: out/
+          retention-days: 30
+  s7:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    needs: s6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Zavislosti
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s6
+          path: out/
+      - name: Stav
+        id: st
+        run: |
+          mkdir -p out
+          if [ -f out/${{ inputs.name }}.json ]; then echo "done=1" >> "$GITHUB_OUTPUT"; else echo "done=0" >> "$GITHUB_OUTPUT"; fi
+      - name: Cache korpusu
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: data/ts
+          key: ts-${{ inputs.max_chars }}-${{ hashFiles('tools/bitlm/prepare_tinystories.py') }}
+      - name: Korpus TinyStories
+        if: steps.st.outputs.done == '0' && steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p data/ts
+          curl -sL --retry 5 -o /tmp/train.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-train.txt
+          curl -sL --retry 5 -o /tmp/valid.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-valid.txt
+          python3 tools/bitlm/prepare_tinystories.py /tmp/train.txt /tmp/valid.txt -o data/ts/ts --max-chars ${{ inputs.max_chars }}
+          rm -f /tmp/train.txt
+      - name: Trenink (usek 7)
+        if: steps.st.outputs.done == '0'
+        run: |
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/train_big.py data/ts/ts.tok ${{ inputs.args }} \
+              --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s7
+          path: out/
+          retention-days: 30
+  s8:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    needs: s7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Zavislosti
+        run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s7
+          path: out/
+      - name: Stav
+        id: st
+        run: |
+          mkdir -p out
+          if [ -f out/${{ inputs.name }}.json ]; then echo "done=1" >> "$GITHUB_OUTPUT"; else echo "done=0" >> "$GITHUB_OUTPUT"; fi
+      - name: Cache korpusu
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: data/ts
+          key: ts-${{ inputs.max_chars }}-${{ hashFiles('tools/bitlm/prepare_tinystories.py') }}
+      - name: Korpus TinyStories
+        if: steps.st.outputs.done == '0' && steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p data/ts
+          curl -sL --retry 5 -o /tmp/train.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-train.txt
+          curl -sL --retry 5 -o /tmp/valid.txt https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStoriesV2-GPT4-valid.txt
+          python3 tools/bitlm/prepare_tinystories.py /tmp/train.txt /tmp/valid.txt -o data/ts/ts --max-chars ${{ inputs.max_chars }}
+          rm -f /tmp/train.txt
+      - name: Trenink (usek 8)
+        if: steps.st.outputs.done == '0'
+        run: |
+          TORCH_THREADS=$(nproc) python3 tools/bitlm/train_big.py data/ts/ts.tok ${{ inputs.args }} \
+              --ckpt out/ckpt.pt --time-limit $TL --out out/${{ inputs.name }}.json 2>&1 | tee -a out/${{ inputs.name }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.name }}-s8
+          path: out/
+          retention-days: 30

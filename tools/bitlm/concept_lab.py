@@ -42,7 +42,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from transformer_baseline import VOCAB, V, evaluate, generate  # noqa: E402
+import transformer_baseline as tb  # noqa: E402
+from transformer_baseline import evaluate, generate  # noqa: E402
 
 BITLM_PARAMS = 4096 * 256 + 32 * 4096 + 32 * 16   # E=16, H=4096, 16 slotu: 1 180 160
 
@@ -343,7 +344,7 @@ class BitBlock(nn.Module):
 class BitGPT(nn.Module):
     def __init__(self, ctx, d, layers, heads, ff, mode):
         super().__init__()
-        self.tok = nn.Embedding(V, d)
+        self.tok = nn.Embedding(tb.V, d)
         self.pos = nn.Embedding(ctx, d)
         self.blocks = nn.ModuleList(BitBlock(d, heads, ff, mode) for _ in range(layers))
         self.ln_f = Norm(d)
@@ -371,9 +372,9 @@ class MLP1(nn.Module):
 
     def __init__(self, e=16, h=4096):
         super().__init__()
-        self.emb = nn.Embedding(V, e)
+        self.emb = nn.Embedding(tb.V, e)
         self.w1 = nn.Parameter(torch.randn(h, 16 * e) * 0.02)
-        self.w2 = nn.Parameter(torch.randn(V, h) * 0.02)
+        self.w2 = nn.Parameter(torch.randn(tb.V, h) * 0.02)
         self.logit_scale = nn.Parameter(torch.tensor(0.05))  # odpovida posunu s2 v HW
         self.ctx = 128
 
@@ -443,7 +444,7 @@ def main():
     CHIP, GQ, DWQ, ABITS, DWL = a.chip, a.gq, a.dwq, a.abits, a.dw_levels
     torch.manual_seed(a.seed)
     torch.set_num_threads(int(os.environ.get("TORCH_THREADS", "4")))
-    data = torch.tensor(list(open(a.corpus, "rb").read()), dtype=torch.long) & 31
+    data = tb.load_tokens(a.corpus)
     split = len(data) - a.val_len
     ctx = 128
     if a.model == "mlp1":
@@ -474,7 +475,7 @@ def main():
         else:
             x = torch.stack([data[i - ctx:i] for i in ix.tolist()])
             y = torch.stack([data[i - ctx + 1:i + 1] for i in ix.tolist()])
-            loss = F.cross_entropy(model(x).reshape(-1, V), y.reshape(-1))
+            loss = F.cross_entropy(model(x).reshape(-1, tb.V), y.reshape(-1))
             preds = step * a.batch * ctx
         opt.zero_grad(set_to_none=True)
         loss.backward()

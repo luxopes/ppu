@@ -16,3 +16,4 @@ tools/sim/bitlm/obj_*/
 data/*.tok
 # binarni vahy a snimky (velke; vznikaji treninkem, v CI jako artefakty)
 results/**/*.bin
+data/ts/

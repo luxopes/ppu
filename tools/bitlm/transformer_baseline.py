@@ -17,6 +17,7 @@ import argparse
 import copy
 import json
 import math
+import os
 import time
 
 import torch
@@ -25,6 +26,25 @@ import torch.nn.functional as F
 
 VOCAB = " abcdefghijklmnopqrstuvwxyz.,?!-"
 V = 32
+
+
+def load_vocab(corpus):
+    """Pokud vedle korpusu lezi <korpus bez .tok>.vocab.json (napr. prepare_tinystories.py), nastavi V a
+    VOCAB (seznam retezcu tokenu). Jinak zustava puvodni slovnik 32 znaku. Vraci V."""
+    import json
+    global V, VOCAB
+    path = corpus[:-4] + ".vocab.json" if corpus.endswith(".tok") else corpus + ".vocab.json"
+    if os.path.exists(path):
+        v = json.load(open(path))
+        V, VOCAB = v["V"], v["tokens"]
+    return V
+
+
+def load_tokens(corpus):
+    """Korpus jako tensor tokenu (1 bajt na token); stary slovnik 32 znaku maskuje & 31."""
+    raw = open(corpus, "rb").read()
+    data = torch.frombuffer(bytearray(raw), dtype=torch.uint8).long()
+    return data & 31 if load_vocab(corpus) == 32 else data
 
 
 class Block(nn.Module):
@@ -131,7 +151,7 @@ def main():
 
     torch.manual_seed(a.seed)
     torch.set_num_threads(int(__import__('os').environ.get('TORCH_THREADS', '6')))
-    data = torch.tensor(list(open(a.corpus, "rb").read()), dtype=torch.long) & 31
+    data = load_tokens(a.corpus)
     split = len(data) - a.val_len if a.val_len else len(data) * 9 // 10
     bitlm_params = a.bitlm_params
 
