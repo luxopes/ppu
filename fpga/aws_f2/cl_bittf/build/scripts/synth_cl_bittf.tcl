@@ -34,8 +34,23 @@ read_verilog -sv [glob ${src_post_enc_dir}/*.{s,}v]
 
 ###############################################################################
 print "Reading CL IP blocks"
-# radic DDR (64 GB DIMM, bez auto-precharge) pro sh_ddr
-read_ip [ list ${HDK_IP_SRC_DIR}/cl_ddr4/cl_ddr4.xci ]
+# sh_ddr uvnitr pouziva AXI register slice / clock converter IP (bez nich elaborace sh_ddr spadne
+# s "Error generated from encrypted envelope"; sablona CL_TEMPLATE je nenacita)
+read_ip [ list \
+  ${HDK_IP_SRC_DIR}/axi_register_slice/axi_register_slice.xci \
+  ${HDK_IP_SRC_DIR}/axi_register_slice_light/axi_register_slice_light.xci \
+  ${HDK_IP_SRC_DIR}/cl_axi_register_slice_light/cl_axi_register_slice_light.xci \
+  ${HDK_IP_SRC_DIR}/cl_axi3_256b_reg_slice/cl_axi3_256b_reg_slice.xci \
+  ${HDK_IP_SRC_DIR}/cl_axi_clock_converter/cl_axi_clock_converter.xci \
+  ${HDK_IP_SRC_DIR}/cl_axi_clock_converter_light/cl_axi_clock_converter_light.xci
+]
+# radice DDR pro sh_ddr: jako cl_mem_perf nacist vsechny varianty, sh_ddr si vybere (vychozi cl_ddr4, 64 GB)
+read_ip [ list \
+  ${HDK_IP_SRC_DIR}/cl_ddr4_32g/cl_ddr4_32g.xci \
+  ${HDK_IP_SRC_DIR}/cl_ddr4_32g_ap/cl_ddr4_32g_ap.xci \
+  ${HDK_IP_SRC_DIR}/cl_ddr4/cl_ddr4.xci \
+  ${HDK_IP_SRC_DIR}/cl_ddr4_64g_ap/cl_ddr4_64g_ap.xci
+]
 ###############################################################################
 
 #---- User would uncomment and/or list IPs required in their design ----
