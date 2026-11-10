@@ -112,6 +112,14 @@ def main():
         opt.zero_grad()
         loss.backward()
         opt.step()
+        if time.time() - t0 > a.time_limit and step < a.steps and step % a.eval_every != 0:
+            # limit hlidany kazdy krok (u velkych modelu trva interval evaluace i hodinu)
+            now = time.time()
+            train_s += now - t_seg
+            t_seg = now
+            save(step)
+            print(f"casovy limit useku, checkpoint v kroku {step}", flush=True)
+            return
         if step % a.eval_every == 0 or step == a.steps:
             now = time.time()
             train_s += now - t_seg

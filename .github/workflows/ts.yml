@@ -13,6 +13,12 @@ on:
         default: "--d 384 --layers 8 --heads 8 --ff 1536 --steps 30000 --eval-every 1000"
       max_chars:
         default: "600000000"
+      resume_run:
+        description: "navazat: ID behu, jehoz artefakt obsahuje checkpoint (prazdne = od zacatku)"
+        default: ""
+      resume_artifact:
+        description: "navazat: nazev artefaktu (napr. ts14-s1)"
+        default: ""
 
 env:
   TL: "18400"
@@ -28,6 +34,13 @@ jobs:
           python-version: "3.12"
       - name: Zavislosti
         run: pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+      - uses: actions/download-artifact@v4
+        if: inputs.resume_run != ''
+        with:
+          name: ${{ inputs.resume_artifact }}
+          path: out/
+          run-id: ${{ inputs.resume_run }}
+          github-token: ${{ github.token }}
       - name: Stav
         id: st
         run: |
