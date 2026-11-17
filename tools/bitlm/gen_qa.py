@@ -179,13 +179,17 @@ def clean(a):
             continue
         q = lines[0].lower()
         seen[q] = seen.get(q, 0) + 1
-        if seen[q] > 3:
+        if seen[q] > a.max_dup:
             rej["dup"] += 1
             continue
         keep.append("\n".join(lines))
-    with open(a.out, "w") as f:
-        for k in keep:
-            f.write(k + "\n<|endoftext|>\n")
+    random.Random(0).shuffle(keep)
+    va, tr = keep[:a.val], keep[a.val:]
+    base = a.out[:-4] if a.out.endswith(".txt") else a.out
+    for path, part in ((a.out, tr), (base + "_val.txt", va)):
+        with open(path, "w") as f:
+            for k in part:
+                f.write(k + "\n<|endoftext|>\n")
     print(f"ponechano {len(keep)}, vyrazeno {rej}", file=sys.stderr)
 
 
@@ -200,6 +204,8 @@ def main():
     ap.add_argument("--temp", type=float, default=0.9)
     ap.add_argument("--workers", type=int, default=128)
     ap.add_argument("--clean")
+    ap.add_argument("--max-dup", type=int, default=5, help="max. rozhovoru se stejnou prvni otazkou")
+    ap.add_argument("--val", type=int, default=1000, help="pocet rozhovoru do <out>_val (posledni)")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     clean(a) if a.clean else generate(a)

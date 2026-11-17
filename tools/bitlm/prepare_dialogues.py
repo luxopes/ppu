@@ -59,6 +59,10 @@ def main():
     ap.add_argument("-o", "--out", required=True)
     ap.add_argument("--ts-tokens", type=int, default=30_000_000)
     ap.add_argument("--user-assistant", action="store_true")
+    ap.add_argument("--extra", default=None, help="dalsi trenovaci text (napr. QA z gen_qa.py), bez prevodu")
+    ap.add_argument("--extra-val", default=None, help="validace z --extra misto validace dialogu")
+    ap.add_argument("--extra-repeat", type=int, default=1, help="kolikrat --extra zopakovat")
+    ap.add_argument("--max-train-tokens", type=int, default=0, help="omezit tokeny z hlavnich dialogu (0 = vse)")
     ap.add_argument("--val-tokens", type=int, default=40_000, help="priblizna velikost validace")
     a = ap.parse_args()
 
@@ -84,9 +88,19 @@ def main():
     for s in dialogues(a.train, a.user_assistant):
         enc(s, out)
         n_tr += 1
+        if a.max_train_tokens and len(out) - n_ts >= a.max_train_tokens:
+            break
+    n_main = len(out) - n_ts
+    if a.extra:
+        ex = list(dialogues(a.extra))
+        for _ in range(a.extra_repeat):
+            for s in ex:
+                enc(s, out)
+        print(f"extra {len(ex)} rozhovoru x{a.extra_repeat} ({len(out) - n_ts - n_main} tokenu)")
     tr_tok = len(out)
     n_va = 0
-    for s in dialogues(a.val, a.user_assistant):
+    val_src = a.extra_val or a.val
+    for s in dialogues(val_src, a.user_assistant and not a.extra_val):
         enc(s, out)
         n_va += 1
         if len(out) - tr_tok >= a.val_tokens:
