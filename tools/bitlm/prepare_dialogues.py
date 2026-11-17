@@ -7,6 +7,9 @@ Slovnik a spojeni se prevezmou z predtrenovaneho modelu (<ts>.vocab.json), aby t
 Vystup: <out>.tok = [TinyStories (prvnich --ts-tokens z <ts>.tok)][TinyDialogues train][validace TinyDialogues]
         <out>.vocab.json (stejny slovnik, val_tokens = delka validace)
 
+--user-assistant: jen dialogy dvou mluvcich (Child + jeden dalsi), Child -> User, druhy -> Assistant,
+bez scenickych poznamek "(...)" u jmena a bez dialogu oslovujicich rodice (Mom/Dad...).
+
 Pouziti: prepare_dialogues.py data/ts/ts td_train.txt td_val.txt -o data/td/td --ts-tokens 30000000
 """
 import argparse
@@ -19,9 +22,27 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import prepare_tinystories as pt  # noqa: E402
 
 
-def dialogues(path):
+PARENT = re.compile(r"\b(Mom|Mommy|Mama|Mum|Dad|Daddy|Papa)\b")
+
+
+def to_user_assistant(raw):
+    sp = set(re.findall(r"\*\*([^*\n]+)\*\*", raw))
+    if len(sp) != 2 or "Child" not in sp:
+        return None
+    other = (sp - {"Child"}).pop()
+    if PARENT.search(re.sub(r"\*\*[^*\n]+\*\*", "", raw)):
+        return None
+    raw = re.sub(r"\*\*([^*\n]+)\*\*\s*\([^)\n]*\)", r"**\1**", raw)   # scenicke poznamky u jmena
+    return raw.replace("**Child**", "**User**").replace(f"**{other}**", "**Assistant**")
+
+
+def dialogues(path, user_assistant=False):
     with open(path, encoding="utf-8", errors="ignore") as f:
         for raw in f.read().split("<|endoftext|>"):
+            if user_assistant:
+                raw = to_user_assistant(raw)
+                if raw is None:
+                    continue
             s = raw.replace("\\n", "\n")
             s = re.sub(r"\*\*([^*\n]+)\*\*", r"\1", s)        # **Mom**: -> Mom:
             s = re.sub(r"[ \t]*\n[ \t\n]*", "\n", s)            # jedna replika = jeden radek
@@ -37,6 +58,7 @@ def main():
     ap.add_argument("val")
     ap.add_argument("-o", "--out", required=True)
     ap.add_argument("--ts-tokens", type=int, default=30_000_000)
+    ap.add_argument("--user-assistant", action="store_true")
     ap.add_argument("--val-tokens", type=int, default=40_000, help="priblizna velikost validace")
     a = ap.parse_args()
 
@@ -59,12 +81,12 @@ def main():
     out.extend(ts[:cut])
     n_ts = len(out)
     n_tr = 0
-    for s in dialogues(a.train):
+    for s in dialogues(a.train, a.user_assistant):
         enc(s, out)
         n_tr += 1
     tr_tok = len(out)
     n_va = 0
-    for s in dialogues(a.val):
+    for s in dialogues(a.val, a.user_assistant):
         enc(s, out)
         n_va += 1
         if len(out) - tr_tok >= a.val_tokens:
