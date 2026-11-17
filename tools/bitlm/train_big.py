@@ -65,7 +65,13 @@ def main():
     ap.add_argument("--ckpt", required=True)
     ap.add_argument("--time-limit", type=float, default=1e12, help="sekund, pak ulozit checkpoint a skoncit")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--ctx", type=int, default=128, help="delka kontextu")
+    ap.add_argument("--init", default="", help="vahy (*_model.pt) jako start (SFT); kratsi pos se interpoluji na --ctx")
+    ap.add_argument("--eval-stride", type=int, default=4, help="prubezna evaluace na kazde n-te pozici validace")
+    ap.add_argument("--final-stride", type=int, default=1, help="finalni evaluace na kazde n-te pozici (1 = uplna)")
     a = ap.parse_args()
+    global CTX
+    CTX = a.ctx
 
     cl.CHIP, cl.GQ = True, a.gq
     torch.manual_seed(a.seed)
@@ -83,6 +89,15 @@ def main():
     print(f"model d={a.d} vrstev={a.layers} hlav={a.heads} ff={a.ff}: {n_params} parametru; "
           f"korpus {len(data)} tokenu (trenink {split}); lion lr_shift {a.lr_shift} mbits {a.mbits} gq {a.gq}",
           flush=True)
+
+    if a.init and not os.path.exists(a.ckpt):
+        sd = torch.load(a.init, weights_only=False, map_location="cpu")
+        if sd["pos.weight"].shape[0] != CTX:   # prodlouzeni kontextu: linearni interpolace pozic
+            pw = sd["pos.weight"].T.unsqueeze(0)
+            sd["pos.weight"] = F.interpolate(pw, size=CTX, mode="linear", align_corners=True)[0].T.contiguous()
+        model.load_state_dict(sd)
+        opt = cl.ChipOpt(model, "lion", a.lr_shift, mbits=a.mbits)   # kvantizace stinu z nactenych vah
+        print(f"start z vah {a.init}", flush=True)
 
     start, log, best, train_s = 1, [], None, 0.0
     if os.path.exists(a.ckpt):
@@ -124,7 +139,7 @@ def main():
             now = time.time()
             train_s += now - t_seg
             t_seg = now
-            ce, acc = cl.evaluate_stride(model, data, split, CTX, 4)
+            ce, acc = cl.evaluate_stride(model, data, split, CTX, a.eval_stride, bs=max(16, 512 * 128 // CTX))
             tok = step * a.batch * CTX
             log.append({"step": step, "tokens": tok, "train_loss_bits": loss.item() / math.log(2),
                         "val_ce_bits": ce, "val_acc": acc, "hours": train_s / 3600})
@@ -141,7 +156,10 @@ def main():
     if step < a.steps:
         return
     model.load_state_dict(best[2])
-    ce, acc = evaluate(model, data, split, CTX, bs=256)
+    if a.final_stride > 1:
+        ce, acc = cl.evaluate_stride(model, data, split, CTX, a.final_stride, bs=max(16, 512 * 128 // CTX))
+    else:
+        ce, acc = evaluate(model, data, split, CTX, bs=max(16, 256 * 128 // CTX))
     g = torch.Generator().manual_seed(7)
     # prompt: konec treninkove casti (u TinyStories konci povidkou), model zacne novou povidku
     prompt = data[split - CTX:split].tolist()
