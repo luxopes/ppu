@@ -102,8 +102,8 @@ def main():
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--prompt", default=None)
     ap.add_argument("--chat", action="store_true", help="rozhovor (model po SFT na dialozich)")
-    ap.add_argument("--me", default="Child", help="za koho pise uzivatel")
-    ap.add_argument("--bot", default="Mom", help="za koho odpovida model")
+    ap.add_argument("--me", default=None, help="za koho pise uzivatel (vychozi Child, u modelu ua* User)")
+    ap.add_argument("--bot", default=None, help="za koho odpovida model (vychozi Mom, u modelu ua* Assistant)")
     a = ap.parse_args()
 
     torch.set_num_threads(int(os.environ.get("TORCH_THREADS", "4")))
@@ -111,6 +111,9 @@ def main():
     gen = torch.Generator()
     gen.manual_seed(a.seed if a.seed is not None else int.from_bytes(os.urandom(4), "little"))
     if a.chat:
+        ua = os.path.basename(a.model).startswith("ua")
+        a.me = a.me or ("User" if ua else "Child")
+        a.bot = a.bot or ("Assistant" if ua else "Mom")
         chat(model, rank, ctx, a.me, a.bot, a.len, a.temp, gen)
         return
     if a.prompt is not None:
