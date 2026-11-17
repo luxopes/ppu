@@ -99,9 +99,87 @@ def make_task(i, words, seed):
                                     wordline=(f'If it fits naturally, use the word "{word}".\n' if use_word else ""))}
 
 
-def call(url, key, model, prompt, temp):
+# --- styl "adult": klasicky asistent (dospely uzivatel, bezne dotazy), stale jednoducha anglictina ---
+TOPICS_A = {
+    "everyday life": ["sleeping better", "waking up early", "cleaning the house", "doing laundry", "shopping for food",
+                      "saving money", "planning a day", "being on time", "moving to a new home", "taking care of plants",
+                      "fixing small things at home", "getting ready for winter", "packing for a trip"],
+    "food and cooking": ["boiling eggs", "making pancakes", "cooking rice", "making a salad", "baking bread",
+                         "making soup", "healthy breakfast", "storing fruit", "making tea", "making coffee",
+                         "cooking pasta", "a simple dinner idea", "what to eat after sport"],
+    "health": ["drinking enough water", "a cold", "headaches", "walking every day", "stretching", "stress",
+               "eating vegetables", "washing hands", "sunburn", "staying healthy in winter", "resting after work"],
+    "science": ["why the sky is blue", "how plants grow", "gravity", "magnets", "electricity", "the water cycle",
+                "why ice floats", "how rainbows form", "the moon", "the sun", "thunder and lightning", "volcanoes",
+                "how the heart works", "why leaves change color", "how sound travels", "what air is made of"],
+    "geography": ["the biggest ocean", "continents", "mountains", "deserts", "rivers", "the capital of France",
+                  "the capital of Japan", "the capital of Italy", "the North Pole", "rain forests", "islands",
+                  "the tallest mountain", "the longest river"],
+    "animals": ["dogs", "cats", "elephants", "whales", "bees", "owls", "penguins", "sharks", "horses", "ants",
+                "how birds fly", "why cats purr", "what pandas eat", "how fish breathe", "animals in winter"],
+    "technology": ["the internet", "email", "a good password", "phones", "computers", "charging a phone",
+                   "taking photos", "a slow computer", "what a website is", "staying safe online"],
+    "words and language": ["the meaning of a word", "a word that means happy", "the opposite of a word",
+                           "spelling a word", "learning a new language", "writing neatly", "reading more books"],
+    "math": ["adding two numbers", "counting money", "half of a number", "how many days are in a week",
+             "how many minutes are in an hour", "even and odd numbers", "simple shapes", "telling time"],
+    "writing help": ["a short birthday message", "a thank you note", "a short poem about the sea",
+                     "a short poem about the moon", "a tiny story about a cat", "a funny joke", "a name for a dog",
+                     "a short message to a friend", "a good title for a story", "a kind message for a sick friend"],
+    "advice": ["making new friends", "being nervous before a test", "a job interview", "learning faster",
+               "staying calm", "saying sorry", "being kind to people", "starting a new hobby", "getting motivated",
+               "feeling lonely", "talking to a neighbor"],
+    "hobbies": ["gardening", "learning to draw", "playing guitar", "running", "swimming", "chess", "reading",
+                "taking walks", "riding a bike", "camping", "fishing", "painting"],
+    "small talk": ["saying hello", "asking how the assistant is", "asking who the assistant is",
+                   "asking what the assistant can do", "saying thank you", "saying good morning",
+                   "saying good night", "talking about the weather", "having a good day", "telling a joke"],
+}
+
+QTYPES_A = [
+    ("fact", "The user asks a simple factual question about {t}."),
+    ("how", "The user asks how to do something related to {t}."),
+    ("why", "The user asks why something is the way it is, about {t}."),
+    ("explain", "The user asks the assistant to explain {t} in simple words."),
+    ("advice", "The user asks for advice or tips about {t}."),
+    ("request", "The user asks the assistant to write or make something about {t}."),
+    ("chat", "The user starts a friendly chat about {t}."),
+    ("compare", "The user asks about the difference between two things related to {t}."),
+]
+
+SYSTEM_A = ("You write training data for a small language model. It knows only simple, everyday English. "
+            "You follow the format exactly and output nothing else.")
+
+PROMPT_A = """Write a short conversation between a user (User) and a helpful assistant (Assistant).
+Topic: {topic}.
+{qtype}
+It has {turns}.
+
+Rules:
+- The user writes like a normal adult asking a chat assistant a real, sensible question.
+- Use simple, common English words and short sentences. No hard or technical words.
+- The Assistant is correct, clear and friendly. Each answer is 1 to 4 short sentences, all on one line.
+- Facts must be true. If the user asks something the assistant cannot know, it says so kindly.
+- If asked who it is, the Assistant says it is a helpful assistant that can answer questions and help with ideas. Do not mention AI, computers or programs.
+- Plain text only: no emojis, no lists, no bullet points, no bold, no headings, no line breaks inside an answer.
+- Every line starts with "User: " or "Assistant: ". The User speaks first."""
+
+
+def make_task_adult(i, words, seed):
+    r = random.Random(seed * 1_000_003 + i)
+    cat = r.choice(list(TOPICS_A))
+    topic = r.choice(TOPICS_A[cat])
+    qk, qt = ("chat", "The user greets the assistant or makes small talk about {t}.") if cat == "small talk" \
+        else r.choice(QTYPES_A)
+    turns = r.choices(["one question and one answer", "two exchanges (the user asks a follow-up question)",
+                       "three exchanges (the user asks follow-up questions)"], weights=[4, 4, 2])[0]
+    return {"id": i, "topic": topic, "qtype": qk, "turns": turns,
+            "prompt": PROMPT_A.format(topic=topic, qtype=qt.format(t=topic), turns=turns)}
+
+
+def call(url, key, model, prompt, temp, system=SYSTEM):
     body = json.dumps({"model": model, "temperature": temp, "top_p": 0.95, "max_tokens": 450,
-                       "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}]})
+                       "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}]})
     req = urllib.request.Request(url + "/v1/chat/completions", data=body.encode(),
                                  headers={"Content-Type": "application/json", "Authorization": "Bearer " + key,
                                           "User-Agent": "ppu-gen-qa/1.0"})
@@ -118,7 +196,7 @@ def call(url, key, model, prompt, temp):
 
 def generate(a):
     key = open(a.key_file).read().strip()
-    words = [w.strip() for w in open(a.words) if w.strip()]
+    words = [w.strip() for w in open(a.words) if w.strip()] if a.words else []
     done = set()
     if os.path.exists(a.out):
         for line in open(a.out):
@@ -133,8 +211,12 @@ def generate(a):
     stats = {"n": 0, "tok": 0, "t0": time.time()}
 
     def job(i):
-        t = make_task(i, words, a.seed)
-        text, ntok = call(a.url, key, a.model, t["prompt"], a.temp)
+        if a.style == "adult":
+            t = make_task_adult(i, words, a.seed)
+            text, ntok = call(a.url, key, a.model, t["prompt"], a.temp, SYSTEM_A)
+        else:
+            t = make_task(i, words, a.seed)
+            text, ntok = call(a.url, key, a.model, t["prompt"], a.temp)
         rec = {k: v for k, v in t.items() if k != "prompt"}
         rec["text"] = text
         with lock:
@@ -204,6 +286,7 @@ def main():
     ap.add_argument("--temp", type=float, default=0.9)
     ap.add_argument("--workers", type=int, default=128)
     ap.add_argument("--clean")
+    ap.add_argument("--style", default="child", choices=["child", "adult"])
     ap.add_argument("--max-dup", type=int, default=5, help="max. rozhovoru se stejnou prvni otazkou")
     ap.add_argument("--val", type=int, default=1000, help="pocet rozhovoru do <out>_val (posledni)")
     ap.add_argument("--out", required=True)
