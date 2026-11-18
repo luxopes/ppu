@@ -311,6 +311,9 @@ def generate(a):
 
 LINE = re.compile(r"^(User|Assistant): (\S.*)$")
 BAD = re.compile(r"\b(AI|artificial|language model|chatbot|computer program|I'm just|as an assistant)\b", re.I)
+SENSITIVE = re.compile(r"\b(sex\w*|STDs?|condoms?|drugs?|cocaine|heroin|marijuana|weed|alcohol\w*|beer|wine|vodka|drunk|"
+                       r"guns?|rifles?|weapons?|bombs?|kill\w*|suicide|murder\w*|terror\w*|porn\w*|nude|naked|"
+                       r"gambl\w*|casino|religio\w*|politic\w*|elections?|abortion|racis\w*)\b", re.I)
 
 
 def clean(a):
@@ -329,7 +332,7 @@ def clean(a):
         if any(ord(c) > 126 or ord(c) < 32 for c in "".join(lines)):
             rej["ascii"] += 1
             continue
-        if BAD.search(t) or any(len(x) > 700 for x in lines):
+        if BAD.search(t) or SENSITIVE.search(t) or any(len(x) > 700 for x in lines):
             rej["bad"] += 1
             continue
         q = lines[0].lower()
