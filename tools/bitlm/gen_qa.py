@@ -177,6 +177,74 @@ def make_task_adult(i, words, seed):
             "prompt": PROMPT_A.format(topic=topic, qtype=qt.format(t=topic), turns=turns)}
 
 
+# --- styl "adult2": tisice temat (seznam vytvori LLM pres --make-subjects), persona uzivatele, pozdravy ---
+CATEGORIES = [
+    "computers and software", "the internet and websites", "phones and apps", "operating systems like Linux and Windows",
+    "programming basics", "computer parts", "online safety", "gadgets and electronics", "science basics", "physics in daily life",
+    "chemistry in the kitchen", "biology and living things", "the human body", "health and medicine basics", "food and nutrition",
+    "cooking and recipes", "baking", "drinks", "space and planets", "weather and climate", "earth and nature", "oceans and rivers",
+    "plants and gardening", "pets", "wild animals", "insects", "birds", "world geography", "countries and cities", "famous landmarks",
+    "history basics", "inventions and inventors", "famous people from history", "money and saving", "shopping", "jobs and work",
+    "school and learning", "studying tips", "english words and grammar", "learning languages", "math ideas", "measurements and units",
+    "time and calendars", "sports", "games and puzzles", "music and instruments", "art and drawing", "books and reading", "movies and tv",
+    "travel and holidays", "cars and driving", "trains, planes and boats", "home and cleaning", "fixing things at home", "tools",
+    "clothes and fashion", "sleep and rest", "exercise and fitness", "feelings and emotions", "friends and family", "manners and etiquette",
+    "celebrations and holidays", "hobbies", "energy and electricity", "recycling and the environment", "jobs people do", "the city and town",
+    "farms and farming", "safety and first aid", "materials like wood, metal and plastic", "colors, shapes and patterns", "music styles",
+]
+
+PERSONAS = ["a student", "a parent", "an older person", "a teenager", "a busy office worker", "a curious adult", "a home cook",
+            "a traveler", "someone learning English", "a new computer user", "a teacher", "a retired person", "a young adult"]
+
+QTYPES_A2 = [
+    ("what", "The user asks what {t} is or what it means."),
+    ("how", "The user asks how to do something with {t}, or how {t} works."),
+    ("why", "The user asks why something about {t} is true."),
+    ("fact", "The user asks a simple factual question about {t}."),
+    ("advice", "The user asks for simple advice or tips about {t}."),
+    ("compare", "The user asks about the difference between {t} and a similar thing."),
+    ("request", "The user asks the assistant to write something short related to {t}, like a short note, a few ideas or a tiny story."),
+    ("explain", "The user asks the assistant to explain {t} in very simple words."),
+]
+
+SUBJECT_PROMPT = """List 40 different, specific things that people often ask a helpful assistant about in the area: {cat}.
+Each item is a short noun phrase of 1 to 5 words (for example: "Linux", "a Wi-Fi router", "why bread rises").
+Make them varied, from very common to a bit less common. One item per line, no numbers, no extra text."""
+
+
+def make_subjects(a):
+    key = open(a.key_file).read().strip()
+    subs = set()
+
+    def job(k):
+        cat = CATEGORIES[k % len(CATEGORIES)]
+        text, _ = call(a.url, key, a.model, SUBJECT_PROMPT.format(cat=cat), 1.0, SYSTEM_A)
+        return cat, [x.strip(" -*0123456789.\t").strip() for x in text.split("\n")]
+
+    with cf.ThreadPoolExecutor(64) as ex:
+        for cat, items in ex.map(job, range(len(CATEGORIES) * 4)):
+            for x in items:
+                if 2 <= len(x) <= 40 and all(32 <= ord(c) < 127 for c in x):
+                    subs.add((cat, x))
+    with open(a.out, "w") as f:
+        for cat, x in sorted(subs):
+            f.write(f"{cat}\t{x}\n")
+    print(f"temat {len(subs)}", file=sys.stderr)
+
+
+def make_task_adult2(i, subjects, seed):
+    r = random.Random(seed * 1_000_003 + i)
+    cat, topic = r.choice(subjects)
+    qk, qt = r.choice(QTYPES_A2)
+    turns = r.choices(["one question and one answer", "two exchanges (the user asks a follow-up question)",
+                       "three exchanges (the user asks follow-up questions)"], weights=[4, 4, 2])[0]
+    extra = f"The user is {r.choice(PERSONAS)}."
+    if r.random() < 0.2:
+        extra += ' The user starts with a short greeting (like "Hi!" or "Hello,") before the question, on the same line.'
+    prompt = PROMPT_A.format(topic=f"{topic} ({cat})", qtype=qt.format(t=topic) + "\n" + extra, turns=turns)
+    return {"id": i, "topic": topic, "cat": cat, "qtype": qk, "turns": turns, "prompt": prompt}
+
+
 def call(url, key, model, prompt, temp, system=SYSTEM):
     body = json.dumps({"model": model, "temperature": temp, "top_p": 0.95, "max_tokens": 450,
                        "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}]})
@@ -197,6 +265,8 @@ def call(url, key, model, prompt, temp, system=SYSTEM):
 def generate(a):
     key = open(a.key_file).read().strip()
     words = [w.strip() for w in open(a.words) if w.strip()] if a.words else []
+    if a.style == "adult2":
+        words = [tuple(w.split("\t", 1)) for w in words]
     done = set()
     if os.path.exists(a.out):
         for line in open(a.out):
@@ -211,7 +281,10 @@ def generate(a):
     stats = {"n": 0, "tok": 0, "t0": time.time()}
 
     def job(i):
-        if a.style == "adult":
+        if a.style == "adult2":
+            t = make_task_adult2(i, words, a.seed)
+            text, ntok = call(a.url, key, a.model, t["prompt"], a.temp, SYSTEM_A)
+        elif a.style == "adult":
             t = make_task_adult(i, words, a.seed)
             text, ntok = call(a.url, key, a.model, t["prompt"], a.temp, SYSTEM_A)
         else:
@@ -286,12 +359,18 @@ def main():
     ap.add_argument("--temp", type=float, default=0.9)
     ap.add_argument("--workers", type=int, default=128)
     ap.add_argument("--clean")
-    ap.add_argument("--style", default="child", choices=["child", "adult"])
+    ap.add_argument("--make-subjects", action="store_true", help="vytvorit seznam temat (kategorie\ttema) do --out")
+    ap.add_argument("--style", default="child", choices=["child", "adult", "adult2"])
     ap.add_argument("--max-dup", type=int, default=5, help="max. rozhovoru se stejnou prvni otazkou")
     ap.add_argument("--val", type=int, default=1000, help="pocet rozhovoru do <out>_val (posledni)")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
-    clean(a) if a.clean else generate(a)
+    if a.make_subjects:
+        make_subjects(a)
+    elif a.clean:
+        clean(a)
+    else:
+        generate(a)
 
 
 if __name__ == "__main__":
