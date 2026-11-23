@@ -3,11 +3,15 @@
 //  - registry R v jednoportove SRAM (bittf_rf -> makro 64x64), cteni rs1/rs2/rs3 po nacteni instrukce,
 //  - zadne kombinacni nasobicky: jedna postupna bittf_mulseq pro ALU, RED, MM, gather i fmix32
 //    (nahodna cisla se pocitaji postupne jen pro instrukce, ktere je pouzivaji),
-//  - kroky adres se ctou primo z instrukce, offsety 32 bitu (adresa ma 32 bitu).
+//  - kroky adres se ctou primo z instrukce, adresy AW bitu (24 = 16 MiB externi PSRAM), citace CW bitu;
+//    pro programy, ktere se vejdou pod 2^AW, je vysledek shodny s 32bitovou ISA.
 //
 // Pametovy port: pozadavek valid/ready (cteni nebo zapis prvku sirky 2^lw B), odpovedi na cteni
 // v poradi pozadavku (data v dolnich bitech, bez rozsireni znamenka).
-module bittf_mini (
+module bittf_mini #(
+    parameter AW = 24,      // sirka adresy (16 MiB); programy musi lezet pod 2^AW
+    parameter CW = 24       // sirka citacu smycek (pocty prvku < 2^CW)
+) (
     input  wire        clk,
     input  wire        rst,
     // rizeni
@@ -51,7 +55,7 @@ module bittf_mini (
     assign busy = st != S_IDLE;
 
     reg [31:0] ir [0:47];
-    reg [31:0] pc, base;
+    reg [AW-1:0] pc, base;
     // registrova sada v SRAM: zapis odlozeny o takt (wr_*), cteni jen ve stavu S_RR
     reg        wr_pend;
     reg [5:0]  wr_addr, rrc;
@@ -110,9 +114,9 @@ module bittf_mini (
 
     // ------------------------------------------------------------ smycky a adresy
     // uroven 0 nejvnitrnejsi; MM: (k, i0, i1, i2)
-    reg [31:0] cnt [0:3];
-    reg [31:0] idx [0:3];
-    reg [31:0] flat, fh;                // fh = flat * 0x9E3779B1 (prubezne)
+    reg [CW-1:0] cnt [0:3];
+    reg [CW-1:0] idx [0:3];
+    reg [31:0] fh;                      // fh = (poradi prvku) * 0x9E3779B1 (prubezne)
     // krok operandu x (0..3 = D A B C, 4 = gather G) na urovni k, primo z instrukce
     function [31:0] stvf(input integer x, input integer k);
         begin
@@ -138,11 +142,11 @@ module bittf_mini (
             default: stva = stvf(x, 3);
         endcase
     endfunction
-    reg [31:0] off [0:4][0:3];          // offsety operandu na urovnich
+    reg [AW-1:0] off [0:4][0:3];        // offsety operandu na urovnich
     integer x, k;
 
     // uroven, ktera se zvysi (4 = konec); idx+1 sdilene s posunem smycky
-    wire [31:0] idx1_0 = idx[0] + 32'd1, idx1_1 = idx[1] + 32'd1, idx1_2 = idx[2] + 32'd1, idx1_3 = idx[3] + 32'd1;
+    wire [CW-1:0] idx1_0 = idx[0] + 1'b1, idx1_1 = idx[1] + 1'b1, idx1_2 = idx[2] + 1'b1, idx1_3 = idx[3] + 1'b1;
     reg [2:0] adv;
     always @(*) begin
         if (idx1_0 < cnt[0]) adv = 3'd0;
@@ -199,7 +203,7 @@ module bittf_mini (
     // jedna adresni jednotka: operand au_x (0..3 = D A B C, 4 = index gatheru), au_g = gather k offsetu
     reg  [2:0]  au_x;
     reg         au_gz;                  // gather vynulovat (zapis radku RED/MM)
-    reg  [31:0] au_base, au_off;
+    reg  [AW-1:0] au_base, au_off;
     reg  [1:0]  au_lw;
     reg         au_gath;
     always @(*) begin
@@ -215,8 +219,8 @@ module bittf_mini (
             default: begin au_base = ir[29]; au_off = off[4][0]; au_lw = glw; au_gath = 1'b0; end
         endcase
     end
-    wire [31:0] au_e = au_off + ((au_gath && !au_gz) ? gterm[31:0] : 32'd0);
-    wire [31:0] au_addr = au_base + (au_e << au_lw);
+    wire [AW-1:0] au_e = au_off + ((au_gath && !au_gz) ? gterm[AW-1:0] : {AW{1'b0}});
+    wire [AW-1:0] au_addr = au_base + (au_e << au_lw);
 
     function [31:0] eaddr(input integer xx, input signed [63:0] o, input signed [63:0] g);
         reg signed [63:0] e;
@@ -294,6 +298,7 @@ module bittf_mini (
     // ------------------------------------------------------------ hlavni automat
     reg [5:0] fcnt;            // nacitani instrukce: 24 slov po 64 bitech
     reg [5:0] frsp;
+    wire [AW-1:0] f_addr = base + pc * 8'd192 + {fcnt, 3'b000};
 
     task issue_read(input [31:0] ad, input [1:0] lw);
         begin
@@ -323,7 +328,6 @@ module bittf_mini (
                     off[xx][kk] <= 32'd0;
             for (kk = 0; kk < 4; kk = kk + 1)
                 idx[kk] <= 32'd0;
-            flat <= 32'd0;
             fh <= 32'd0;
             if (is_mm) begin
                 cnt[0] <= ir[4]; cnt[1] <= ir[1]; cnt[2] <= ir[2]; cnt[3] <= ir[3];
@@ -335,7 +339,7 @@ module bittf_mini (
     endtask
 
     // novy offset operandu x na urovni adv (5 scitacek, sdilene vsemi urovnemi)
-    reg [31:0] off_adv0, off_adv1, off_adv2, off_adv3, off_adv4;
+    reg [AW-1:0] off_adv0, off_adv1, off_adv2, off_adv3, off_adv4;
     always @(*) begin
         case (adv[1:0])
             2'd0: begin off_adv0 = off[0][0]; off_adv1 = off[1][0]; off_adv2 = off[2][0]; off_adv3 = off[3][0]; off_adv4 = off[4][0]; end
@@ -344,7 +348,7 @@ module bittf_mini (
             default: begin off_adv0 = off[0][3]; off_adv1 = off[1][3]; off_adv2 = off[2][3]; off_adv3 = off[3][3]; off_adv4 = off[4][3]; end
         endcase
     end
-    wire [31:0] off_n0 = off_adv0 + stva(0, adv), off_n1 = off_adv1 + stva(1, adv), off_n2 = off_adv2 + stva(2, adv),
+    wire [AW-1:0] off_n0 = off_adv0 + stva(0, adv), off_n1 = off_adv1 + stva(1, adv), off_n2 = off_adv2 + stva(2, adv),
                 off_n3 = off_adv3 + stva(3, adv), off_n4 = off_adv4 + stva(4, adv);
 
     // posun smycek o jeden prvek na urovni adv
@@ -360,7 +364,6 @@ module bittf_mini (
                     off[0][kk] <= off_n0; off[1][kk] <= off_n1; off[2][kk] <= off_n2;
                     off[3][kk] <= off_n3; off[4][kk] <= off_n4;
                 end
-            flat <= flat + 32'd1;
             fh <= fh + 32'h9E3779B1;
         end
     endtask
@@ -429,7 +432,7 @@ module bittf_mini (
                     if (start || start_pend) begin
                         start_pend <= 1'b0;
                         base <= prog_base;
-                        pc <= 32'd0;
+                        pc <= {AW{1'b0}};
                         err <= 8'd0;
                         st <= S_FETCH;
                         fcnt <= 6'd0;
@@ -443,7 +446,7 @@ module bittf_mini (
                         frsp <= frsp + 6'd1;
                     end
                     if ((!m_req_valid || m_req_ready) && fcnt < 24) begin
-                        issue_read(base + pc * 192 + {26'd0, fcnt} * 8, 2'd3);
+                        issue_read({{(32-AW){1'b0}}, f_addr}, 2'd3);
                         fcnt <= fcnt + 6'd1;
                     end
                     if (frsp == 23 && m_rsp_valid) begin
@@ -460,7 +463,7 @@ module bittf_mini (
                         if (rrc == 3) begin rq3 <= rf_q; st <= S_DEC; end
                     end
                 S_DEC: begin
-                    dbg_pc <= pc;
+                    dbg_pc <= {{(32-AW){1'b0}}, pc};
                     case (op)
                         OP_NOP: st <= S_END;
                         OP_HALT: st <= S_HALT;
@@ -522,7 +525,7 @@ module bittf_mini (
                 // --- smycka prvku (EW, RED, MM)
                 S_LOOP: begin
                     if (any_gath && !is_mm) begin
-                        issue_read(au_addr, glw);
+                        issue_read({{(32-AW){1'b0}}, au_addr}, glw);
                         st <= S_GW;
                     end else begin
                         gterm <= 0;
@@ -543,15 +546,15 @@ module bittf_mini (
                 S_RD: begin
                     // dalsi potrebny operand podle rphase
                     if (rphase == 1 && need_a) begin
-                        issue_read(au_addr, olw(1));
+                        issue_read({{(32-AW){1'b0}}, au_addr}, olw(1));
                         st <= S_RDW;
                     end else if (rphase <= 2 && need_b) begin
                         rphase <= 3'd2;
-                        issue_read(au_addr, olw(2));
+                        issue_read({{(32-AW){1'b0}}, au_addr}, olw(2));
                         st <= S_RDW;
                     end else if (rphase <= 3 && need_c) begin
                         rphase <= 3'd3;
-                        issue_read(au_addr, olw(3));
+                        issue_read({{(32-AW){1'b0}}, au_addr}, olw(3));
                         st <= S_RDW;
                     end else
                         st <= S_ALU;
@@ -626,7 +629,7 @@ module bittf_mini (
                     if (!fits(wval, olw(0), ouns(0))) begin
                         err <= ERR_FIT; st <= S_ERR;
                     end else begin
-                        issue_write(au_addr, olw(0), wval);
+                        issue_write({{(32-AW){1'b0}}, au_addr}, olw(0), wval);
                         st <= S_NEXT;
                     end
                 end
@@ -641,7 +644,7 @@ module bittf_mini (
                     end else if (!fits(acc, olw(0), ouns(0))) begin
                         err <= ERR_FIT; st <= S_ERR;
                     end else if (!m_req_valid || m_req_ready) begin
-                        issue_write(au_addr, olw(0), acc);
+                        issue_write({{(32-AW){1'b0}}, au_addr}, olw(0), acc);
                         acc <= (is_red && fn == R_MAX) ? 64'sh8000000000000000 : 64'sd0;
                         st <= S_NEXT;
                     end
@@ -658,7 +661,7 @@ module bittf_mini (
                 S_END:
                     if (!m_req_valid || m_req_ready) begin
                         dbg_instr_done <= 1'b1;
-                        pc <= pc + 32'd1;
+                        pc <= pc + 1'b1;
                         fcnt <= 6'd0;
                         frsp <= 6'd0;
                         st <= S_FETCH;
