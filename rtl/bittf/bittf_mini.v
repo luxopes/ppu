@@ -141,13 +141,14 @@ module bittf_mini (
     reg [31:0] off [0:4][0:3];          // offsety operandu na urovnich
     integer x, k;
 
-    // uroven, ktera se zvysi (4 = konec)
+    // uroven, ktera se zvysi (4 = konec); idx+1 sdilene s posunem smycky
+    wire [31:0] idx1_0 = idx[0] + 32'd1, idx1_1 = idx[1] + 32'd1, idx1_2 = idx[2] + 32'd1, idx1_3 = idx[3] + 32'd1;
     reg [2:0] adv;
     always @(*) begin
-        if (idx[0] + 1 < cnt[0]) adv = 3'd0;
-        else if (idx[1] + 1 < cnt[1]) adv = 3'd1;
-        else if (idx[2] + 1 < cnt[2]) adv = 3'd2;
-        else if (idx[3] + 1 < cnt[3]) adv = 3'd3;
+        if (idx1_0 < cnt[0]) adv = 3'd0;
+        else if (idx1_1 < cnt[1]) adv = 3'd1;
+        else if (idx1_2 < cnt[2]) adv = 3'd2;
+        else if (idx1_3 < cnt[3]) adv = 3'd3;
         else adv = 3'd4;
     end
 
@@ -333,18 +334,32 @@ module bittf_mini (
         end
     endtask
 
+    // novy offset operandu x na urovni adv (5 scitacek, sdilene vsemi urovnemi)
+    reg [31:0] off_adv0, off_adv1, off_adv2, off_adv3, off_adv4;
+    always @(*) begin
+        case (adv[1:0])
+            2'd0: begin off_adv0 = off[0][0]; off_adv1 = off[1][0]; off_adv2 = off[2][0]; off_adv3 = off[3][0]; off_adv4 = off[4][0]; end
+            2'd1: begin off_adv0 = off[0][1]; off_adv1 = off[1][1]; off_adv2 = off[2][1]; off_adv3 = off[3][1]; off_adv4 = off[4][1]; end
+            2'd2: begin off_adv0 = off[0][2]; off_adv1 = off[1][2]; off_adv2 = off[2][2]; off_adv3 = off[3][2]; off_adv4 = off[4][2]; end
+            default: begin off_adv0 = off[0][3]; off_adv1 = off[1][3]; off_adv2 = off[2][3]; off_adv3 = off[3][3]; off_adv4 = off[4][3]; end
+        endcase
+    end
+    wire [31:0] off_n0 = off_adv0 + stva(0, adv), off_n1 = off_adv1 + stva(1, adv), off_n2 = off_adv2 + stva(2, adv),
+                off_n3 = off_adv3 + stva(3, adv), off_n4 = off_adv4 + stva(4, adv);
+
     // posun smycek o jeden prvek na urovni adv
     task loop_adv;
         integer xx, kk;
         begin
             for (kk = 0; kk < 4; kk = kk + 1) begin
                 if (kk < adv) idx[kk] <= 32'd0;
-                else if (kk == adv) idx[kk] <= idx[kk] + 32'd1;
+                else if (kk == adv) idx[kk] <= kk == 0 ? idx1_0 : kk == 1 ? idx1_1 : kk == 2 ? idx1_2 : idx1_3;
             end
-            for (xx = 0; xx < 5; xx = xx + 1)
-                for (kk = 0; kk < 4; kk = kk + 1)
-                    if (kk <= adv && adv < 4)
-                        off[xx][kk] <= off[xx][adv] + stva(xx, adv);
+            for (kk = 0; kk < 4; kk = kk + 1)
+                if (kk <= adv && adv < 4) begin
+                    off[0][kk] <= off_n0; off[1][kk] <= off_n1; off[2][kk] <= off_n2;
+                    off[3][kk] <= off_n3; off[4][kk] <= off_n4;
+                end
             flat <= flat + 32'd1;
             fh <= fh + 32'h9E3779B1;
         end
