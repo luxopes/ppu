@@ -1,6 +1,6 @@
 #!/bin/sh
 # Preklad a beh RTL testbenche BitTF (Verilator): lockstep RTL vs simulator ISA + hash vs golden.
-# Pouziti: tools/bitlm/check_bittf_rtl.sh [korpus] ; promenne CORE (1 = sekvencni v1, mini = v1 zmensene pro maly cip, 2 = vykonove v2,
+# Pouziti: tools/bitlm/check_bittf_rtl.sh [korpus] ; promenne CORE (1 = sekvencni v1, mini = v1 zmensene pro maly cip, chip = mini + QSPI PSRAM + SPI, 2 = vykonove v2,
 #          fpga = obal s AXI4, cl = cesta jako na F2: host nahrava pres PCIS + prepinac pameti),
 #          STEPS, LAT, STALL, CFG (argumenty prekladace)
 set -e
@@ -17,6 +17,9 @@ gcc -O2 -c -o $B/bt_host_main.o sw/bittf/host/bt_host_main.c
 ar rcs $B/libbt.a $B/bt_layout.o $B/bt_isa.o $B/bittf_ref.o $B/bt_host.o $B/bt_host_main.o
 if [ "$CORE" = 1 ]; then
     TOP=bittf_core; SRC="rtl/bittf/bittf_core.v rtl/bittf/bittf_alu.v"; TB=tb_bittf
+elif [ "$CORE" = chip ]; then
+    TOP=bittf_chip; TB=tb_chip; VDEF=-DBITTF_SIM
+    SRC="rtl/bittf/bittf_chip.v rtl/bittf/bittf_qspi.v rtl/bittf/bittf_mini.v rtl/bittf/bittf_mini_alu.v rtl/bittf/bittf_mulseq.v rtl/bittf/bittf_rf.v"
 elif [ "$CORE" = mini ]; then
     TOP=bittf_mini; SRC="rtl/bittf/bittf_mini.v rtl/bittf/bittf_mini_alu.v rtl/bittf/bittf_mulseq.v rtl/bittf/bittf_rf.v"; TB=tb_bittf; XCF=-DBT_MINI
 elif [ "$CORE" = fpga ] || [ "$CORE" = cl ]; then
@@ -26,13 +29,15 @@ else
     TOP=bittf_core2; TB=tb_bittf2
     SRC="rtl/bittf/bittf_core2.v rtl/bittf/bittf_stream.v rtl/bittf/bittf_wstream.v rtl/bittf/bittf_mm.v rtl/bittf/bittf_lane.v rtl/bittf/bittf_alu.v"
 fi
-verilator --cc --exe --build -O2 -j ${JOBS:-4} -Wno-fatal -Wno-WIDTH -Wno-UNUSED -Wno-UNOPTFLAT -Irtl/bittf \
+verilator $VDEF --cc --exe --build -O2 -j ${JOBS:-4} -Wno-fatal -Wno-WIDTH -Wno-UNUSED -Wno-UNOPTFLAT -Irtl/bittf \
     --top-module $TOP -Mdir $B -CFLAGS "-O2 $XCF" $SRC sw/bittf/verilator/$TB.cpp \
     -LDFLAGS "$PWD/$B/libbt.a -lm -fopenmp" -o $TB > $B/build.log 2>&1 || { tail -30 $B/build.log; exit 1; }
 L=$(stat -c %s "$CORPUS")
 CFG=${CFG:---d 32 --layers 1 --heads 2 --ff 64 --ctx 16 --batch 2}
 python3 tools/bitlm/bittf_compile.py $CFG --corpus-len $L -o build/isa/rtl_cfg > /dev/null
-if [ "$CORE" = cl ]; then
+if [ "$CORE" = chip ]; then
+    $B/$TB build/isa/rtl_cfg "$CORPUS" --steps ${STEPS:-2} --lockstep ${LOCKSTEP:-1}
+elif [ "$CORE" = cl ]; then
     $B/$TB build/isa/rtl_cfg "$CORPUS" --steps ${STEPS:-2} --check ${CHECK:-1} --stall ${STALL:-20}
 elif [ "$CORE" = fpga ]; then
     $B/$TB build/isa/rtl_cfg "$CORPUS" --steps ${STEPS:-2} --stall ${STALL:-20}
