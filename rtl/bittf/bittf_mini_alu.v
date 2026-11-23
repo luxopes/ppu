@@ -44,17 +44,60 @@ module bittf_mini_alu (
     end
     wire signed [63:0] sh = simm + sr1 + tcv;
 
-    // NRMR: index do tabulky 1/sqrt
-    reg signed [63:0] nrm_mm, nrm_ix;
+    // ---------------------------------------------------- sdileny posouvac (jediny v ALU)
+    // su_y = s >= 0: (v + add) >>> min(s, smax), jinak v <<< min(-s, 63)
+    //   RSR: f_rsr (smax 62, add = pul), SRD: f_srd (smax 32, add = rnd & maska),
+    //   SHR: posun vpravo (smax 63, add 0; zaporne s jen u NRM -> vlevo), SHRF: zaporne s = 0
+    localparam SU_RSR = 2'd0, SU_SRD = 2'd1, SU_SHR = 2'd2, SU_SHRF = 2'd3;
+    reg  signed [63:0] su_v, su_s;
+    reg  [1:0]         su_m;
+    reg                r2a;            // RSR2ADD: druha polovina
+    reg  signed [63:0] r2a_t;
+    wire signed [63:0] pq_v;           // POW2Q: mocnina dvou pred posunem
     always @(*) begin
-        if (!sb[63])
-            nrm_mm = sa >>> ((sb > 63) ? 6'd63 : sb[5:0]);
-        else
-            nrm_mm = f_shl(sa, -sb);
-        nrm_ix = nrm_mm >>> 8;
+        su_m = SU_RSR;
+        case (fn)
+            E_RSR:        begin su_v = sa;  su_s = sh; end
+            E_ADDRSR:     begin su_v = sb;  su_s = sh; end
+            E_MULRSR,
+            E_MULRELURSR: begin su_v = smp; su_s = sh; end
+            E_SRD:        begin su_v = sa;  su_s = sh; su_m = SU_SRD; end
+            E_SHRF:       begin su_v = sa;  su_s = sh; su_m = SU_SHRF; end
+            E_NRMR:       begin su_v = sa;  su_s = sb; su_m = SU_SHR; end
+            E_POW2Q:      begin su_v = pq_v; su_s = {58'd0, sh[5:0]}; su_m = SU_SHRF; end
+            E_RSR2ADD:    begin su_v = r2a ? sb : sa; su_s = r2a ? sr2 : sr1; end
+            default:      begin su_v = sa;  su_s = sh; end
+        endcase
+    end
+    wire        su_right = !su_s[63] || su_m == SU_SHRF;
+    wire [5:0]  su_rmax = su_m == SU_RSR ? 6'd62 : su_m == SU_SRD ? 6'd32 : 6'd63;
+    wire [5:0]  su_sp = su_s[63] ? 6'd0 : (su_s > $signed({58'd0, su_rmax})) ? su_rmax : su_s[5:0];
+    wire signed [63:0] su_neg = -su_s;
+    wire [5:0]  su_lp = (su_neg > 63) ? 6'd63 : su_neg[5:0];
+    wire [63:0] su_bit = 64'd1 << su_sp;
+    wire signed [63:0] su_add = su_m == SU_RSR ? $signed(su_bit >> 1) :
+                                su_m == SU_SRD ? ($signed({32'd0, rnd}) & $signed(su_bit - 64'd1)) : 64'sd0;
+    wire signed [63:0] su_y = su_right ? ((su_v + su_add) >>> su_sp) : (su_v <<< su_lp);
+
+    // NRMR: index do tabulky 1/sqrt (pred nasobenim, posouvac v rezimu SHR)
+    reg signed [63:0] nrm_ix;
+    always @(*) begin
+        nrm_ix = su_y >>> 8;
         if (nrm_ix < 0) nrm_ix = 0;
         if (nrm_ix > 255) nrm_ix = 255;
     end
+
+    // spolecny bitlen (BITLENI, NRMS, POW2Q z |a|)
+    wire signed [63:0] pq_a = sa[63] ? -sa : sa;
+    wire [6:0] bl = f_bitlen(fn == E_POW2Q ? pq_a : sa);
+    // POW2Q (f_pow2q) bez posledniho posunu, ten dela posouvac
+    wire signed [63:0] pq_b = (bl == 0) ? 64'sd1 : (64'sd1 <<< (bl - 7'd1));
+    wire signed [63:0] pq_lo = 64'sd1 <<< sh[5:0];
+    wire signed [63:0] pq_rr = $signed({32'd0, rnd});
+    assign pq_v = (pq_a >= pq_lo) ? (((pq_rr & (pq_b - 64'sd1)) < pq_a - pq_b) ? (pq_b <<< 1) : pq_b)
+                                  : (((pq_rr & (pq_lo - 64'sd1)) < pq_a) ? pq_lo : 64'sd0);
+    wire signed [63:0] pq_res = sa[63] ? -su_y : (sa == 0 ? 64'sd0 : su_y);
+    wire signed [63:0] nrms_s = $signed({57'd0, bl}) - 64'sd16;
     // nasobeni: operandy podle funkce, vysledek mp (dolnich 64 bitu)
     wire is_mul = fn == E_MUL || fn == E_MULRSR || fn == E_MULRELURSR || fn == E_MULSUB ||
                   fn == E_RELU2 || fn == E_MULADDI || fn == E_NRMR;
@@ -89,27 +132,27 @@ module bittf_mini_alu (
             E_ADD:        res = sa + sb;
             E_SUB:        res = sa - sb;
             E_MUL:        res = smp;
-            E_RSR:        res = f_rsr(sa, sh);
-            E_ADDRSR:     res = sa + f_rsr(sb, sh);
-            E_MULRSR:     res = f_rsr(smp, sh);
-            E_MULRELURSR: res = f_rsr(smp, sh);
+            E_RSR:        res = su_y;
+            E_ADDRSR:     res = sa + su_y;
+            E_MULRSR:     res = su_y;
+            E_MULRELURSR: res = su_y;
             E_MULSUB:     res = smp - sc;
-            E_SRD:        res = f_srd(sa, sh, rnd);
-            E_POW2Q:      res = f_pow2q(sa, sh[6:0], rnd);
-            E_BITLENI:    res = {57'd0, f_bitlen(sa)} + simm;
+            E_SRD:        res = su_y;
+            E_POW2Q:      res = pq_res;
+            E_BITLENI:    res = {57'd0, bl} + simm;
             E_SEXPR:      res = sh;
-            E_NRMS:       res = f_nrms(sa);
-            E_NRMR:       res = f_rsr(rsq_prod, 64'sd16);
+            E_NRMS:       res = nrms_s + (nrms_s & 64'sd1);
+            E_NRMR:       res = (rsq_prod + 64'sd32768) >>> 16;
             E_EXP8:       res = {48'd0, exp8_lut(e8i)};
             E_EXP16:      res = e16ok ? {47'd0, exp16_lut(dd16[8:0])} : 64'sd0;
             E_OHSUB:      res = sa - (({32'd0, i0} == b) ? (64'sd1 <<< imm[5:0]) : 64'sd0);
             E_ONEHOT:     res = ({32'd0, i0} == a) ? 64'sd1 : 64'sd0;
             E_RELU2:      res = smp;
-            E_RSR2ADD:    res = f_rsr(sa, sr1) + f_rsr(sb, sr2);
+            E_RSR2ADD:    res = r2a_t + su_y;
             E_LIONQ:      res = lion_t > 0 ? sa - (64'sd1 <<< r1[5:0]) : lion_t < 0 ? sa + (64'sd1 <<< r1[5:0]) : sa;
             E_MULADDI:    res = smp + sb;
             E_RNG:        res = {32'd0, rnd};
-            E_SHRF:       res = sa >>> (sh[63] ? 6'd0 : (sh > 63) ? 6'd63 : sh[5:0]);
+            E_SHRF:       res = su_y;
             E_LOBITS:     res = sa & ((64'sd1 <<< imm[5:0]) - 64'sd1);
             default:      res = 64'sd0;
         endcase
@@ -141,9 +184,17 @@ module bittf_mini_alu (
         if (rst) begin
             done <= 1'b0;
             dv_busy <= 1'b0;
+            r2a <= 1'b0;
         end else begin
             done <= 1'b0;
-            if (start && !is_div) begin
+            if (start && fn == E_RSR2ADD) begin
+                r2a_t <= su_y;          // f_rsr(sa, sr1)
+                r2a <= 1'b1;
+            end else if (r2a) begin
+                y <= clampf(res);       // + f_rsr(sb, sr2)
+                done <= 1'b1;
+                r2a <= 1'b0;
+            end else if (start && !is_div) begin
                 y <= clampf(res);
                 done <= 1'b1;
             end else if (start) begin
