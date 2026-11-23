@@ -18,7 +18,7 @@ VERILOG_FILES:
 - dir::../../../rtl/bittf/bittf_rf.v
 VERILOG_INCLUDE_DIRS:
 - dir::../../../rtl/bittf
-VERILOG_DEFINES: [BITTF_IHP_SRAM]
+VERILOG_DEFINES: [BITTF_IHP_SRAM, FUNCTIONAL]
 
 PRIMARY_GDSII_STREAMOUT_TOOL: klayout
 

@@ -44,9 +44,13 @@ jobs:
         run: nix develop . --command make clone-pdk
       - name: LibreLane
         working-directory: tapeout/ihp
+        shell: bash {0}
         run: |
           T=librelane-nodrc; [ "${{ inputs.drc }}" = 1 ] && T=librelane
-          nix develop . --command make $T DIE=${{ inputs.die }} MARGIN=${{ inputs.margin }} DENS=${{ inputs.density }} 2>&1 | tee run.log | grep -E "^\[|Step|ERROR|Error|error:" | tail -200
+          nix develop . --command make $T DIE=${{ inputs.die }} MARGIN=${{ inputs.margin }} DENS=${{ inputs.density }} > run.log 2>&1; rc=$?
+          grep -E "ERROR|Error|error:|WARNING.*(timing|violat|overflow)" run.log | tail -60 || true
+          tail -30 run.log
+          exit $rc
       - name: Souhrn
         if: success() || failure()
         working-directory: tapeout/ihp
