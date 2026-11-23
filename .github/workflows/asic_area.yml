@@ -16,10 +16,9 @@ on:
       blackbox:
         description: "moduly jako černé skříňky (makra SRAM, mezerou)"
         default: ""
-  push:
-    paths:
-      - ".github/workflows/asic_area.yml"
-      - "tapeout/ihp/**"
+      flatten:
+        description: "zploštit hierarchii (0 = plocha po modulech)"
+        default: "1"
 
 jobs:
   area:
@@ -46,7 +45,7 @@ jobs:
           cat > build/asic/synth.ys <<EOF
           read_verilog -Irtl/bittf -Itapeout/ihp $FILES
           $( [ -n "$BB" ] && echo "blackbox $BB" )
-          synth -top $TOP -flatten
+          synth -top $TOP $( [ "${{ inputs.flatten || '1' }}" = 1 ] && echo -flatten )
           dfflibmap -liberty pdk/stdcell.lib
           abc -D $PER -liberty pdk/stdcell.lib
           opt_clean
