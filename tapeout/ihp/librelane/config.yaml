@@ -22,6 +22,9 @@ VERILOG_DEFINES: [BITTF_IHP_SRAM, FUNCTIONAL]
 
 PRIMARY_GDSII_STREAMOUT_TOOL: klayout
 
+# syntéza na plochu (vychozi DELAY 4 pridava desitky tisic bufferu a bere i pady jako budice)
+SYNTH_STRATEGY: AREA 2
+
 PAD_SOUTH: [clk_pad, rst_n_pad, "inputs\\[0\\].input_pad", "inputs\\[1\\].input_pad", "inputs\\[2\\].input_pad", "inputs\\[3\\].input_pad"]
 PAD_EAST: ["bidirs\\[0\\].bidir_pad", "bidirs\\[1\\].bidir_pad", "bidirs\\[2\\].bidir_pad", "bidirs\\[3\\].bidir_pad", "bidirs\\[4\\].bidir_pad", "bidirs\\[5\\].bidir_pad"]
 PAD_NORTH: ["outputs\\[0\\].output_pad", "outputs\\[1\\].output_pad", "outputs\\[2\\].output_pad", iovdd_pad, iovss_pad]
