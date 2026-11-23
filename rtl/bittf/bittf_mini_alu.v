@@ -72,8 +72,9 @@ module bittf_mini_alu (
     wire        su_right = !su_s[63] || su_m == SU_SHRF;
     wire [5:0]  su_rmax = su_m == SU_RSR ? 6'd62 : su_m == SU_SRD ? 6'd32 : 6'd63;
     wire [5:0]  su_sp = su_s[63] ? 6'd0 : (su_s > $signed({58'd0, su_rmax})) ? su_rmax : su_s[5:0];
-    wire signed [63:0] su_neg = -su_s;
-    wire [5:0]  su_lp = (su_neg > 63) ? 6'd63 : su_neg[5:0];
+    // -s > 63 (jako f_shl(v, -s)); pro s = min. int64 je -s zaporne -> posun (-s)[5:0] = 0
+    wire        su_big = su_s < -64'sd63 && su_s != 64'sh8000000000000000;
+    wire [5:0]  su_lp = su_big ? 6'd63 : (6'd0 - su_s[5:0]);
     wire [63:0] su_bit = 64'd1 << su_sp;
     wire signed [63:0] su_add = su_m == SU_RSR ? $signed(su_bit >> 1) :
                                 su_m == SU_SRD ? ($signed({32'd0, rnd}) & $signed(su_bit - 64'd1)) : 64'sd0;
@@ -108,7 +109,7 @@ module bittf_mini_alu (
     // EXP8 / EXP16
     wire signed [63:0] dexp = sb - sa;
     wire [7:0] e8i = dexp[63] ? 8'd0 : (dexp > 255) ? 8'd255 : dexp[7:0];
-    wire signed [63:0] dd16 = (sb - sa + 64'sd4) >>> 3;
+    wire signed [63:0] dd16 = (dexp + 64'sd4) >>> 3;
     wire e16ok = !dd16[63] && dd16 < 512;
 
     wire signed [63:0] lion_t = (sb <<< 3) - sb + sc;
@@ -125,32 +126,53 @@ module bittf_mini_alu (
         endcase
     end
 
+    // ---------------------------------------------------- jedna hlavni scitacka: ad_a +/- ad_b
+    reg  signed [63:0] ad_a, ad_b;
+    reg                ad_sub;
+    wire               oh_hit = {32'd0, i0} == b;
+    always @(*) begin
+        ad_a = sa; ad_b = sb; ad_sub = 1'b0;
+        case (fn)
+            E_SUB:     ad_sub = 1'b1;
+            E_ADDRSR:  ad_b = su_y;
+            E_MULSUB:  begin ad_a = smp; ad_b = sc; ad_sub = 1'b1; end
+            E_BITLENI: begin ad_a = {57'd0, bl}; ad_b = simm; end
+            E_OHSUB:   begin ad_b = oh_hit ? (64'sd1 <<< imm[5:0]) : 64'sd0; ad_sub = 1'b1; end
+            E_RSR2ADD: begin ad_a = r2a_t; ad_b = su_y; end
+            E_LIONQ:   begin ad_b = (lion_t == 0) ? 64'sd0 : (64'sd1 <<< r1[5:0]); ad_sub = lion_t > 0; end
+            E_MULADDI: ad_a = smp;
+            E_NRMR:    begin ad_a = smp; ad_b = 64'sd32768; end
+            default: ;
+        endcase
+    end
+    wire signed [63:0] ad_y = ad_a + (ad_sub ? ~ad_b : ad_b) + {63'd0, ad_sub};
+
     reg signed [63:0] res;
     always @(*) begin
         case (fn)
             E_COPY:       res = sa;
-            E_ADD:        res = sa + sb;
-            E_SUB:        res = sa - sb;
+            E_ADD:        res = ad_y;
+            E_SUB:        res = ad_y;
             E_MUL:        res = smp;
             E_RSR:        res = su_y;
-            E_ADDRSR:     res = sa + su_y;
+            E_ADDRSR:     res = ad_y;
             E_MULRSR:     res = su_y;
             E_MULRELURSR: res = su_y;
-            E_MULSUB:     res = smp - sc;
+            E_MULSUB:     res = ad_y;
             E_SRD:        res = su_y;
             E_POW2Q:      res = pq_res;
-            E_BITLENI:    res = {57'd0, bl} + simm;
+            E_BITLENI:    res = ad_y;
             E_SEXPR:      res = sh;
             E_NRMS:       res = nrms_s + (nrms_s & 64'sd1);
-            E_NRMR:       res = (rsq_prod + 64'sd32768) >>> 16;
+            E_NRMR:       res = ad_y >>> 16;
             E_EXP8:       res = {48'd0, exp8_lut(e8i)};
             E_EXP16:      res = e16ok ? {47'd0, exp16_lut(dd16[8:0])} : 64'sd0;
-            E_OHSUB:      res = sa - (({32'd0, i0} == b) ? (64'sd1 <<< imm[5:0]) : 64'sd0);
+            E_OHSUB:      res = ad_y;
             E_ONEHOT:     res = ({32'd0, i0} == a) ? 64'sd1 : 64'sd0;
             E_RELU2:      res = smp;
-            E_RSR2ADD:    res = r2a_t + su_y;
-            E_LIONQ:      res = lion_t > 0 ? sa - (64'sd1 <<< r1[5:0]) : lion_t < 0 ? sa + (64'sd1 <<< r1[5:0]) : sa;
-            E_MULADDI:    res = smp + sb;
+            E_RSR2ADD:    res = ad_y;
+            E_LIONQ:      res = ad_y;
+            E_MULADDI:    res = ad_y;
             E_RNG:        res = {32'd0, rnd};
             E_SHRF:       res = su_y;
             E_LOBITS:     res = sa & ((64'sd1 <<< imm[5:0]) - 64'sd1);
@@ -172,6 +194,9 @@ module bittf_mini_alu (
 
     // deleni: restoring, bez znamenka, 64 bitu
     wire is_div = fn == E_RCP || fn == E_MEANDIV || fn == E_MODU;
+    // jediny orezavac: hodnota pred orezanim podle toho, co se v tomto taktu dokoncuje
+    reg  signed [63:0] ypre;
+    wire signed [63:0] y_c = clampf(ypre);
     reg  [63:0] dv_q, dv_r, dv_d;
     reg  [6:0]  dv_n;
     reg         dv_busy, dv_neg;
@@ -179,6 +204,18 @@ module bittf_mini_alu (
     wire [64:0] dv_rs = {dv_r, dv_q[63]};
     wire [64:0] dv_t = dv_rs - {1'b0, dv_d};
     wire signed [63:0] md_num = (sa <<< 1) + simm;
+    always @(*) begin
+        if (r2a || (start && !is_div && fn != E_RSR2ADD))
+            ypre = res;
+        else if (start && is_div)
+            ypre = 64'sd0;                      // RCP se zapornym nebo nulovym delitelem
+        else
+            case (dv_fn)
+                E_MODU:    ypre = dv_r;
+                E_MEANDIV: ypre = dv_neg ? -$signed(dv_q) - ((dv_r != 0) ? 64'sd1 : 64'sd0) : dv_q;
+                default:   ypre = dv_q;
+            endcase
+    end
 
     always @(posedge clk) begin
         if (rst) begin
@@ -191,11 +228,11 @@ module bittf_mini_alu (
                 r2a_t <= su_y;          // f_rsr(sa, sr1)
                 r2a <= 1'b1;
             end else if (r2a) begin
-                y <= clampf(res);       // + f_rsr(sb, sr2)
+                y <= y_c;               // + f_rsr(sb, sr2)
                 done <= 1'b1;
                 r2a <= 1'b0;
             end else if (start && !is_div) begin
-                y <= clampf(res);
+                y <= y_c;
                 done <= 1'b1;
             end else if (start) begin
                 dv_fn <= fn;
@@ -218,7 +255,7 @@ module bittf_mini_alu (
                     end
                 endcase
                 if (fn == E_RCP && (sa[63] || sa == 0)) begin
-                    y <= clampf(64'sd0);
+                    y <= y_c;
                     done <= 1'b1;
                 end else
                     dv_busy <= 1'b1;
@@ -236,11 +273,7 @@ module bittf_mini_alu (
                 end else begin
                     dv_busy <= 1'b0;
                     done <= 1'b1;
-                    case (dv_fn)
-                        E_MODU:    y <= clampf(dv_r);
-                        E_MEANDIV: y <= clampf(dv_neg ? -$signed(dv_q) - ((dv_r != 0) ? 64'sd1 : 64'sd0) : dv_q);
-                        default:   y <= clampf(dv_q);
-                    endcase
+                    y <= y_c;
                 end
             end
         end
