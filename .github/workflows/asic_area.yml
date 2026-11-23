@@ -1,0 +1,56 @@
+# Odhad plochy ASIC: syntéza Yosys na standardní buňky IHP SG13G2 (130 nm, open PDK).
+# Výsledek = plocha buněk (bez rozmístění/tras); jádro čipu ~ plocha / využití (~0,6).
+name: ASIC area (IHP SG13G2)
+on:
+  workflow_dispatch:
+    inputs:
+      top:
+        description: "horní modul"
+        default: "bittf_core"
+      files:
+        description: "soubory Verilogu (mezerou)"
+        default: "rtl/bittf/bittf_core.v rtl/bittf/bittf_alu.v"
+      period_ps:
+        description: "cílová perioda pro ABC (ps)"
+        default: "20000"
+  push:
+    paths:
+      - ".github/workflows/asic_area.yml"
+      - "tapeout/ihp/**"
+
+jobs:
+  area:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: YosysHQ/setup-oss-cad-suite@v3
+      - name: Knihovna buněk IHP SG13G2
+        run: |
+          mkdir -p pdk && cd pdk
+          base=https://raw.githubusercontent.com/IHP-GmbH/IHP-Open-PDK/main/ihp-sg13g2/libs.ref
+          curl -fsSLo stdcell.lib $base/sg13g2_stdcell/lib/sg13g2_stdcell_typ_1p20V_25C.lib
+          ls -la
+      - name: Syntéza
+        run: |
+          TOP="${{ inputs.top || 'bittf_core' }}"
+          FILES="${{ inputs.files || 'rtl/bittf/bittf_core.v rtl/bittf/bittf_alu.v' }}"
+          PER="${{ inputs.period_ps || '20000' }}"
+          mkdir -p build/asic
+          cat > build/asic/synth.ys <<EOF
+          read_verilog -Irtl/bittf -Itapeout/ihp $FILES
+          synth -top $TOP -flatten
+          dfflibmap -liberty pdk/stdcell.lib
+          abc -D $PER -liberty pdk/stdcell.lib
+          opt_clean
+          tee -o build/asic/stat.txt stat -liberty pdk/stdcell.lib
+          EOF
+          /usr/bin/time -v yosys -q -l build/asic/yosys.log build/asic/synth.ys 2> build/asic/time.txt || { tail -50 build/asic/yosys.log; exit 1; }
+          grep -E "Maximum resident" build/asic/time.txt
+          tail -60 build/asic/stat.txt
+          echo "### $TOP" >> $GITHUB_STEP_SUMMARY
+          grep -iE "Chip area|cells$|Number of cells" build/asic/stat.txt | tail -3 >> $GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: asic-area-${{ inputs.top || 'bittf_core' }}
+          path: build/asic/
