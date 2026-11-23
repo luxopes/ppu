@@ -1,8 +1,9 @@
 // BitTF mini: jadro v1 (stejna ISA, bitove shodne s sw/bittf/isa/bt_isa.c) zmensene pro maly cip
 // (bezplatna plocha akademickeho MPW, IHP SG13G2 130 nm, ~2 mm^2 vcetne padu):
 //  - registry R v jednoportove SRAM (bittf_rf -> makro 64x64), cteni rs1/rs2/rs3 po nacteni instrukce,
-//  - zadne kombinacni nasobicky: RED/MM/gather pres postupnou bittf_mulseq, ALU ma vlastni,
-//  - kroky a offsety adres 32 bitu (adresa ma 32 bitu, vyssi bity se nikdy nepouziji).
+//  - zadne kombinacni nasobicky: jedna postupna bittf_mulseq pro ALU, RED, MM, gather i fmix32
+//    (nahodna cisla se pocitaji postupne jen pro instrukce, ktere je pouzivaji),
+//  - kroky adres se ctou primo z instrukce, offsety 32 bitu (adresa ma 32 bitu).
 //
 // Pametovy port: pozadavek valid/ready (cteni nebo zapis prvku sirky 2^lw B), odpovedi na cteni
 // v poradi pozadavku (data v dolnich bitech, bez rozsireni znamenka).
@@ -44,7 +45,8 @@ module bittf_mini (
                S_SLD = 5'd5, S_LOOP = 5'd6, S_G = 5'd7, S_GW = 5'd8, S_RD = 5'd9, S_RDW = 5'd10,
                S_ALU = 5'd11, S_ALUW = 5'd12, S_WR = 5'd13, S_NEXT = 5'd14, S_END = 5'd15,
                S_ROWWR = 5'd16, S_HALT = 5'd17, S_ERR = 5'd18, S_RR = 5'd19, S_GM = 5'd20,
-               S_MULW = 5'd21, S_ACC = 5'd22, S_CLR = 5'd23;
+               S_MULW = 5'd21, S_ACC = 5'd22, S_CLR = 5'd23, S_AMW = 5'd24, S_FMS = 5'd25,
+               S_FMW1 = 5'd26, S_FMW2 = 5'd27;
     reg [4:0] st;
     assign busy = st != S_IDLE;
 
@@ -111,7 +113,31 @@ module bittf_mini (
     reg [31:0] cnt [0:3];
     reg [31:0] idx [0:3];
     reg [31:0] flat, fh;                // fh = flat * 0x9E3779B1 (prubezne)
-    reg [31:0] stv [0:4][0:3];          // kroky operandu D A B C a gatheru G po urovnich (dolnich 32 bitu)
+    // krok operandu x (0..3 = D A B C, 4 = gather G) na urovni k, primo z instrukce
+    function [31:0] stvf(input integer x, input integer k);
+        begin
+            if (is_mm) begin
+                // D: (0, s0, s1, s2); A: (s3, 0, s1, s2); B: (s3, s0, 0, s2)
+                if (x == 0) stvf = (k == 0) ? 32'd0 : ir[7 + 6 * x + k - 1];
+                else if (x == 1) stvf = (k == 0) ? ir[7 + 6 + 3] : (k == 1) ? 32'd0 : ir[7 + 6 + k - 1];
+                else if (x == 2) stvf = (k == 0) ? ir[7 + 12 + 3] : (k == 1) ? ir[7 + 12] : (k == 2) ? 32'd0 : ir[7 + 12 + 2];
+                else stvf = 32'd0;
+            end else if (x == 4)
+                stvf = ir[31 + k];
+            else if (x == 0 && k == 0 && is_red)
+                stvf = 32'd0;
+            else
+                stvf = ir[7 + 6 * x + k];
+        end
+    endfunction
+    function [31:0] stva(input integer x, input [2:0] a);
+        case (a)
+            3'd0: stva = stvf(x, 0);
+            3'd1: stva = stvf(x, 1);
+            3'd2: stva = stvf(x, 2);
+            default: stva = stvf(x, 3);
+        endcase
+    endfunction
     reg [31:0] off [0:4][0:3];          // offsety operandu na urovnich
     integer x, k;
 
@@ -126,20 +152,30 @@ module bittf_mini (
     end
 
     // ------------------------------------------------------------ hodnoty prvku
-    reg signed [63:0] va, vb, vc, gidx, acc;
+    reg signed [63:0] va, vb, vc, acc;
     reg [2:0] rphase;           // ktery operand se cte: 1 A, 2 B, 3 C
     reg [31:0] key;
-    wire [31:0] rnd = f_fmix32(fh + key);
+    reg  [31:0] rnd;                    // fmix32(flat * 0x9E3779B1 + key), spocteno pred ALU
     reg  signed [63:0] gterm;           // gidx * gscale (z postupne nasobicky)
 
-    // postupna nasobicka pro gather, RED a MM
-    reg         mstart;
-    reg  [63:0] ma, mb;
+    // jedna postupna nasobicka; start a operandy kombinacne podle stavu (viz nize)
+    reg         m_go;
+    reg  [63:0] m_a, m_b;
     reg  [1:0]  mphase;
-    reg  signed [63:0] prd;
     wire        m_done;
     wire [63:0] m_p;
-    bittf_mulseq #(.W(64), .D(8)) mul (.clk(clk), .rst(rst), .start(mstart), .a(ma), .b(mb), .done(m_done), .p(m_p));
+    wire signed [63:0] prd = m_p;       // plati od m_done do dalsiho startu
+    bittf_mulseq #(.W(64), .D(8)) mul (.clk(clk), .rst(rst), .start(m_go), .a(m_a), .b(m_b), .done(m_done), .p(m_p));
+    wire        alu_mul;
+    wire [63:0] alu_ma, alu_mb;
+
+    // fmix32 po krocich: h1 = h^(h>>16); h2 = h1*C1; h3 = h2^(h2>>13); h4 = h3*C2; vysledek h4^(h4>>16)
+    reg  [31:0] fm_in;
+    reg  [1:0]  fm_ret;                 // 0 = klic (1. kolo), 1 = klic (2. kolo), 2 = rnd prvku
+    localparam FM_KEY1 = 2'd0, FM_KEY2 = 2'd1, FM_RND = 2'd2;
+    wire [31:0] fm_h1 = fm_in ^ (fm_in >> 16);
+    wire [31:0] fm_h3 = m_p[31:0] ^ (m_p[31:0] >> 13);
+    wire [31:0] fm_out = m_p[31:0] ^ (m_p[31:0] >> 16);
 
     function signed [63:0] ext(input [63:0] v, input [1:0] lw, input uns);
         case (lw)
@@ -174,7 +210,8 @@ module bittf_mini (
     bittf_mini_alu alu (
         .clk(clk), .rst(rst), .start(alu_start), .fn(fn), .tc(tc), .clamp_en(fl[3] | fl[4]),
         .clamp_sym(fl[4]), .cbits(imm3[6:0]), .a(va), .b(vb), .c(vc), .r1(vR1), .r2(vR2), .imm(imm),
-        .i0(idx[0]), .i1(idx[1]), .rnd(rnd), .done(alu_done), .y(alu_y)
+        .i0(idx[0]), .i1(idx[1]), .rnd(rnd), .mul_need(alu_mul), .mul_a(alu_ma), .mul_b(alu_mb),
+        .mul_p(m_p), .done(alu_done), .y(alu_y)
     );
 
     // RED: predzpracovani a kombinace
@@ -263,23 +300,9 @@ module bittf_mini (
             fh <= 32'd0;
             if (is_mm) begin
                 cnt[0] <= ir[4]; cnt[1] <= ir[1]; cnt[2] <= ir[2]; cnt[3] <= ir[3];
-                // D: (0, s0, s1, s2); A: (s3, 0, s1, s2); B: (s3, s0, 0, s2)
-                stv[0][0] <= 0;          stv[0][1] <= ostr(0, 0); stv[0][2] <= ostr(0, 1); stv[0][3] <= ostr(0, 2);
-                stv[1][0] <= ostr(1, 3); stv[1][1] <= 0;          stv[1][2] <= ostr(1, 1); stv[1][3] <= ostr(1, 2);
-                stv[2][0] <= ostr(2, 3); stv[2][1] <= ostr(2, 0); stv[2][2] <= 0;          stv[2][3] <= ostr(2, 2);
-                for (kk = 0; kk < 4; kk = kk + 1) begin
-                    stv[3][kk] <= 0;
-                    stv[4][kk] <= 0;
-                end
             end else begin
-                for (kk = 0; kk < 4; kk = kk + 1) begin
+                for (kk = 0; kk < 4; kk = kk + 1)
                     cnt[kk] <= ir[1 + kk];
-                    for (xx = 0; xx < 4; xx = xx + 1)
-                        stv[xx][kk] <= ostr(xx, kk);
-                    stv[4][kk] <= {{32{ir[31 + kk][31]}}, ir[31 + kk]};
-                end
-                if (is_red)
-                    stv[0][0] <= 0;
             end
         end
     endtask
@@ -295,14 +318,33 @@ module bittf_mini (
             for (xx = 0; xx < 5; xx = xx + 1)
                 for (kk = 0; kk < 4; kk = kk + 1)
                     if (kk <= adv && adv < 4)
-                        off[xx][kk] <= off[xx][adv] + stv[xx][adv];
+                        off[xx][kk] <= off[xx][adv] + stva(xx, adv);
             flat <= flat + 32'd1;
             fh <= fh + 32'h9E3779B1;
         end
     endtask
 
     wire any_gath = ogath(0) | ogath(1) | ogath(2) | ogath(3);
-    reg signed [63:0] gidx_r;
+
+    // start nasobicky: ve stejnem taktu, kdy automat prechazi do cekaciho stavu
+    always @(*) begin
+        m_go = 1'b0;
+        m_a = 64'd0;
+        m_b = 64'd0;
+        case (st)
+            S_GW: if (m_rsp_valid) begin m_go = 1'b1; m_a = ext(m_rsp_data, glw, guns); m_b = gscale; end
+            S_ALU:
+                if (is_ew) begin
+                    if (!masked && alu_mul) begin m_go = 1'b1; m_a = alu_ma; m_b = alu_mb; end
+                end else if ((is_red && red_mul) || (is_mm && !mm_sign)) begin
+                    m_go = 1'b1; m_a = va; m_b = (is_red && rpre == RP_AA) ? va : vb;
+                end
+            S_MULW: if (m_done && mphase == 1 && is_red && rpre == RP_ABC) begin m_go = 1'b1; m_a = m_p; m_b = vc; end
+            S_FMS: begin m_go = 1'b1; m_a = {32'd0, fm_h1}; m_b = 64'h85EBCA6B; end
+            S_FMW1: if (m_done) begin m_go = 1'b1; m_a = {32'd0, fm_h3}; m_b = 64'hC2B2AE35; end
+            default: ;
+        endcase
+    end
     reg start_pend;
 
     always @(posedge clk) begin
@@ -318,10 +360,8 @@ module bittf_mini (
             st <= S_CLR;
             rrc <= 6'd0;
             wr_pend <= 1'b0;
-            mstart <= 1'b0;
             start_pend <= 1'b0;
         end else begin
-            mstart <= 1'b0;
             if (wr_pend) wr_pend <= 1'b0;
             if (start) start_pend <= 1'b1;
             done <= 1'b0;
@@ -393,10 +433,13 @@ module bittf_mini (
                             loop_init;
                             acc <= (is_red && fn == R_MAX) ? 64'sh8000000000000000 : 64'sd0;
                             if (uses_rng) begin
-                                key <= f_fmix32(csr_seed ^ f_fmix32(csr_ctr));
+                                // klic = fmix32(seed ^ fmix32(ctr)), postupne pres nasobicku
+                                fm_in <= csr_ctr;
+                                fm_ret <= FM_KEY1;
                                 csr_ctr <= csr_ctr + 32'd1;
-                            end
-                            st <= S_LOOP;
+                                st <= S_FMS;
+                            end else
+                                st <= S_LOOP;
                         end
                         default: begin err <= ERR_OP; st <= S_ERR; end
                     endcase
@@ -441,8 +484,6 @@ module bittf_mini (
                         issue_read(base_g(off[4][0]), glw);
                         st <= S_GW;
                     end else begin
-                        gidx_r <= 0;
-                        gidx <= 0;
                         gterm <= 0;
                         rphase <= 3'd1;
                         st <= S_RD;
@@ -450,11 +491,7 @@ module bittf_mini (
                 end
                 S_GW:
                     if (m_rsp_valid) begin
-                        gidx <= ext(m_rsp_data, glw, guns);
-                        ma <= ext(m_rsp_data, glw, guns);
-                        mb <= gscale;
-                        mstart <= 1'b1;
-                        st <= S_GM;
+                        st <= S_GM;   // nasobicka startuje kombinacne (m_go)
                     end
                 S_GM:
                     if (m_done) begin
@@ -477,6 +514,11 @@ module bittf_mini (
                         st <= S_RDW;
                     end else
                         st <= S_ALU;
+                    if (!(rphase == 1 && need_a) && !(rphase <= 2 && need_b) && !(rphase <= 3 && need_c) && uses_rng) begin
+                        fm_in <= fh + key;
+                        fm_ret <= FM_RND;
+                        st <= S_FMS;
+                    end
                 end
                 S_RDW:
                     if (m_rsp_valid) begin
@@ -493,14 +535,13 @@ module bittf_mini (
                         if (masked) begin
                             wval <= vR2;
                             st <= S_WR;
+                        end else if (alu_mul) begin
+                            st <= S_AMW;          // nejdriv soucin pro ALU
                         end else begin
                             alu_start <= 1'b1;
                             st <= S_ALUW;
                         end
                     end else if ((is_red && red_mul) || (is_mm && !mm_sign)) begin
-                        ma <= va;
-                        mb <= (is_red && rpre == RP_AA) ? va : vb;
-                        mstart <= 1'b1;
                         mphase <= 2'd1;
                         st <= S_MULW;
                     end else begin
@@ -510,20 +551,31 @@ module bittf_mini (
                 end
                 S_MULW:
                     if (m_done) begin
-                        if (mphase == 1 && is_red && rpre == RP_ABC) begin
-                            ma <= m_p;
-                            mb <= vc;
-                            mstart <= 1'b1;
-                            mphase <= 2'd2;
-                        end else begin
-                            prd <= m_p;
+                        if (mphase == 1 && is_red && rpre == RP_ABC)
+                            mphase <= 2'd2;       // druhy soucin (*vc) startuje kombinacne
+                        else
                             st <= S_ACC;
-                        end
                     end
                 S_ACC: begin
                     acc <= is_red ? acc_n : mm_n;
                     st <= (adv == 0) ? S_NEXT : S_ROWWR;
                 end
+                S_AMW:
+                    if (m_done) begin
+                        alu_start <= 1'b1;
+                        st <= S_ALUW;
+                    end
+                // --- fmix32 pres nasobicku
+                S_FMS: st <= S_FMW1;              // start s h1*C1
+                S_FMW1: if (m_done) st <= S_FMW2; // start s h3*C2
+                S_FMW2:
+                    if (m_done) begin
+                        case (fm_ret)
+                            FM_KEY1: begin fm_in <= csr_seed ^ fm_out; fm_ret <= FM_KEY2; st <= S_FMS; end
+                            FM_KEY2: begin key <= fm_out; st <= S_LOOP; end
+                            default: begin rnd <= fm_out; st <= S_ALU; end
+                        endcase
+                    end
                 S_ALUW:
                     if (alu_done) begin
                         wval <= alu_y;

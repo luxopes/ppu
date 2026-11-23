@@ -1,5 +1,6 @@
 // BitTF mini ALU: stejne funkce jako bittf_alu (bitove shodne), ale bez kombinacnich nasobicek:
-// vsechna nasobeni jdou pres jednu postupnou nasobicku (bittf_mulseq, 8 bitu/takt), deleni 66 taktu.
+// soucin pro funkce MUL* (mul_need) spocita predem sdilena postupna nasobicka v jadru z mul_a, mul_b
+// a drzi ho na mul_p; deleni 66 taktu.
 module bittf_mini_alu (
     input  wire        clk,
     input  wire        rst,
@@ -18,6 +19,10 @@ module bittf_mini_alu (
     input  wire [31:0] i0,
     input  wire [31:0] i1,
     input  wire [31:0] rnd,
+    output wire        mul_need,
+    output reg  [63:0] mul_a,
+    output reg  [63:0] mul_b,
+    input  wire [63:0] mul_p,
     output reg         done,
     output reg  [63:0] y
 );
@@ -53,13 +58,8 @@ module bittf_mini_alu (
     // nasobeni: operandy podle funkce, vysledek mp (dolnich 64 bitu)
     wire is_mul = fn == E_MUL || fn == E_MULRSR || fn == E_MULRELURSR || fn == E_MULSUB ||
                   fn == E_RELU2 || fn == E_MULADDI || fn == E_NRMR;
-    reg  [63:0] ma, mb;
-    wire [63:0] mp;
-    wire        m_done;
-    reg         m_busy;
-    bittf_mulseq #(.W(64), .D(8)) mul (.clk(clk), .rst(rst), .start(start && is_mul), .a(ma), .b(mb),
-                                       .done(m_done), .p(mp));
-    wire signed [63:0] smp = mp;
+    assign mul_need = is_mul;
+    wire signed [63:0] smp = mul_p;
     wire signed [63:0] rsq_prod = smp;
 
     // EXP8 / EXP16
@@ -74,11 +74,11 @@ module bittf_mini_alu (
     wire signed [63:0] relu_b = sb[63] ? 64'sd0 : sb;
     always @(*) begin
         case (fn)
-            E_MULRELURSR: begin ma = sa; mb = relu_b; end
-            E_RELU2:      begin ma = relu_a; mb = relu_a; end
-            E_MULADDI:    begin ma = sa; mb = simm; end
-            E_NRMR:       begin ma = simm; mb = {40'd0, rsq_lut(nrm_ix[7:0])}; end
-            default:      begin ma = sa; mb = sb; end
+            E_MULRELURSR: begin mul_a = sa; mul_b = relu_b; end
+            E_RELU2:      begin mul_a = relu_a; mul_b = relu_a; end
+            E_MULADDI:    begin mul_a = sa; mul_b = simm; end
+            E_NRMR:       begin mul_a = simm; mul_b = {40'd0, rsq_lut(nrm_ix[7:0])}; end
+            default:      begin mul_a = sa; mul_b = sb; end
         endcase
     end
 
@@ -141,18 +141,9 @@ module bittf_mini_alu (
         if (rst) begin
             done <= 1'b0;
             dv_busy <= 1'b0;
-            m_busy <= 1'b0;
         end else begin
             done <= 1'b0;
-            if (start && is_mul) begin
-                m_busy <= 1'b1;
-            end else if (m_busy) begin
-                if (m_done) begin
-                    y <= clampf(res);
-                    done <= 1'b1;
-                    m_busy <= 1'b0;
-                end
-            end else if (start && !is_div) begin
+            if (start && !is_div) begin
                 y <= clampf(res);
                 done <= 1'b1;
             end else if (start) begin
