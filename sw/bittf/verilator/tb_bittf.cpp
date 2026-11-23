@@ -7,7 +7,12 @@
 #include <cstring>
 #include <deque>
 
+#ifdef BT_MINI
+#include "Vbittf_mini.h"
+#define Vbittf_core Vbittf_mini
+#else
 #include "Vbittf_core.h"
+#endif
 #include "verilated.h"
 
 extern "C" {

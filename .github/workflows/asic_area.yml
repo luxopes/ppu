@@ -13,6 +13,9 @@ on:
       period_ps:
         description: "cílová perioda pro ABC (ps)"
         default: "20000"
+      blackbox:
+        description: "moduly jako černé skříňky (makra SRAM, mezerou)"
+        default: ""
   push:
     paths:
       - ".github/workflows/asic_area.yml"
@@ -38,9 +41,11 @@ jobs:
           TOP="${{ inputs.top || 'bittf_core' }}"
           FILES="${{ inputs.files || 'rtl/bittf/bittf_core.v rtl/bittf/bittf_alu.v' }}"
           PER="${{ inputs.period_ps || '20000' }}"
+          BB="${{ inputs.blackbox }}"
           mkdir -p build/asic
           cat > build/asic/synth.ys <<EOF
           read_verilog -Irtl/bittf -Itapeout/ihp $FILES
+          $( [ -n "$BB" ] && echo "blackbox $BB" )
           synth -top $TOP -flatten
           dfflibmap -liberty pdk/stdcell.lib
           abc -D $PER -liberty pdk/stdcell.lib
