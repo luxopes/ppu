@@ -1,0 +1,115 @@
+# BitTF mini na IHP SG13G2, LibreLane flow Chip (podle IHP-GmbH/ihp-sg13g2-librelane-template, Apache-2.0).
+# Rozmery doplni workflow .github/workflows/ihp_chip.yml: @DIE@ (strana cipu vcetne tesnici obruby, um),
+# @C0@/@C1@ (oblast jadra), @DENS@ (cilova hustota rozmisteni, %).
+meta:
+  version: 3
+  flow: Chip
+  substituting_steps:
+    Checker.IllegalOverlap: null
+
+DESIGN_NAME: chip_top
+VERILOG_FILES:
+- dir::../src/chip_top.v
+- dir::../../../rtl/bittf/bittf_chip.v
+- dir::../../../rtl/bittf/bittf_qspi.v
+- dir::../../../rtl/bittf/bittf_mini.v
+- dir::../../../rtl/bittf/bittf_mini_alu.v
+- dir::../../../rtl/bittf/bittf_mulseq.v
+- dir::../../../rtl/bittf/bittf_rf.v
+VERILOG_INCLUDE_DIRS:
+- dir::../../../rtl/bittf
+VERILOG_DEFINES: [BITTF_IHP_SRAM]
+
+PRIMARY_GDSII_STREAMOUT_TOOL: klayout
+
+PAD_SOUTH: [clk_pad, rst_n_pad, "inputs\\[0\\].input_pad", "inputs\\[1\\].input_pad", "inputs\\[2\\].input_pad", "inputs\\[3\\].input_pad"]
+PAD_EAST: ["bidirs\\[0\\].bidir_pad", "bidirs\\[1\\].bidir_pad", "bidirs\\[2\\].bidir_pad", "bidirs\\[3\\].bidir_pad", "bidirs\\[4\\].bidir_pad", "bidirs\\[5\\].bidir_pad"]
+PAD_NORTH: ["outputs\\[0\\].output_pad", "outputs\\[1\\].output_pad", "outputs\\[2\\].output_pad", iovdd_pad, iovss_pad]
+PAD_WEST: [vdd_pad, vss_pad]
+
+PNR_SDC_FILE: dir::chip_top.sdc
+SIGNOFF_SDC_FILE: dir::chip_top.sdc
+FALLBACK_SDC: dir::chip_top.sdc
+
+VDD_NETS: [VDD]
+GND_NETS: [VSS]
+
+CLOCK_PORT: clk_PAD
+CLOCK_NET: clk_pad/p2c
+CLOCK_PERIOD: 20
+
+FP_SIZING: absolute
+DIE_AREA: [0, 0, @DIE@, @DIE@]
+CORE_AREA: [@C0@, @C0@, @C1@, @C1@]
+
+PL_TARGET_DENSITY_PCT: @DENS@
+GRT_ALLOW_CONGESTION: true
+
+PDN_CORE_RING: True
+PAD_BONDPAD_NAME: bondpad_70x70_novias
+EXTRA_GDS:
+- dir::../ip/sg13g2_bondpad_70x70_novias/gds/bondpad_70x70_novias.gds
+EXTRA_LEFS:
+- dir::../ip/sg13g2_bondpad_70x70_novias/lef/bondpad_70x70_novias.lef
+IGNORE_DISCONNECTED_MODULES:
+- bondpad_70x70_novias
+
+PDN_CFG: dir::pdn_cfg.tcl
+PDN_HWIDTH: 6
+PDN_HSPACING: 2.0
+PDN_HOFFSET: 14
+PDN_CORE_RING_VWIDTH: 15
+PDN_CORE_RING_HWIDTH: 15
+PDN_CORE_RING_VSPACING: 5
+PDN_CORE_RING_HSPACING: 5
+PDN_CORE_RING_CONNECT_TO_PADS: True
+PDN_ENABLE_PINS: False
+MAGIC_EXT_UNIQUE: notopports
+
+MACROS:
+  RM_IHPSG13_1P_64x16_c2:
+    gds:
+      - pdk_dir::libs.ref/sg13g2_sram/gds/RM_IHPSG13_1P_64x16_c2.gds
+    lef:
+      - pdk_dir::libs.ref/sg13g2_sram/lef/RM_IHPSG13_1P_64x16_c2.lef
+    vh:
+      - pdk_dir::libs.ref/sg13g2_sram/verilog/RM_IHPSG13_1P_64x16_c2.v
+      - pdk_dir::libs.ref/sg13g2_sram/verilog/RM_IHPSG13_1P_core_behavioral.v
+    lib:
+      "*_typ_1p20V_25C":
+        - pdk_dir::libs.ref/sg13g2_sram/lib/RM_IHPSG13_1P_64x16_c2_typ_1p20V_25C.lib
+      "*_fast_1p32V_m40C":
+        - pdk_dir::libs.ref/sg13g2_sram/lib/RM_IHPSG13_1P_64x16_c2_fast_1p32V_m55C.lib
+      "*_slow_1p08V_125C":
+        - pdk_dir::libs.ref/sg13g2_sram/lib/RM_IHPSG13_1P_64x16_c2_slow_1p08V_125C.lib
+    instances:
+      i_chip_core.core.rf.sram0:
+        location: [@M0X@, @M0Y@]
+        orientation: N
+      i_chip_core.core.rf.sram1:
+        location: [@M0X@, @M1Y@]
+        orientation: N
+      i_chip_core.core.rf.sram2:
+        location: [@M0X@, @M2Y@]
+        orientation: N
+      i_chip_core.core.rf.sram3:
+        location: [@M0X@, @M3Y@]
+        orientation: N
+
+PDN_MACRO_CONNECTIONS:
+- "i_chip_core.core.rf.sram0 VDD VSS VDDARRAY! VSS!"
+- "i_chip_core.core.rf.sram0 VDD VSS VDD! VSS!"
+- "i_chip_core.core.rf.sram1 VDD VSS VDDARRAY! VSS!"
+- "i_chip_core.core.rf.sram1 VDD VSS VDD! VSS!"
+- "i_chip_core.core.rf.sram2 VDD VSS VDDARRAY! VSS!"
+- "i_chip_core.core.rf.sram2 VDD VSS VDD! VSS!"
+- "i_chip_core.core.rf.sram3 VDD VSS VDDARRAY! VSS!"
+- "i_chip_core.core.rf.sram3 VDD VSS VDD! VSS!"
+
+MAGIC_GDS_FLATGLOB:
+ - "lvsres_*"
+ - "VIA_M1_*"
+ - "VIA_M2_*"
+ - "*_CELL_CORNER"
+ - "RSC_*"
+ - "*_CELL_SUB"

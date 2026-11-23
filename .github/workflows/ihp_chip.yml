@@ -1,0 +1,80 @@
+# Fyzicky navrh BitTF mini cipu pro IHP SG13G2 (LibreLane, flow Chip: pady, rozmisteni, CTS, trasovani, STA).
+# Vstupy: strana cipu, okraj (pady + tesnici obruba + prstenec napajeni), cilova hustota.
+name: IHP chip (LibreLane)
+on:
+  workflow_dispatch:
+    inputs:
+      die:
+        description: "strana cipu v um (2 mm^2 = 1414)"
+        default: "1414"
+      margin:
+        description: "okraj jadra v um"
+        default: "330"
+      density:
+        description: "cilova hustota rozmisteni v %"
+        default: "70"
+      drc:
+        description: "spustit DRC (1) nebo ne (0)"
+        default: "0"
+
+jobs:
+  chip:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    steps:
+      - name: Uvolnit misto
+        uses: AdityaGarg8/remove-unwanted-software@v5
+        with:
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
+      - uses: actions/checkout@v4
+      - name: Nix
+        uses: ./.github/actions/setup_nix
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: LibreLane (nix shell)
+        uses: ./.github/actions/build_nix
+        with:
+          nix_system: x86_64-linux
+      - name: PDK
+        working-directory: tapeout/ihp
+        run: nix develop . --command make clone-pdk
+      - name: LibreLane
+        working-directory: tapeout/ihp
+        run: |
+          T=librelane-nodrc; [ "${{ inputs.drc }}" = 1 ] && T=librelane
+          nix develop . --command make $T DIE=${{ inputs.die }} MARGIN=${{ inputs.margin }} DENS=${{ inputs.density }} 2>&1 | tee run.log | grep -E "^\[|Step|ERROR|Error|error:" | tail -200
+      - name: Souhrn
+        if: success() || failure()
+        working-directory: tapeout/ihp
+        run: |
+          R=$(ls -d librelane/runs/* | tail -1)
+          echo "## die ${{ inputs.die }} um, okraj ${{ inputs.margin }} um, hustota ${{ inputs.density }} %" >> $GITHUB_STEP_SUMMARY
+          tail -40 run.log >> $GITHUB_STEP_SUMMARY || true
+          M=$(ls $R/final/metrics.json 2>/dev/null || ls -t $R/*/state_out.json 2>/dev/null | head -1)
+          [ -n "$M" ] && python3 - "$M" >> $GITHUB_STEP_SUMMARY <<'PY' || true
+          import json, sys
+          d = json.load(open(sys.argv[1]))
+          m = d.get("metrics", d)
+          keys = [k for k in m if any(s in k for s in ("design__instance__utilization", "design__instance__area",
+                  "design__die__area", "design__core__area", "timing__setup__ws", "timing__hold__ws",
+                  "route__drc_errors", "antenna", "power__total", "design__instance__count__stdcell"))]
+          print("\n| metrika | hodnota |\n|---|---|")
+          for k in sorted(keys):
+              print(f"| {k} | {m[k]} |")
+          PY
+          cat $R/*-misc-reportmanufacturability/manufacturability.rpt >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: ihp-chip-${{ inputs.die }}-${{ inputs.density }}
+          path: |
+            tapeout/ihp/run.log
+            tapeout/ihp/librelane/runs/*/final/metrics.json
+            tapeout/ihp/librelane/runs/*/*/reports/**
+            tapeout/ihp/librelane/runs/*/*/*.log
+            tapeout/ihp/final/gds/*
+          if-no-files-found: warn
