@@ -195,6 +195,28 @@ module bittf_mini (
         endcase
     endfunction
 
+    // jedna adresni jednotka: operand au_x (0..3 = D A B C, 4 = index gatheru), au_g = gather k offsetu
+    reg  [2:0]  au_x;
+    reg         au_gz;                  // gather vynulovat (zapis radku RED/MM)
+    reg  [31:0] au_base, au_off;
+    reg  [1:0]  au_lw;
+    reg         au_gath;
+    always @(*) begin
+        if (st == S_LOOP) au_x = 3'd4;
+        else if (st == S_RD) au_x = (rphase == 1 && need_a) ? 3'd1 : (rphase <= 2 && need_b) ? 3'd2 : 3'd3;
+        else au_x = 3'd0;
+        au_gz = st == S_ROWWR;
+        case (au_x)
+            3'd0: begin au_base = obase(0); au_off = off[0][0]; au_lw = olw(0); au_gath = ogath(0); end
+            3'd1: begin au_base = obase(1); au_off = off[1][0]; au_lw = olw(1); au_gath = ogath(1); end
+            3'd2: begin au_base = obase(2); au_off = off[2][0]; au_lw = olw(2); au_gath = ogath(2); end
+            3'd3: begin au_base = obase(3); au_off = off[3][0]; au_lw = olw(3); au_gath = ogath(3); end
+            default: begin au_base = ir[29]; au_off = off[4][0]; au_lw = glw; au_gath = 1'b0; end
+        endcase
+    end
+    wire [31:0] au_e = au_off + ((au_gath && !au_gz) ? gterm[31:0] : 32'd0);
+    wire [31:0] au_addr = au_base + (au_e << au_lw);
+
     function [31:0] eaddr(input integer xx, input signed [63:0] o, input signed [63:0] g);
         reg signed [63:0] e;
         begin
@@ -216,6 +238,7 @@ module bittf_mini (
 
     // RED: predzpracovani a kombinace
     reg signed [63:0] rv, rtc, acc_n;
+    wire signed [63:0] rv_c = (fn == R_MAX || !rv[63]) ? rv : -rv;
     always @(*) begin
         case (tc)
             TC_ADD: rtc = vc;
@@ -231,8 +254,7 @@ module bittf_mini (
         endcase
         case (fn)
             R_SUM:  acc_n = acc + rv;
-            R_MAX:  acc_n = (rv > acc) ? rv : acc;
-            default: acc_n = ((rv[63] ? -rv : rv) > acc) ? (rv[63] ? -rv : rv) : acc;
+            default: acc_n = (rv_c > acc) ? rv_c : acc;   // MAX: rv, ABSMAX: |rv| (jeden komparator)
         endcase
     end
     wire mm_sign = omode(2) == M_SIGN;
@@ -245,15 +267,19 @@ module bittf_mini (
 
     // ------------------------------------------------------------ skalarni jednotka
     reg signed [63:0] sres;
+    // spolecna scitacka a komparator skalarni jednotky
+    wire signed [63:0] s_sum = vR1 + (fn == S_SUB ? -vR2 : vR2) + simm;
+    wire s_gt = vR1 > vR2;
+    wire s_lt = !s_gt && vR1 != vR2;
     reg swr;
     always @(*) begin
         swr = 1'b1;
         case (fn)
             S_LI:     sres = simm + (simm2 <<< 32);
-            S_ADD:    sres = vR1 + vR2 + simm;
-            S_SUB:    sres = vR1 - vR2 + simm;
-            S_MAX:    sres = vR1 > vR2 ? vR1 : vR2;
-            S_MIN:    sres = vR1 < vR2 ? vR1 : vR2;
+            S_ADD,
+            S_SUB:    sres = s_sum;
+            S_MAX:    sres = s_gt ? vR1 : vR2;
+            S_MIN:    sres = s_lt ? vR1 : vR2;
             S_BITLEN: sres = $signed({57'd0, f_bitlen(vR1)}) + simm;
             S_SEL:    sres = vR3 != 0 ? vR1 : vR2;
             S_SHRA:   sres = vR1 >>> imm[5:0];
@@ -481,7 +507,7 @@ module bittf_mini (
                 // --- smycka prvku (EW, RED, MM)
                 S_LOOP: begin
                     if (any_gath && !is_mm) begin
-                        issue_read(base_g(off[4][0]), glw);
+                        issue_read(au_addr, glw);
                         st <= S_GW;
                     end else begin
                         gterm <= 0;
@@ -502,15 +528,15 @@ module bittf_mini (
                 S_RD: begin
                     // dalsi potrebny operand podle rphase
                     if (rphase == 1 && need_a) begin
-                        issue_read(eaddr(1, off[1][0], gterm), olw(1));
+                        issue_read(au_addr, olw(1));
                         st <= S_RDW;
                     end else if (rphase <= 2 && need_b) begin
                         rphase <= 3'd2;
-                        issue_read(eaddr(2, off[2][0], gterm), olw(2));
+                        issue_read(au_addr, olw(2));
                         st <= S_RDW;
                     end else if (rphase <= 3 && need_c) begin
                         rphase <= 3'd3;
-                        issue_read(eaddr(3, off[3][0], gterm), olw(3));
+                        issue_read(au_addr, olw(3));
                         st <= S_RDW;
                     end else
                         st <= S_ALU;
@@ -585,7 +611,7 @@ module bittf_mini (
                     if (!fits(wval, olw(0), ouns(0))) begin
                         err <= ERR_FIT; st <= S_ERR;
                     end else begin
-                        issue_write(eaddr(0, off[0][0], gterm), olw(0), wval);
+                        issue_write(au_addr, olw(0), wval);
                         st <= S_NEXT;
                     end
                 end
@@ -600,7 +626,7 @@ module bittf_mini (
                     end else if (!fits(acc, olw(0), ouns(0))) begin
                         err <= ERR_FIT; st <= S_ERR;
                     end else if (!m_req_valid || m_req_ready) begin
-                        issue_write(eaddr(0, off[0][0], 64'sd0), olw(0), acc);
+                        issue_write(au_addr, olw(0), acc);
                         acc <= (is_red && fn == R_MAX) ? 64'sh8000000000000000 : 64'sd0;
                         st <= S_NEXT;
                     end
