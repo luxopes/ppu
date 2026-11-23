@@ -14,9 +14,9 @@ clone-pdk: $(PDK_ROOT)/$(PDK)
 
 # konfigurace s rozmery (DIE = strana cipu v um vcetne tesnici obruby, MARGIN = pady + obruba + prstenec napajeni)
 librelane/config.gen.yaml: librelane/config.yaml
-	python3 -c "import sys; d=$(DIE); m=$(MARGIN); c1=d-m; x=m+15; \
+	python3 -c "import sys; d=$(DIE); m=$(MARGIN); c1=d-m; x=m+40; \
 	s=open('librelane/config.yaml').read(); \
-	r={'@DIE@':d,'@C0@':m,'@C1@':c1,'@DENS@':$(DENS),'@M0X@':x,'@M0Y@':x,'@M1Y@':x+72,'@M2Y@':x+144,'@M3Y@':x+216}; \
+	r={'@DIE@':d,'@C0@':m,'@C1@':c1,'@DENS@':$(DENS),'@M0X@':x,'@M0Y@':x,'@M1Y@':x+80,'@M2Y@':x+160,'@M3Y@':x+240}; \
 	[s:=s.replace(k,str(v)) for k,v in r.items()]; open('librelane/config.gen.yaml','w').write(s)"
 
 librelane: $(PDK_ROOT)/$(PDK) librelane/config.gen.yaml
